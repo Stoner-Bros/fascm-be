@@ -45,15 +45,15 @@ export class UserSeedService {
       );
     }
 
-    const countUser = await this.repository.count({
+    const countManager = await this.repository.count({
       where: {
         role: {
-          id: RoleEnum.user,
+          id: RoleEnum.manager,
         },
       },
     });
 
-    if (!countUser) {
+    if (!countManager) {
       const salt = await bcrypt.genSalt();
       const password = await bcrypt.hash('secret', salt);
 
@@ -64,8 +64,98 @@ export class UserSeedService {
           email: 'john.doe@example.com',
           password,
           role: {
-            id: RoleEnum.user,
-            name: 'Admin',
+            id: RoleEnum.manager,
+            name: 'Manager',
+          },
+          status: {
+            id: StatusEnum.active,
+            name: 'Active',
+          },
+        }),
+      );
+    }
+
+    const countStaff = await this.repository.count({
+      where: {
+        role: {
+          id: RoleEnum.staff,
+        },
+      },
+    });
+
+    if (!countStaff) {
+      const salt = await bcrypt.genSalt();
+      const password = await bcrypt.hash('secret', salt);
+
+      await this.repository.save(
+        this.repository.create({
+          firstName: 'Jane',
+          lastName: 'Smith',
+          email: 'jane.smith@example.com',
+          password,
+          role: {
+            id: RoleEnum.staff,
+            name: 'Staff',
+          },
+          status: {
+            id: StatusEnum.active,
+            name: 'Active',
+          },
+        }),
+      );
+    }
+
+    const countDeliveryStaff = await this.repository.count({
+      where: {
+        role: {
+          id: RoleEnum.delivery_staff,
+        },
+      },
+    });
+
+    if (!countDeliveryStaff) {
+      const salt = await bcrypt.genSalt();
+      const password = await bcrypt.hash('secret', salt);
+
+      await this.repository.save(
+        this.repository.create({
+          firstName: 'Mike',
+          lastName: 'Johnson',
+          email: 'mike.johnson@example.com',
+          password,
+          role: {
+            id: RoleEnum.delivery_staff,
+            name: 'Delivery Staff',
+          },
+          status: {
+            id: StatusEnum.active,
+            name: 'Active',
+          },
+        }),
+      );
+    }
+
+    const countConsignee = await this.repository.count({
+      where: {
+        role: {
+          id: RoleEnum.consignee,
+        },
+      },
+    });
+
+    if (!countConsignee) {
+      const salt = await bcrypt.genSalt();
+      const password = await bcrypt.hash('secret', salt);
+
+      await this.repository.save(
+        this.repository.create({
+          firstName: 'Lisa',
+          lastName: 'Williams',
+          email: 'lisa.williams@example.com',
+          password,
+          role: {
+            id: RoleEnum.consignee,
+            name: 'Consignee',
           },
           status: {
             id: StatusEnum.active,
