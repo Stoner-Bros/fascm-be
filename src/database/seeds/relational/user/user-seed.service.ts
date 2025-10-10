@@ -164,5 +164,65 @@ export class UserSeedService {
         }),
       );
     }
+
+    const countSupplier = await this.repository.count({
+      where: {
+        role: {
+          id: RoleEnum.supplier,
+        },
+      },
+    });
+
+    if (!countSupplier) {
+      const salt = await bcrypt.genSalt();
+      const password = await bcrypt.hash('secret', salt);
+
+      await this.repository.save(
+        this.repository.create({
+          firstName: 'Puran',
+          lastName: 'Shrestha',
+          email: 'puran.shrestha@example.com',
+          password,
+          role: {
+            id: RoleEnum.supplier,
+            name: 'Supplier',
+          },
+          status: {
+            id: StatusEnum.active,
+            name: 'Active',
+          },
+        }),
+      );
+    }
+
+    const countUser = await this.repository.count({
+      where: {
+        role: {
+          id: RoleEnum.user,
+        },
+      },
+    });
+
+    if (!countUser) {
+      const salt = await bcrypt.genSalt();
+      const password = await bcrypt.hash('secret', salt);
+
+      await this.repository.save(
+        this.repository.create({
+          firstName: 'Ferdous',
+          lastName: 'Islam',
+          email: 'ferdous.islam@example.com',
+          password,
+          role: {
+            id: RoleEnum.user,
+            name: 'User',
+          },
+          status: {
+            id: StatusEnum.active,
+            name: 'Active',
+          },
+        }),
+      );
+    }
   }
 }
