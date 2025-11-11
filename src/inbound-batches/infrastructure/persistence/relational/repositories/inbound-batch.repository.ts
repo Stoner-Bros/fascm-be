@@ -1,0 +1,84 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, In } from 'typeorm';
+import { InboundBatchEntity } from '../entities/inbound-batch.entity';
+import { NullableType } from '../../../../../utils/types/nullable.type';
+import { InboundBatch } from '../../../../domain/inbound-batch';
+import { InboundBatchRepository } from '../../inbound-batch.repository';
+import { InboundBatchMapper } from '../mappers/inbound-batch.mapper';
+import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
+
+@Injectable()
+export class InboundBatchRelationalRepository
+  implements InboundBatchRepository
+{
+  constructor(
+    @InjectRepository(InboundBatchEntity)
+    private readonly inboundBatchRepository: Repository<InboundBatchEntity>,
+  ) {}
+
+  async create(data: InboundBatch): Promise<InboundBatch> {
+    const persistenceModel = InboundBatchMapper.toPersistence(data);
+    const newEntity = await this.inboundBatchRepository.save(
+      this.inboundBatchRepository.create(persistenceModel),
+    );
+    return InboundBatchMapper.toDomain(newEntity);
+  }
+
+  async findAllWithPagination({
+    paginationOptions,
+  }: {
+    paginationOptions: IPaginationOptions;
+  }): Promise<InboundBatch[]> {
+    const entities = await this.inboundBatchRepository.find({
+      skip: (paginationOptions.page - 1) * paginationOptions.limit,
+      take: paginationOptions.limit,
+    });
+
+    return entities.map((entity) => InboundBatchMapper.toDomain(entity));
+  }
+
+  async findById(id: InboundBatch['id']): Promise<NullableType<InboundBatch>> {
+    const entity = await this.inboundBatchRepository.findOne({
+      where: { id },
+    });
+
+    return entity ? InboundBatchMapper.toDomain(entity) : null;
+  }
+
+  async findByIds(ids: InboundBatch['id'][]): Promise<InboundBatch[]> {
+    const entities = await this.inboundBatchRepository.find({
+      where: { id: In(ids) },
+    });
+
+    return entities.map((entity) => InboundBatchMapper.toDomain(entity));
+  }
+
+  async update(
+    id: InboundBatch['id'],
+    payload: Partial<InboundBatch>,
+  ): Promise<InboundBatch> {
+    const entity = await this.inboundBatchRepository.findOne({
+      where: { id },
+    });
+
+    if (!entity) {
+      throw new Error('Record not found');
+    }
+
+    const updatedEntity = await this.inboundBatchRepository.save(
+      this.inboundBatchRepository.create(
+        InboundBatchMapper.toPersistence({
+          ...InboundBatchMapper.toDomain(entity),
+          ...payload,
+        }),
+      ),
+    );
+
+    return InboundBatchMapper.toDomain(updatedEntity);
+  }
+
+  async remove(id: InboundBatch['id']): Promise<void> {
+    await this.inboundBatchRepository.delete(id);
+  }
+}

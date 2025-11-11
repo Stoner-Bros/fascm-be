@@ -1,0 +1,82 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, In } from 'typeorm';
+import { DeliveryEntity } from '../entities/delivery.entity';
+import { NullableType } from '../../../../../utils/types/nullable.type';
+import { Delivery } from '../../../../domain/delivery';
+import { DeliveryRepository } from '../../delivery.repository';
+import { DeliveryMapper } from '../mappers/delivery.mapper';
+import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
+
+@Injectable()
+export class DeliveryRelationalRepository implements DeliveryRepository {
+  constructor(
+    @InjectRepository(DeliveryEntity)
+    private readonly deliveryRepository: Repository<DeliveryEntity>,
+  ) {}
+
+  async create(data: Delivery): Promise<Delivery> {
+    const persistenceModel = DeliveryMapper.toPersistence(data);
+    const newEntity = await this.deliveryRepository.save(
+      this.deliveryRepository.create(persistenceModel),
+    );
+    return DeliveryMapper.toDomain(newEntity);
+  }
+
+  async findAllWithPagination({
+    paginationOptions,
+  }: {
+    paginationOptions: IPaginationOptions;
+  }): Promise<Delivery[]> {
+    const entities = await this.deliveryRepository.find({
+      skip: (paginationOptions.page - 1) * paginationOptions.limit,
+      take: paginationOptions.limit,
+    });
+
+    return entities.map((entity) => DeliveryMapper.toDomain(entity));
+  }
+
+  async findById(id: Delivery['id']): Promise<NullableType<Delivery>> {
+    const entity = await this.deliveryRepository.findOne({
+      where: { id },
+    });
+
+    return entity ? DeliveryMapper.toDomain(entity) : null;
+  }
+
+  async findByIds(ids: Delivery['id'][]): Promise<Delivery[]> {
+    const entities = await this.deliveryRepository.find({
+      where: { id: In(ids) },
+    });
+
+    return entities.map((entity) => DeliveryMapper.toDomain(entity));
+  }
+
+  async update(
+    id: Delivery['id'],
+    payload: Partial<Delivery>,
+  ): Promise<Delivery> {
+    const entity = await this.deliveryRepository.findOne({
+      where: { id },
+    });
+
+    if (!entity) {
+      throw new Error('Record not found');
+    }
+
+    const updatedEntity = await this.deliveryRepository.save(
+      this.deliveryRepository.create(
+        DeliveryMapper.toPersistence({
+          ...DeliveryMapper.toDomain(entity),
+          ...payload,
+        }),
+      ),
+    );
+
+    return DeliveryMapper.toDomain(updatedEntity);
+  }
+
+  async remove(id: Delivery['id']): Promise<void> {
+    await this.deliveryRepository.delete(id);
+  }
+}

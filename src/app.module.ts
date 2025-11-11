@@ -28,8 +28,85 @@ const infrastructureDatabaseModule = TypeOrmModule.forRootAsync({
   },
 });
 
+import { SuppliersModule } from './suppliers/suppliers.module';
+
+import { DeliveryStaffsModule } from './delivery-staffs/delivery-staffs.module';
+
+import { HarvestSchedulesModule } from './harvest-schedules/harvest-schedules.module';
+
+import { HarvestTicketsModule } from './harvest-tickets/harvest-tickets.module';
+
+import { CategoriesModule } from './categories/categories.module';
+
+import { ProductsModule } from './products/products.module';
+
+import { HarvestDetailsModule } from './harvest-details/harvest-details.module';
+
+import { ManagersModule } from './managers/managers.module';
+
+import { WarehousesModule } from './warehouses/warehouses.module';
+
+import { StaffsModule } from './staffs/staffs.module';
+
+import { IoTDevicesModule } from './io-t-devices/io-t-devices.module';
+
+import { AreasModule } from './areas/areas.module';
+
+import { AreaAlertsModule } from './area-alerts/area-alerts.module';
+
+import { AreaSettingsModule } from './area-settings/area-settings.module';
+
+import { InboundBatchesModule } from './inbound-batches/inbound-batches.module';
+
+import { ImportTicketsModule } from './import-tickets/import-tickets.module';
+
+import { BatchesModule } from './batches/batches.module';
+
+import { PaymentsModule } from './payments/payments.module';
+
+import { ConsigneesModule } from './consignees/consignees.module';
+
+import { OrderSchedulesModule } from './order-schedules/order-schedules.module';
+
+import { OrdersModule } from './orders/orders.module';
+
+import { OrderDetailsModule } from './order-details/order-details.module';
+
+import { TrucksModule } from './trucks/trucks.module';
+
+import { DeliveriesModule } from './deliveries/deliveries.module';
+
+import { ExportTicketsModule } from './export-tickets/export-tickets.module';
+
 @Module({
   imports: [
+    ExportTicketsModule,
+    ExportTicketsModule,
+    ExportTicketsModule,
+    DeliveriesModule,
+    TrucksModule,
+    OrderDetailsModule,
+    OrdersModule,
+    OrderSchedulesModule,
+    ConsigneesModule,
+    PaymentsModule,
+    BatchesModule,
+    ImportTicketsModule,
+    InboundBatchesModule,
+    AreaSettingsModule,
+    AreaAlertsModule,
+    AreasModule,
+    IoTDevicesModule,
+    StaffsModule,
+    WarehousesModule,
+    ManagersModule,
+    HarvestDetailsModule,
+    ProductsModule,
+    CategoriesModule,
+    HarvestTicketsModule,
+    HarvestSchedulesModule,
+    DeliveryStaffsModule,
+    SuppliersModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [

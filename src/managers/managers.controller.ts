@@ -1,0 +1,108 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
+import { ManagersService } from './managers.service';
+import { CreateManagerDto } from './dto/create-manager.dto';
+import { UpdateManagerDto } from './dto/update-manager.dto';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
+import { Manager } from './domain/manager';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  InfinityPaginationResponse,
+  InfinityPaginationResponseDto,
+} from '../utils/dto/infinity-pagination-response.dto';
+import { infinityPagination } from '../utils/infinity-pagination';
+import { FindAllManagersDto } from './dto/find-all-managers.dto';
+
+@ApiTags('Managers')
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'))
+@Controller({
+  path: 'managers',
+  version: '1',
+})
+export class ManagersController {
+  constructor(private readonly managersService: ManagersService) {}
+
+  @Post()
+  @ApiCreatedResponse({
+    type: Manager,
+  })
+  create(@Body() createManagerDto: CreateManagerDto) {
+    return this.managersService.create(createManagerDto);
+  }
+
+  @Get()
+  @ApiOkResponse({
+    type: InfinityPaginationResponse(Manager),
+  })
+  async findAll(
+    @Query() query: FindAllManagersDto,
+  ): Promise<InfinityPaginationResponseDto<Manager>> {
+    const page = query?.page ?? 1;
+    let limit = query?.limit ?? 10;
+    if (limit > 50) {
+      limit = 50;
+    }
+
+    return infinityPagination(
+      await this.managersService.findAllWithPagination({
+        paginationOptions: {
+          page,
+          limit,
+        },
+      }),
+      { page, limit },
+    );
+  }
+
+  @Get(':id')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: Manager,
+  })
+  findById(@Param('id') id: string) {
+    return this.managersService.findById(id);
+  }
+
+  @Patch(':id')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: Manager,
+  })
+  update(@Param('id') id: string, @Body() updateManagerDto: UpdateManagerDto) {
+    return this.managersService.update(id, updateManagerDto);
+  }
+
+  @Delete(':id')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  remove(@Param('id') id: string) {
+    return this.managersService.remove(id);
+  }
+}
