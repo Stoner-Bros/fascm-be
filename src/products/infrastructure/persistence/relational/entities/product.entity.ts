@@ -14,6 +14,18 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
   name: 'product',
 })
 export class ProductEntity extends EntityRelationalHelper {
+  @Column({
+    nullable: true,
+    type: Number,
+  })
+  pricePerKg?: number | null;
+
+  @Column({
+    nullable: true,
+    type: String,
+  })
+  image?: string | null;
+
   @ManyToOne(() => CategoryEntity, { eager: true, nullable: true })
   categoryId?: CategoryEntity | null;
 

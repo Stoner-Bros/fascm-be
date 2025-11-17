@@ -8,8 +8,10 @@ import {
   Delete,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import { OrderSchedulesService } from './order-schedules.service';
+import { ConsigneesService } from '../consignees/consignees.service';
 import { CreateOrderScheduleDto } from './dto/create-order-schedule.dto';
 import { UpdateOrderScheduleDto } from './dto/update-order-schedule.dto';
 import {
@@ -36,14 +38,30 @@ import { FindAllOrderSchedulesDto } from './dto/find-all-order-schedules.dto';
   version: '1',
 })
 export class OrderSchedulesController {
-  constructor(private readonly orderSchedulesService: OrderSchedulesService) {}
+  constructor(
+    private readonly orderSchedulesService: OrderSchedulesService,
+    private readonly consigneesService: ConsigneesService,
+  ) {}
 
   @Post()
   @ApiCreatedResponse({
     type: OrderSchedule,
   })
-  create(@Body() createOrderScheduleDto: CreateOrderScheduleDto) {
-    return this.orderSchedulesService.create(createOrderScheduleDto);
+  create(
+    @Body() createOrderScheduleDto: CreateOrderScheduleDto,
+    @Req() req: any,
+  ) {
+    return (async () => {
+      if (!createOrderScheduleDto.consignee?.id && req?.user?.id) {
+        const consignee = await this.consigneesService.findByUserId(
+          req.user.id,
+        );
+        if (consignee) {
+          createOrderScheduleDto.consignee = { id: consignee.id } as any;
+        }
+      }
+      return this.orderSchedulesService.create(createOrderScheduleDto);
+    })();
   }
 
   @Get()

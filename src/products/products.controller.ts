@@ -65,6 +65,10 @@ export class ProductsController {
           page,
           limit,
         },
+        filters: {
+          categoryId: query?.categoryId,
+          categoryIds: query?.categoryIds,
+        },
       }),
       { page, limit },
     );

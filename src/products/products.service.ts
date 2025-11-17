@@ -25,6 +25,7 @@ export class ProductsService {
   async create(createProductDto: CreateProductDto) {
     // Do not remove comment below.
     // <creating-property />
+
     let categoryId: Category | null | undefined = undefined;
 
     if (createProductDto.categoryId) {
@@ -47,6 +48,10 @@ export class ProductsService {
     return this.productRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
+      pricePerKg: createProductDto.pricePerKg,
+
+      image: createProductDto.image,
+
       categoryId,
 
       status: createProductDto.status,
@@ -63,14 +68,17 @@ export class ProductsService {
 
   findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { categoryId?: string; categoryIds?: string[] };
   }) {
     return this.productRepository.findAllWithPagination({
       paginationOptions: {
         page: paginationOptions.page,
         limit: paginationOptions.limit,
       },
+      filters,
     });
   }
 
@@ -89,6 +97,7 @@ export class ProductsService {
   ) {
     // Do not remove comment below.
     // <updating-property />
+
     let categoryId: Category | null | undefined = undefined;
 
     if (updateProductDto.categoryId) {
@@ -111,6 +120,10 @@ export class ProductsService {
     return this.productRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
+      pricePerKg: updateProductDto.pricePerKg,
+
+      image: updateProductDto.image,
+
       categoryId,
 
       status: updateProductDto.status,

@@ -223,7 +223,7 @@ npm run seed:run:relational
     ```ts
     import { Module } from '@nestjs/common';
     import { TypeOrmModule } from '@nestjs/typeorm';
-    
+
     import { UserSeedService } from './user-seed.service';
     import { UserFactory } from './user.factory';
 
@@ -377,7 +377,7 @@ Run the app in dev mode:
 npm run start:dev
 ```
 
-Open <http://localhost:3000>
+Open <http://localhost:8080>
 
 To set up Adminer:
 

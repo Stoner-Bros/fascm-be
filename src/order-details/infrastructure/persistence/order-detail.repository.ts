@@ -10,8 +10,10 @@ export abstract class OrderDetailRepository {
 
   abstract findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { orderId?: string };
   }): Promise<OrderDetail[]>;
 
   abstract findById(id: OrderDetail['id']): Promise<NullableType<OrderDetail>>;

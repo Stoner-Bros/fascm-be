@@ -3,6 +3,18 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class Product {
   @ApiProperty({
+    type: () => Number,
+    nullable: true,
+  })
+  pricePerKg?: number | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  image?: string | null;
+
+  @ApiProperty({
     type: () => Category,
     nullable: true,
   })

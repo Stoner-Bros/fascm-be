@@ -10,8 +10,10 @@ export abstract class ProductRepository {
 
   abstract findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { categoryId?: string; categoryIds?: string[] };
   }): Promise<Product[]>;
 
   abstract findById(id: Product['id']): Promise<NullableType<Product>>;
