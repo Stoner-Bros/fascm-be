@@ -1,6 +1,7 @@
 import { Payment } from '../../payments/domain/payment';
 import { OrderSchedule } from '../../order-schedules/domain/order-schedule';
 import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 
 export class Order {
   @ApiProperty({

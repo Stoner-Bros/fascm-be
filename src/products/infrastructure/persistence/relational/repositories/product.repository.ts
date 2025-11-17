@@ -25,10 +25,20 @@ export class ProductRelationalRepository implements ProductRepository {
 
   async findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { categoryId?: string; categoryIds?: string[] };
   }): Promise<Product[]> {
+    const where: any = {};
+    if (filters?.categoryIds?.length) {
+      where.categoryId = { id: In(filters.categoryIds) };
+    } else if (filters?.categoryId) {
+      where.categoryId = { id: filters.categoryId };
+    }
+
     const entities = await this.productRepository.find({
+      where,
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
     });

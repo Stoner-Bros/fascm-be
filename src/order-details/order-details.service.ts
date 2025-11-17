@@ -89,14 +89,17 @@ export class OrderDetailsService {
 
   findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { orderId?: string };
   }) {
     return this.orderDetailRepository.findAllWithPagination({
       paginationOptions: {
         page: paginationOptions.page,
         limit: paginationOptions.limit,
       },
+      filters,
     });
   }
 

@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -65,6 +66,33 @@ export class OrdersController {
           page,
           limit,
         },
+      }),
+      { page, limit },
+    );
+  }
+
+  @Get('mine')
+  @ApiOkResponse({
+    type: InfinityPaginationResponse(Order),
+  })
+  async findMine(
+    @Query() query: FindAllOrdersDto,
+    @Req() req: any,
+  ): Promise<InfinityPaginationResponseDto<Order>> {
+    const page = query?.page ?? 1;
+    let limit = query?.limit ?? 10;
+    if (limit > 50) {
+      limit = 50;
+    }
+
+    const userId = req?.user?.id as string | undefined;
+    return infinityPagination(
+      await this.ordersService.findMineWithPagination({
+        paginationOptions: {
+          page,
+          limit,
+        },
+        userId: String(userId ?? ''),
       }),
       { page, limit },
     );

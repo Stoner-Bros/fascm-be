@@ -25,14 +25,20 @@ export class OrderDetailRelationalRepository implements OrderDetailRepository {
 
   async findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { orderId?: string };
   }): Promise<OrderDetail[]> {
-    const entities = await this.orderDetailRepository.find({
-      skip: (paginationOptions.page - 1) * paginationOptions.limit,
-      take: paginationOptions.limit,
-    });
-
+    const qb = this.orderDetailRepository.createQueryBuilder('order_detail');
+    qb.leftJoinAndSelect('order_detail.order', 'order');
+    qb.leftJoinAndSelect('order_detail.product', 'product');
+    if (filters?.orderId) {
+      qb.andWhere('order.id = :orderId', { orderId: filters.orderId });
+    }
+    qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
+    qb.take(paginationOptions.limit);
+    const entities = await qb.getMany();
     return entities.map((entity) => OrderDetailMapper.toDomain(entity));
   }
 

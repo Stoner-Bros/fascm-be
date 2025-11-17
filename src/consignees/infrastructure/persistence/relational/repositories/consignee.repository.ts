@@ -44,6 +44,14 @@ export class ConsigneeRelationalRepository implements ConsigneeRepository {
     return entity ? ConsigneeMapper.toDomain(entity) : null;
   }
 
+  async findByUserId(userId: string): Promise<NullableType<Consignee>> {
+    const qb = this.consigneeRepository.createQueryBuilder('consignee');
+    qb.leftJoinAndSelect('consignee.user', 'user');
+    qb.where('user.id = :userId', { userId });
+    const entity = await qb.getOne();
+    return entity ? ConsigneeMapper.toDomain(entity) : null;
+  }
+
   async findByIds(ids: Consignee['id'][]): Promise<Consignee[]> {
     const entities = await this.consigneeRepository.find({
       where: { id: In(ids) },

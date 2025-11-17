@@ -14,6 +14,15 @@ export abstract class OrderRepository {
     paginationOptions: IPaginationOptions;
   }): Promise<Order[]>;
 
+  abstract findMyOrdersWithPagination({
+    paginationOptions,
+    filters,
+  }: {
+    paginationOptions: IPaginationOptions;
+    filters?: { consigneeUserId?: string };
+  }): Promise<Order[]>;
+
+  
   abstract findById(id: Order['id']): Promise<NullableType<Order>>;
 
   abstract findByIds(ids: Order['id'][]): Promise<Order[]>;

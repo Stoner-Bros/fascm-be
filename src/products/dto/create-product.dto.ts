@@ -7,6 +7,7 @@ import {
   IsOptional,
   ValidateNested,
   IsNotEmptyObject,
+  IsNumber,
 } from 'class-validator';
 
 import {
@@ -20,6 +21,22 @@ import {
 } from 'class-transformer';
 
 export class CreateProductDto {
+  @ApiProperty({
+    required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  pricePerKg?: number | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => String,
+  })
+  @IsOptional()
+  @IsString()
+  image?: string | null;
+
   @ApiProperty({
     required: false,
     type: () => CategoryDto,

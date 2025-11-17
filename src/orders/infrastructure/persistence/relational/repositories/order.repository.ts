@@ -36,6 +36,29 @@ export class OrderRelationalRepository implements OrderRepository {
     return entities.map((entity) => OrderMapper.toDomain(entity));
   }
 
+  async findMyOrdersWithPagination({
+    paginationOptions,
+    filters,
+  }: {
+    paginationOptions: IPaginationOptions;
+    filters?: { consigneeUserId?: string };
+  }): Promise<Order[]> {
+    const qb = this.orderRepository.createQueryBuilder('order');
+    qb.leftJoinAndSelect('order.orderSchedule', 'orderSchedule');
+    qb.leftJoinAndSelect('orderSchedule.consignee', 'consignee');
+    qb.leftJoinAndSelect('consignee.user', 'user');
+
+    if (filters?.consigneeUserId) {
+      qb.andWhere('user.id = :userId', { userId: filters.consigneeUserId });
+    }
+
+    qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
+    qb.take(paginationOptions.limit);
+
+    const entities = await qb.getMany();
+    return entities.map((entity) => OrderMapper.toDomain(entity));
+  }
+
   async findById(id: Order['id']): Promise<NullableType<Order>> {
     const entity = await this.orderRepository.findOne({
       where: { id },

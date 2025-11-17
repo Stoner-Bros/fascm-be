@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional } from 'class-validator';
+import { IsNumber, IsOptional, IsString, IsArray } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class FindAllProductsDto {
@@ -14,4 +14,24 @@ export class FindAllProductsDto {
   @IsNumber()
   @IsOptional()
   limit?: number;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  categoryId?: string;
+
+  @ApiPropertyOptional({ type: [String] })
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) return value.map(String);
+    if (typeof value === 'string')
+      return value
+        .split(',')
+        .map((v) => v.trim())
+        .filter(Boolean);
+    return undefined;
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  categoryIds?: string[];
 }
