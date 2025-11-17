@@ -65,6 +65,7 @@ export class OrderDetailsController {
           page,
           limit,
         },
+        filters: query.orderId ? { orderId: query.orderId } : undefined,
       }),
       { page, limit },
     );

@@ -1,4 +1,5 @@
 import { Product } from '../../../../domain/product';
+
 import { CategoryMapper } from '../../../../../categories/infrastructure/persistence/relational/mappers/category.mapper';
 
 import { ProductEntity } from '../entities/product.entity';
@@ -6,6 +7,10 @@ import { ProductEntity } from '../entities/product.entity';
 export class ProductMapper {
   static toDomain(raw: ProductEntity): Product {
     const domainEntity = new Product();
+    domainEntity.pricePerKg = raw.pricePerKg;
+
+    domainEntity.image = raw.image;
+
     if (raw.categoryId) {
       domainEntity.categoryId = CategoryMapper.toDomain(raw.categoryId);
     } else if (raw.categoryId === null) {
@@ -31,6 +36,10 @@ export class ProductMapper {
 
   static toPersistence(domainEntity: Product): ProductEntity {
     const persistenceEntity = new ProductEntity();
+    persistenceEntity.pricePerKg = domainEntity.pricePerKg;
+
+    persistenceEntity.image = domainEntity.image;
+
     if (domainEntity.categoryId) {
       persistenceEntity.categoryId = CategoryMapper.toPersistence(
         domainEntity.categoryId,

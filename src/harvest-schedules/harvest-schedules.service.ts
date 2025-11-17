@@ -12,6 +12,7 @@ import { UpdateHarvestScheduleDto } from './dto/update-harvest-schedule.dto';
 import { HarvestScheduleRepository } from './infrastructure/persistence/harvest-schedule.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { HarvestSchedule } from './domain/harvest-schedule';
+import { HarvestScheduleStatusEnum } from './harvest-schedule-status.enum';
 
 @Injectable()
 export class HarvestSchedulesService {
@@ -50,7 +51,7 @@ export class HarvestSchedulesService {
       // <creating-property-payload />
       description: createHarvestScheduleDto.description,
 
-      status: createHarvestScheduleDto.status,
+      status: HarvestScheduleStatusEnum.PENDING,
 
       harvestDate: createHarvestScheduleDto.harvestDate,
 
@@ -111,11 +112,42 @@ export class HarvestSchedulesService {
       // <updating-property-payload />
       description: updateHarvestScheduleDto.description,
 
-      status: updateHarvestScheduleDto.status,
+      status: HarvestScheduleStatusEnum.PENDING,
 
       harvestDate: updateHarvestScheduleDto.harvestDate,
 
       supplierId,
+    });
+  }
+
+  async confirm(
+    id: HarvestSchedule['id'],
+    status:
+      | HarvestScheduleStatusEnum.APPROVED
+      | HarvestScheduleStatusEnum.REJECTED,
+  ) {
+    const harvestSchedule = await this.harvestScheduleRepository.findById(id);
+
+    if (!harvestSchedule) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          id: 'notExists',
+        },
+      });
+    }
+
+    if (harvestSchedule.status !== HarvestScheduleStatusEnum.PENDING) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          status: 'cannotConfirmNonPendingSchedule',
+        },
+      });
+    }
+
+    return this.harvestScheduleRepository.update(id, {
+      status,
     });
   }
 

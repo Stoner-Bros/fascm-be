@@ -4,6 +4,8 @@ import { HarvestScheduleMapper } from '../../../../../harvest-schedules/infrastr
 
 import { HarvestTicketEntity } from '../entities/harvest-ticket.entity';
 
+import { HarvestTicketResponse } from '../../../../dto/harvest-ticket-response.dto';
+
 export class HarvestTicketMapper {
   static toDomain(raw: HarvestTicketEntity): HarvestTicket {
     const domainEntity = new HarvestTicket();
@@ -83,5 +85,40 @@ export class HarvestTicketMapper {
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 
     return persistenceEntity;
+  }
+
+  static toResponse(entity: HarvestTicketEntity): HarvestTicketResponse {
+    const responseEntity = new HarvestTicketResponse();
+    responseEntity.date = entity.date;
+
+    responseEntity.quantity = entity.quantity;
+
+    responseEntity.unit = entity.unit;
+
+    responseEntity.totalPayment = entity.totalPayment;
+
+    responseEntity.vatAmount = entity.vatAmount;
+
+    responseEntity.totalAmount = entity.totalAmount;
+
+    responseEntity.taxRate = entity.taxRate;
+
+    responseEntity.accountNumber = entity.accountNumber;
+
+    responseEntity.paymentMethod = entity.paymentMethod;
+
+    responseEntity.ticketNumber = entity.ticketNumber;
+
+    responseEntity.ticketUrl = entity.ticketUrl;
+
+    responseEntity.harvestScheduleId = entity.harvestScheduleId?.id || null;
+
+    responseEntity.id = entity.id;
+
+    responseEntity.createdAt = entity.createdAt;
+
+    responseEntity.updatedAt = entity.updatedAt;
+
+    return responseEntity;
   }
 }

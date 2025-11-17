@@ -1,54 +1,76 @@
-import { Category } from '../../categories/domain/category';
 import { ApiProperty } from '@nestjs/swagger';
+export class HarvestTicketResponse {
+  @ApiProperty({
+    type: () => Date,
+    nullable: true,
+  })
+  date?: Date | null;
 
-export class Product {
   @ApiProperty({
     type: () => Number,
     nullable: true,
   })
-  pricePerKg?: number | null;
+  quantity?: number | null;
 
   @ApiProperty({
     type: () => String,
     nullable: true,
   })
-  image?: string | null;
+  unit?: string | null;
 
   @ApiProperty({
-    type: () => Category,
+    type: () => Number,
     nullable: true,
   })
-  categoryId?: Category | null;
+  totalPayment?: number | null;
 
   @ApiProperty({
-    type: () => String,
+    type: () => Number,
     nullable: true,
   })
-  status?: string | null;
+  vatAmount?: number | null;
 
   @ApiProperty({
-    type: () => String,
+    type: () => Number,
     nullable: true,
   })
-  storageHumidityRange?: string | null;
+  totalAmount?: number | null;
 
   @ApiProperty({
-    type: () => String,
+    type: () => Number,
     nullable: true,
   })
-  storageTemperatureRange?: string | null;
-
-  @ApiProperty({
-    type: () => String,
-    nullable: true,
-  })
-  description?: string | null;
+  taxRate?: number | null;
 
   @ApiProperty({
     type: () => String,
     nullable: true,
   })
-  name?: string | null;
+  accountNumber?: string | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  paymentMethod?: string | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  ticketNumber?: string | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  ticketUrl?: string | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  harvestScheduleId?: string | null;
 
   @ApiProperty({
     type: String,

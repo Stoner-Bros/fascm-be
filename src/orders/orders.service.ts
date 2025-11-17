@@ -107,6 +107,22 @@ export class OrdersService {
     });
   }
 
+  findMineWithPagination({
+    paginationOptions,
+    userId,
+  }: {
+    paginationOptions: IPaginationOptions;
+    userId: string;
+  }) {
+    return this.orderRepository.findMyOrdersWithPagination({
+      paginationOptions: {
+        page: paginationOptions.page,
+        limit: paginationOptions.limit,
+      },
+      filters: { consigneeUserId: userId },
+    });
+  }
+
   findById(id: Order['id']) {
     return this.orderRepository.findById(id);
   }

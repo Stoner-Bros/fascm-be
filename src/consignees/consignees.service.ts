@@ -83,6 +83,10 @@ export class ConsigneesService {
     return this.consigneeRepository.findById(id);
   }
 
+  findByUserId(userId: string) {
+    return this.consigneeRepository.findByUserId(userId);
+  }
+
   findByIds(ids: Consignee['id'][]) {
     return this.consigneeRepository.findByIds(ids);
   }
