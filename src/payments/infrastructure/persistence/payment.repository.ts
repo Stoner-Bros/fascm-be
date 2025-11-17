@@ -18,6 +18,10 @@ export abstract class PaymentRepository {
 
   abstract findByIds(ids: Payment['id'][]): Promise<Payment[]>;
 
+  abstract findByPaymentCode(
+    paymentCode: string,
+  ): Promise<NullableType<Payment>>;
+
   abstract update(
     id: Payment['id'],
     payload: DeepPartial<Payment>,

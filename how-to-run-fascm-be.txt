@@ -1,0 +1,34 @@
+*LẦN ĐẦU CHẠY THÌ LÀM ĐỦ CÁC BƯỚC
+*LẦN 2 TRỞ ĐI THÌ LÀM BƯỚC 2 VÀ 6 LÀ ĐƯỢC
+
+1. Clone repository
+
+cd fascm-be/
+cp env-example-relational .env
+Change DATABASE_HOST=postgres to DATABASE_HOST=localhost
+Change MAIL_HOST=maildev to MAIL_HOST=localhost
+
+2. Run additional container:
+
+docker compose up -d postgres adminer maildev
+hoặc
+docker compose up -d cũng dược
+
+3. Install dependency
+
+npm install
+
+4. Run migrations
+
+npm run migration:run
+
+5. Run seeds
+
+npm run seed:run:relational
+
+6. Run app in dev mode
+
+npm run start:dev
+
+Open http://localhost:3000 for API
+Open http://localhost:3000/docs for swagger

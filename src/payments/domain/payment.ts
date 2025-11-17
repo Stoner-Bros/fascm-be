@@ -26,6 +26,18 @@ export class Payment {
   paymentMethod?: string | null;
 
   @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  checkoutUrl?: string | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  qrCode?: string | null;
+
+  @ApiProperty({
     type: String,
   })
   id: string;
