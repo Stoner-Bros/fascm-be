@@ -2,6 +2,7 @@ import { DeepPartial } from '../../../utils/types/deep-partial.type';
 import { NullableType } from '../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../utils/types/pagination-options';
 import { HarvestTicket } from '../../domain/harvest-ticket';
+import { HarvestTicketResponse } from '../../dto/harvest-ticket-response.dto';
 
 export abstract class HarvestTicketRepository {
   abstract create(
@@ -12,7 +13,7 @@ export abstract class HarvestTicketRepository {
     paginationOptions,
   }: {
     paginationOptions: IPaginationOptions;
-  }): Promise<HarvestTicket[]>;
+  }): Promise<HarvestTicketResponse[]>;
 
   abstract findById(
     id: HarvestTicket['id'],

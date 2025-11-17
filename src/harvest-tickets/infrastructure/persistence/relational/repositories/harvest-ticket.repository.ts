@@ -7,6 +7,7 @@ import { HarvestTicket } from '../../../../domain/harvest-ticket';
 import { HarvestTicketRepository } from '../../harvest-ticket.repository';
 import { HarvestTicketMapper } from '../mappers/harvest-ticket.mapper';
 import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
+import { HarvestTicketResponse } from '../../../../dto/harvest-ticket-response.dto';
 
 @Injectable()
 export class HarvestTicketRelationalRepository
@@ -29,13 +30,14 @@ export class HarvestTicketRelationalRepository
     paginationOptions,
   }: {
     paginationOptions: IPaginationOptions;
-  }): Promise<HarvestTicket[]> {
+  }): Promise<HarvestTicketResponse[]> {
     const entities = await this.harvestTicketRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
+      relations: ['harvestScheduleId'],
     });
 
-    return entities.map((entity) => HarvestTicketMapper.toDomain(entity));
+    return entities.map((entity) => HarvestTicketMapper.toResponse(entity));
   }
 
   async findById(

@@ -7,6 +7,7 @@ import { HarvestSchedule } from '../../../../domain/harvest-schedule';
 import { HarvestScheduleRepository } from '../../harvest-schedule.repository';
 import { HarvestScheduleMapper } from '../mappers/harvest-schedule.mapper';
 import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
+import { HarvestScheduleStatusEnum } from '../../../../harvest-schedule-status.enum';
 
 @Injectable()
 export class HarvestScheduleRelationalRepository
@@ -82,5 +83,21 @@ export class HarvestScheduleRelationalRepository
 
   async remove(id: HarvestSchedule['id']): Promise<void> {
     await this.harvestScheduleRepository.delete(id);
+  }
+  async confirm(
+    id: HarvestSchedule['id'],
+    status: HarvestScheduleStatusEnum,
+  ): Promise<HarvestSchedule | null> {
+    const entity = await this.harvestScheduleRepository.findOne({
+      where: { id },
+    });
+
+    if (!entity) {
+      return null;
+    }
+
+    entity.status = status;
+    const updatedEntity = await this.harvestScheduleRepository.save(entity);
+    return HarvestScheduleMapper.toDomain(updatedEntity);
   }
 }

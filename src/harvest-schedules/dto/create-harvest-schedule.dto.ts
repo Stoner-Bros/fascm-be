@@ -32,14 +32,6 @@ export class CreateHarvestScheduleDto {
 
   @ApiProperty({
     required: false,
-    type: () => String,
-  })
-  @IsOptional()
-  @IsString()
-  status?: string | null;
-
-  @ApiProperty({
-    required: false,
     type: () => Date,
   })
   @IsOptional()
