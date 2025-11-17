@@ -9,6 +9,7 @@ import {
   Column,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
+import { HarvestScheduleStatusEnum } from '../../../../harvest-schedule-status.enum';
 
 @Entity({
   name: 'harvest_schedule',
@@ -22,9 +23,10 @@ export class HarvestScheduleEntity extends EntityRelationalHelper {
 
   @Column({
     nullable: true,
-    type: String,
+    type: 'enum',
+    enum: HarvestScheduleStatusEnum,
   })
-  status?: string | null;
+  status?: HarvestScheduleStatusEnum | null;
 
   @Column({
     nullable: true,

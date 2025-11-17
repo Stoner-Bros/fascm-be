@@ -20,6 +20,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { HarvestTicket } from './domain/harvest-ticket';
+import { HarvestTicketResponse } from './dto/harvest-ticket-response.dto';
 import { AuthGuard } from '@nestjs/passport';
 import {
   InfinityPaginationResponse,
@@ -48,11 +49,11 @@ export class HarvestTicketsController {
 
   @Get()
   @ApiOkResponse({
-    type: InfinityPaginationResponse(HarvestTicket),
+    type: InfinityPaginationResponse(HarvestTicketResponse),
   })
   async findAll(
     @Query() query: FindAllHarvestTicketsDto,
-  ): Promise<InfinityPaginationResponseDto<HarvestTicket>> {
+  ): Promise<InfinityPaginationResponseDto<HarvestTicketResponse>> {
     const page = query?.page ?? 1;
     let limit = query?.limit ?? 10;
     if (limit > 50) {

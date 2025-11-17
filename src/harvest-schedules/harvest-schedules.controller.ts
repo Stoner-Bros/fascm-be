@@ -12,6 +12,7 @@ import {
 import { HarvestSchedulesService } from './harvest-schedules.service';
 import { CreateHarvestScheduleDto } from './dto/create-harvest-schedule.dto';
 import { UpdateHarvestScheduleDto } from './dto/update-harvest-schedule.dto';
+import { ConfirmHarvestScheduleDto } from './dto/confirm-harvest-schedule.dto';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -99,6 +100,25 @@ export class HarvestSchedulesController {
     @Body() updateHarvestScheduleDto: UpdateHarvestScheduleDto,
   ) {
     return this.harvestSchedulesService.update(id, updateHarvestScheduleDto);
+  }
+
+  @Patch(':id/confirm')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: HarvestSchedule,
+  })
+  confirm(
+    @Param('id') id: string,
+    @Body() confirmHarvestScheduleDto: ConfirmHarvestScheduleDto,
+  ) {
+    return this.harvestSchedulesService.confirm(
+      id,
+      confirmHarvestScheduleDto.status,
+    );
   }
 
   @Delete(':id')
