@@ -18,6 +18,14 @@ export class CreatePaymentDto {
   })
   @IsOptional()
   @IsString()
+  qrCode?: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => String,
+  })
+  @IsOptional()
+  @IsString()
   paymentCode?: string | null;
 
   @ApiProperty({
