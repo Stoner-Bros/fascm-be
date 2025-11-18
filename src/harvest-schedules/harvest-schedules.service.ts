@@ -151,6 +151,62 @@ export class HarvestSchedulesService {
     });
   }
 
+  async cancel(id: HarvestSchedule['id']) {
+    const harvestSchedule = await this.harvestScheduleRepository.findById(id);
+
+    if (!harvestSchedule) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          id: 'notExists',
+        },
+      });
+    }
+
+    if (
+      harvestSchedule.status !== HarvestScheduleStatusEnum.PENDING &&
+      harvestSchedule.status !== HarvestScheduleStatusEnum.APPROVED &&
+      harvestSchedule.status !== HarvestScheduleStatusEnum.REJECTED
+    ) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          status: 'cannotCancelScheduleWithCurrentStatus',
+        },
+      });
+    }
+
+    return this.harvestScheduleRepository.update(id, {
+      status: HarvestScheduleStatusEnum.CANCELED,
+    });
+  }
+
+  async complete(id: HarvestSchedule['id']) {
+    const harvestSchedule = await this.harvestScheduleRepository.findById(id);
+
+    if (!harvestSchedule) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          id: 'notExists',
+        },
+      });
+    }
+
+    if (harvestSchedule.status !== HarvestScheduleStatusEnum.APPROVED) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          status: 'canOnlyCompleteApprovedSchedule',
+        },
+      });
+    }
+
+    return this.harvestScheduleRepository.update(id, {
+      status: HarvestScheduleStatusEnum.COMPLETED,
+    });
+  }
+
   remove(id: HarvestSchedule['id']) {
     return this.harvestScheduleRepository.remove(id);
   }
