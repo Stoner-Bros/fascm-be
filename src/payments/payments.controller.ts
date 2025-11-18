@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  Sse,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -27,6 +28,8 @@ import { CreatePaymentDto } from './dto/create-payment.dto';
 import { FindAllPaymentsDto } from './dto/find-all-payments.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { PaymentsService } from './payments.service';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @ApiTags('Payments')
 // @ApiBearerAuth()
@@ -161,5 +164,32 @@ export class PaymentsController {
   })
   confirmPaymentPaidByCash(@Param('paymentCode') paymentCode: string) {
     return this.paymentsService.confirmPaymentPaidByCash(Number(paymentCode));
+  }
+
+  @Sse('events/:paymentCode')
+  @ApiOperation({
+    summary:
+      'Subscribe to specific payment status updates via Server-Sent Events (SSE)',
+  })
+  @ApiParam({
+    name: 'paymentCode',
+    type: Number,
+    required: true,
+    description: 'Payment order code to monitor',
+  })
+  @ApiOkResponse({
+    description:
+      'Stream of payment updates for the specified payment code. Connection closes after final status.',
+  })
+  streamPaymentUpdates(
+    @Param('paymentCode') paymentCode: string,
+  ): Observable<MessageEvent> {
+    return this.paymentsService
+      .getPaymentUpdatesStream(Number(paymentCode))
+      .pipe(
+        map((paymentUpdate) => ({
+          data: paymentUpdate,
+        })),
+      ) as Observable<MessageEvent>;
   }
 }

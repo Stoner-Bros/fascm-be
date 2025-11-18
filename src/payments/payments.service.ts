@@ -11,9 +11,21 @@ import { IPaginationOptions } from '../utils/types/pagination-options';
 import { Payment } from './domain/payment';
 import { payOS } from './config/payOS';
 import { PaymentStatus } from './enums/payment-status.enum';
+import { Subject } from 'rxjs';
+
+export interface PaymentUpdateEvent {
+  paymentCode: number;
+  status: PaymentStatus;
+  amount: number;
+  paymentMethod: string;
+  timestamp: Date;
+}
 
 @Injectable()
 export class PaymentsService {
+  // Map to store individual payment streams: paymentCode -> Subject
+  private paymentStreams = new Map<number, Subject<PaymentUpdateEvent>>();
+
   constructor(
     // Dependencies here
     private readonly paymentRepository: PaymentRepository,
@@ -172,6 +184,23 @@ export class PaymentsService {
     }
   }
 
+  getPaymentUpdatesStream(paymentCode: number) {
+    // Get or create a Subject for this specific payment
+    if (!this.paymentStreams.has(paymentCode)) {
+      this.paymentStreams.set(paymentCode, new Subject<PaymentUpdateEvent>());
+    }
+    return this.paymentStreams.get(paymentCode)!.asObservable();
+  }
+
+  private cleanupPaymentStream(paymentCode: number) {
+    // Clean up the stream after payment is complete to prevent memory leaks
+    const stream = this.paymentStreams.get(paymentCode);
+    if (stream) {
+      stream.complete();
+      this.paymentStreams.delete(paymentCode);
+    }
+  }
+
   async confirmWebhook(webhookData: any) {
     console.log('webhookData', webhookData);
 
@@ -184,12 +213,34 @@ export class PaymentsService {
       );
 
       if (payment) {
+        const newStatus =
+          verifiedData.code === '00'
+            ? PaymentStatus.PAID
+            : PaymentStatus.CANCELED;
+
         await this.paymentRepository.update(payment.id, {
-          status:
-            verifiedData.code === '00'
-              ? PaymentStatus.PAID
-              : PaymentStatus.CANCELED,
+          status: newStatus,
         });
+
+        const paymentCode = Number(verifiedData.orderCode);
+
+        // Emit SSE event to specific payment stream only
+        const stream = this.paymentStreams.get(paymentCode);
+        if (stream) {
+          const updateEvent: PaymentUpdateEvent = {
+            paymentCode,
+            status: newStatus,
+            amount: payment.amount ?? 0,
+            paymentMethod: payment.paymentMethod ?? 'unknown',
+            timestamp: new Date(),
+          };
+
+          stream.next(updateEvent);
+
+          // Clean up stream after sending final status
+          // Using setTimeout to ensure event is delivered before cleanup
+          setTimeout(() => this.cleanupPaymentStream(paymentCode), 1000);
+        }
       }
 
       return {
