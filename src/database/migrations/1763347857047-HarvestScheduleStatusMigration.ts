@@ -10,7 +10,7 @@ export class HarvestScheduleStatusMigration1763347857047
       `ALTER TABLE "harvest_schedule" DROP COLUMN "status"`,
     );
     await queryRunner.query(
-      `CREATE TYPE "public"."harvest_schedule_status_enum" AS ENUM('pending', 'approved', 'rejected')`,
+      `CREATE TYPE "public"."harvest_schedule_status_enum" AS ENUM('pending', 'approved', 'rejected', 'canceled', 'completed')`,
     );
     await queryRunner.query(
       `ALTER TABLE "harvest_schedule" ADD "status" "public"."harvest_schedule_status_enum"`,

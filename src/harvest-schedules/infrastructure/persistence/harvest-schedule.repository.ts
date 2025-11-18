@@ -28,6 +28,10 @@ export abstract class HarvestScheduleRepository {
 
   abstract remove(id: HarvestSchedule['id']): Promise<void>;
 
+  abstract cancel(id: HarvestSchedule['id']): Promise<HarvestSchedule | null>;
+
+  abstract complete(id: HarvestSchedule['id']): Promise<HarvestSchedule | null>;
+
   abstract confirm(
     id: HarvestSchedule['id'],
     status: HarvestScheduleStatusEnum,
