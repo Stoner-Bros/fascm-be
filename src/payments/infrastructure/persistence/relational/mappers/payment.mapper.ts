@@ -5,6 +5,8 @@ import { PaymentEntity } from '../entities/payment.entity';
 export class PaymentMapper {
   static toDomain(raw: PaymentEntity): Payment {
     const domainEntity = new Payment();
+    domainEntity.qrCode = raw.qrCode;
+
     domainEntity.paymentCode = raw.paymentCode;
 
     domainEntity.status = raw.status;
@@ -22,6 +24,8 @@ export class PaymentMapper {
 
   static toPersistence(domainEntity: Payment): PaymentEntity {
     const persistenceEntity = new PaymentEntity();
+    persistenceEntity.qrCode = domainEntity.qrCode;
+
     persistenceEntity.paymentCode = domainEntity.paymentCode;
 
     persistenceEntity.status = domainEntity.status;

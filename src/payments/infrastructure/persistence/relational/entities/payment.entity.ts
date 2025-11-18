@@ -15,7 +15,13 @@ export class PaymentEntity extends EntityRelationalHelper {
     nullable: true,
     type: String,
   })
-  paymentCode?: string | null;
+  qrCode?: string | null;
+
+  @Column({
+    nullable: true,
+    type: Number,
+  })
+  paymentCode?: number | null;
 
   @Column({
     nullable: true,

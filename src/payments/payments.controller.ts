@@ -1,36 +1,39 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
   Query,
+  Sse,
 } from '@nestjs/common';
-import { PaymentsService } from './payments.service';
-import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
 import {
-  ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { Payment } from './domain/payment';
-import { AuthGuard } from '@nestjs/passport';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
+import { Payment } from './domain/payment';
+import { CreatePaymentDto } from './dto/create-payment.dto';
 import { FindAllPaymentsDto } from './dto/find-all-payments.dto';
+import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { PaymentsService } from './payments.service';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @ApiTags('Payments')
-@ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
+// @ApiBearerAuth()
+// @UseGuards(AuthGuard('jwt'))
 @Controller({
   path: 'payments',
   version: '1',
@@ -104,5 +107,89 @@ export class PaymentsController {
   })
   remove(@Param('id') id: string) {
     return this.paymentsService.remove(id);
+  }
+
+  @Get('payos/:paymentCode')
+  @ApiOperation({ summary: 'Get payment information from PayOS' })
+  @ApiParam({
+    name: 'paymentCode',
+    type: Number,
+    required: true,
+    description: 'PayOS order code',
+  })
+  @ApiOkResponse({
+    description: 'Payment information retrieved successfully',
+  })
+  getPayOSPaymentInfo(@Param('paymentCode') paymentCode: string) {
+    return this.paymentsService.getPayOSPaymentInfo(Number(paymentCode));
+  }
+
+  @Post('payos/:paymentCode/cancel')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cancel a payment in PayOS' })
+  @ApiParam({
+    name: 'paymentCode',
+    type: Number,
+    required: true,
+    description: 'PayOS order code',
+  })
+  @ApiOkResponse({
+    description: 'Payment cancelled successfully',
+  })
+  cancelPayment(@Param('paymentCode') paymentCode: string, @Body() body?: any) {
+    return this.paymentsService.cancelPayment(
+      Number(paymentCode),
+      body?.cancellationReason,
+    );
+  }
+
+  @Post('webhook/payos')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Handle PayOS webhook for payment status updates' })
+  @ApiOkResponse({
+    description: 'Webhook processed successfully',
+  })
+  handlePayOSWebhook(@Body() webhookData: any) {
+    console.log('webhookData from controller', webhookData);
+    return this.paymentsService.confirmWebhook(webhookData);
+  }
+
+  @Patch('confirm-payment-paid-by-cash/:paymentCode')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Confirm payment paid by cash' })
+  @ApiParam({
+    name: 'paymentCode',
+    type: Number,
+    required: true,
+  })
+  confirmPaymentPaidByCash(@Param('paymentCode') paymentCode: string) {
+    return this.paymentsService.confirmPaymentPaidByCash(Number(paymentCode));
+  }
+
+  @Sse('events/:paymentCode')
+  @ApiOperation({
+    summary:
+      'Subscribe to specific payment status updates via Server-Sent Events (SSE)',
+  })
+  @ApiParam({
+    name: 'paymentCode',
+    type: Number,
+    required: true,
+    description: 'Payment order code to monitor',
+  })
+  @ApiOkResponse({
+    description:
+      'Stream of payment updates for the specified payment code. Connection closes after final status.',
+  })
+  streamPaymentUpdates(
+    @Param('paymentCode') paymentCode: string,
+  ): Observable<MessageEvent> {
+    return this.paymentsService
+      .getPaymentUpdatesStream(Number(paymentCode))
+      .pipe(
+        map((paymentUpdate) => ({
+          data: paymentUpdate,
+        })),
+      ) as Observable<MessageEvent>;
   }
 }

@@ -1,9 +1,8 @@
 import {
-  // decorators here
-
-  IsString,
-  IsOptional,
   IsNumber,
+  // decorators here
+  IsString,
+  IsNotEmpty,
 } from 'class-validator';
 
 import {
@@ -13,36 +12,24 @@ import {
 
 export class CreatePaymentDto {
   @ApiProperty({
-    required: false,
-    type: () => String,
-  })
-  @IsOptional()
-  @IsString()
-  paymentCode?: string | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => String,
-  })
-  @IsOptional()
-  @IsString()
-  status?: string | null;
-
-  @ApiProperty({
-    required: false,
+    required: true,
     type: () => Number,
+    description: 'Payment amount in VND',
+    example: 100000,
   })
-  @IsOptional()
+  @IsNotEmpty()
   @IsNumber()
-  amount?: number | null;
+  amount: number;
 
   @ApiProperty({
-    required: false,
+    required: true,
     type: () => String,
+    description: 'Payment method: transfer, cash, etc.',
+    example: 'transfer',
   })
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  paymentMethod?: string | null;
+  paymentMethod: string;
 
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

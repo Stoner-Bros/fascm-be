@@ -5,7 +5,13 @@ export class Payment {
     type: () => String,
     nullable: true,
   })
-  paymentCode?: string | null;
+  qrCode?: string | null;
+
+  @ApiProperty({
+    type: () => Number,
+    nullable: true,
+  })
+  paymentCode?: number | null;
 
   @ApiProperty({
     type: () => String,
@@ -24,6 +30,12 @@ export class Payment {
     nullable: true,
   })
   paymentMethod?: string | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  checkoutUrl?: string | null;
 
   @ApiProperty({
     type: String,
