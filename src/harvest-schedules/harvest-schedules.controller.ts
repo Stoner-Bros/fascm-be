@@ -121,6 +121,32 @@ export class HarvestSchedulesController {
     );
   }
 
+  @Patch(':id/cancel')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: HarvestSchedule,
+  })
+  cancel(@Param('id') id: string) {
+    return this.harvestSchedulesService.cancel(id);
+  }
+
+  @Patch(':id/complete')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: HarvestSchedule,
+  })
+  complete(@Param('id') id: string) {
+    return this.harvestSchedulesService.complete(id);
+  }
+
   @Delete(':id')
   @ApiParam({
     name: 'id',

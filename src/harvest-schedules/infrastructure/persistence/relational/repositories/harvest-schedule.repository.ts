@@ -81,6 +81,14 @@ export class HarvestScheduleRelationalRepository
     return HarvestScheduleMapper.toDomain(updatedEntity);
   }
 
+  async cancel(id: HarvestSchedule['id']): Promise<HarvestSchedule> {
+    return this.update(id, { status: HarvestScheduleStatusEnum.CANCELED });
+  }
+
+  async complete(id: HarvestSchedule['id']): Promise<HarvestSchedule> {
+    return this.update(id, { status: HarvestScheduleStatusEnum.COMPLETED });
+  }
+
   async remove(id: HarvestSchedule['id']): Promise<void> {
     await this.harvestScheduleRepository.delete(id);
   }
