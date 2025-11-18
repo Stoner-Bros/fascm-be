@@ -10,6 +10,7 @@ import { PaymentRepository } from './infrastructure/persistence/payment.reposito
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { Payment } from './domain/payment';
 import { payOS } from './config/payOS';
+import { PaymentStatus } from './enums/payment-status.enum';
 
 @Injectable()
 export class PaymentsService {
@@ -18,26 +19,37 @@ export class PaymentsService {
     private readonly paymentRepository: PaymentRepository,
   ) {}
 
+  private generatePaymentCode(): number {
+    // Generate unique payment code using timestamp + random number
+    // Format: timestamp (13 digits) + random 2 digits = max 15 digits
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 100);
+    return Number(`${timestamp}${random}`);
+  }
+
   async create(createPaymentDto: CreatePaymentDto) {
     // Do not remove comment below.
     // <creating-property />
 
+    // Generate unique payment code
+    const paymentCode = this.generatePaymentCode();
+
     if (createPaymentDto.paymentMethod === 'transfer') {
       try {
         const paymentLinkRes = await payOS.paymentRequests.create({
-          orderCode: Number(createPaymentDto.paymentCode),
-          amount: createPaymentDto.amount ?? 0,
-          description: createPaymentDto.paymentCode ?? '',
+          orderCode: paymentCode,
+          amount: createPaymentDto.amount,
+          description: `FASCMPAY-${paymentCode}`,
           cancelUrl: process.env.PAYOS_CANCEL_URL ?? '',
           returnUrl: process.env.PAYOS_RETURN_URL ?? '',
         });
 
         return this.paymentRepository.create({
-          paymentCode: createPaymentDto.paymentCode,
+          paymentCode: paymentCode,
 
-          status: paymentLinkRes.status,
+          status: PaymentStatus.PENDING,
 
-          amount: paymentLinkRes.amount,
+          amount: createPaymentDto.amount,
 
           checkoutUrl: paymentLinkRes.checkoutUrl,
 
@@ -55,9 +67,9 @@ export class PaymentsService {
     return this.paymentRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      paymentCode: createPaymentDto.paymentCode,
+      paymentCode: paymentCode,
 
-      status: createPaymentDto.status,
+      status: PaymentStatus.PENDING,
 
       amount: createPaymentDto.amount,
 
@@ -97,10 +109,6 @@ export class PaymentsService {
     return this.paymentRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      paymentCode: updatePaymentDto.paymentCode,
-
-      status: updatePaymentDto.status,
-
       amount: updatePaymentDto.amount,
 
       paymentMethod: updatePaymentDto.paymentMethod,
@@ -111,55 +119,76 @@ export class PaymentsService {
     return this.paymentRepository.remove(id);
   }
 
-  async getPaymentInfo(orderCode: number) {
+  async getPayOSPaymentInfo(paymentCode: number) {
     try {
-      const paymentInfo = await payOS.paymentRequests.get(orderCode);
+      const paymentInfo = await payOS.paymentRequests.get(paymentCode);
       return paymentInfo;
     } catch (error) {
       throw new NotFoundException(
-        `Payment with order code ${orderCode} not found: ${error.message}`,
+        `Payment with order code ${paymentCode} not found: ${error.message}`,
       );
     }
   }
 
-  async cancelPayment(orderCode: number, cancellationReason?: string) {
-    try {
-      const cancelResult = await payOS.paymentRequests.cancel(
-        orderCode,
-        cancellationReason,
+  async cancelPayment(paymentCode: number, cancellationReason?: string) {
+    const payment = await this.paymentRepository.findByPaymentCode(paymentCode);
+
+    if (!payment) {
+      throw new NotFoundException(
+        `Payment with order code ${paymentCode} not found`,
       );
+    }
 
-      // Update payment status in database
-      const payment = await this.paymentRepository.findByPaymentCode(
-        orderCode.toString(),
-      );
-
-      if (payment) {
-        await this.paymentRepository.update(payment.id, {
-          status: 'CANCELLED',
-        });
-      }
-
-      return cancelResult;
-    } catch (error) {
+    if (payment.status !== PaymentStatus.PENDING) {
       throw new BadRequestException(
-        `Failed to cancel payment: ${error.message}`,
+        `Payment with order code ${paymentCode} is not pending`,
       );
+    }
+
+    if (payment.paymentMethod === 'transfer') {
+      try {
+        const cancelResult = await payOS.paymentRequests.cancel(
+          paymentCode,
+          cancellationReason,
+        );
+
+        // Update payment status in database
+        await this.paymentRepository.update(payment.id, {
+          status: PaymentStatus.CANCELED,
+        });
+
+        return cancelResult;
+      } catch (error) {
+        throw new BadRequestException(
+          `Failed to cancel payment: ${error.message}`,
+        );
+      }
+    } else {
+      await this.paymentRepository.update(payment.id, {
+        status: PaymentStatus.CANCELED,
+      });
+
+      return payment;
     }
   }
 
   async confirmWebhook(webhookData: any) {
+    console.log('webhookData', webhookData);
+
     try {
       const verifiedData = await payOS.webhooks.verify(webhookData);
 
       // Update payment status in database
       const payment = await this.paymentRepository.findByPaymentCode(
-        verifiedData.orderCode.toString(),
+        Number(verifiedData.orderCode),
       );
 
       if (payment) {
         await this.paymentRepository.update(payment.id, {
-          status: verifiedData.code === '00' ? 'PAID' : 'CANCELLED',
+          status:
+            verifiedData.code === '00'
+              ? PaymentStatus.PAID
+              : PaymentStatus.CANCELED,
         });
       }
 
@@ -170,6 +199,35 @@ export class PaymentsService {
     } catch (error) {
       throw new BadRequestException(
         `Webhook verification failed: ${error.message}`,
+      );
+    }
+  }
+
+  async confirmPaymentPaidByCash(paymentCode: number) {
+    try {
+      const payment =
+        await this.paymentRepository.findByPaymentCode(paymentCode);
+
+      if (!payment) {
+        throw new NotFoundException(
+          `Payment with order code ${paymentCode} not found`,
+        );
+      }
+
+      if (payment.status !== PaymentStatus.PENDING) {
+        throw new BadRequestException(
+          `Payment with order code ${paymentCode} is not pending`,
+        );
+      }
+
+      await this.paymentRepository.update(payment.id, {
+        status: PaymentStatus.PAID,
+      });
+
+      return payment;
+    } catch (error) {
+      throw new BadRequestException(
+        `Failed to confirm payment paid by cash: ${error.message}`,
       );
     }
   }

@@ -19,7 +19,7 @@ export abstract class PaymentRepository {
   abstract findByIds(ids: Payment['id'][]): Promise<Payment[]>;
 
   abstract findByPaymentCode(
-    paymentCode: string,
+    paymentCode: number,
   ): Promise<NullableType<Payment>>;
 
   abstract update(

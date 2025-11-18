@@ -1,33 +1,32 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  Query,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
 } from '@nestjs/common';
-import { PaymentsService } from './payments.service';
-import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
 import {
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiTags,
-  ApiOperation,
 } from '@nestjs/swagger';
-import { Payment } from './domain/payment';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
+import { Payment } from './domain/payment';
+import { CreatePaymentDto } from './dto/create-payment.dto';
 import { FindAllPaymentsDto } from './dto/find-all-payments.dto';
-import { PayOSWebhookDto, CancelPaymentDto } from './dto/payos-webhook.dto';
+import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { PaymentsService } from './payments.service';
 
 @ApiTags('Payments')
 // @ApiBearerAuth()
@@ -107,10 +106,10 @@ export class PaymentsController {
     return this.paymentsService.remove(id);
   }
 
-  @Get('payos/:orderCode')
+  @Get('payos/:paymentCode')
   @ApiOperation({ summary: 'Get payment information from PayOS' })
   @ApiParam({
-    name: 'orderCode',
+    name: 'paymentCode',
     type: Number,
     required: true,
     description: 'PayOS order code',
@@ -118,15 +117,15 @@ export class PaymentsController {
   @ApiOkResponse({
     description: 'Payment information retrieved successfully',
   })
-  getPaymentInfo(@Param('orderCode') orderCode: string) {
-    return this.paymentsService.getPaymentInfo(Number(orderCode));
+  getPayOSPaymentInfo(@Param('paymentCode') paymentCode: string) {
+    return this.paymentsService.getPayOSPaymentInfo(Number(paymentCode));
   }
 
-  @Post('payos/:orderCode/cancel')
+  @Post('payos/:paymentCode/cancel')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Cancel a payment in PayOS' })
   @ApiParam({
-    name: 'orderCode',
+    name: 'paymentCode',
     type: Number,
     required: true,
     description: 'PayOS order code',
@@ -134,12 +133,9 @@ export class PaymentsController {
   @ApiOkResponse({
     description: 'Payment cancelled successfully',
   })
-  cancelPayment(
-    @Param('orderCode') orderCode: string,
-    @Body() body?: CancelPaymentDto,
-  ) {
+  cancelPayment(@Param('paymentCode') paymentCode: string, @Body() body?: any) {
     return this.paymentsService.cancelPayment(
-      Number(orderCode),
+      Number(paymentCode),
       body?.cancellationReason,
     );
   }
@@ -150,7 +146,20 @@ export class PaymentsController {
   @ApiOkResponse({
     description: 'Webhook processed successfully',
   })
-  handlePayOSWebhook(@Body() webhookData: PayOSWebhookDto) {
+  handlePayOSWebhook(@Body() webhookData: any) {
+    console.log('webhookData from controller', webhookData);
     return this.paymentsService.confirmWebhook(webhookData);
+  }
+
+  @Patch('confirm-payment-paid-by-cash/:paymentCode')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Confirm payment paid by cash' })
+  @ApiParam({
+    name: 'paymentCode',
+    type: Number,
+    required: true,
+  })
+  confirmPaymentPaidByCash(@Param('paymentCode') paymentCode: string) {
+    return this.paymentsService.confirmPaymentPaidByCash(Number(paymentCode));
   }
 }
