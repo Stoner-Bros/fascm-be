@@ -70,6 +70,19 @@ export class HarvestDetailsController {
     );
   }
 
+  @Get('harvest-ticket/:harvestTicketId')
+  @ApiParam({
+    name: 'harvestTicketId',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: [HarvestDetail],
+  })
+  findByHarvestTicketId(@Param('harvestTicketId') harvestTicketId: string) {
+    return this.harvestDetailsService.findByHarvestTicketId(harvestTicketId);
+  }
+
   @Get(':id')
   @ApiParam({
     name: 'id',

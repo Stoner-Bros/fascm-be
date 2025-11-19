@@ -109,6 +109,10 @@ export class HarvestDetailsService {
     return this.harvestDetailRepository.findByIds(ids);
   }
 
+  findByHarvestTicketId(harvestTicketId: string) {
+    return this.harvestDetailRepository.findByHarvestTicketId(harvestTicketId);
+  }
+
   async update(
     id: HarvestDetail['id'],
 
