@@ -6,6 +6,8 @@ import { HarvestTicketMapper } from '../../../../../harvest-tickets/infrastructu
 
 import { HarvestDetailEntity } from '../entities/harvest-detail.entity';
 
+import { HarvestDetailResponse } from '../../../../dto/harvest-detail-response.dto';
+
 export class HarvestDetailMapper {
   static toDomain(raw: HarvestDetailEntity): HarvestDetail {
     const domainEntity = new HarvestDetail();
@@ -75,5 +77,36 @@ export class HarvestDetailMapper {
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 
     return persistenceEntity;
+  }
+
+  static toResponse(entity: HarvestDetailEntity): HarvestDetailResponse {
+    const responseEntity = new HarvestDetailResponse();
+    responseEntity.taxRate = entity.taxRate;
+
+    responseEntity.amount = entity.amount;
+
+    responseEntity.unitPrice = entity.unitPrice;
+
+    responseEntity.quantity = entity.quantity;
+
+    responseEntity.unit = entity.unit;
+
+    if (entity.product) {
+      responseEntity.product = ProductMapper.toDomain(entity.product);
+    } else if (entity.product === null) {
+      responseEntity.product = null;
+    }
+
+    if (entity.harvestTicket) {
+      responseEntity.harvestTicketId = entity.harvestTicket.id;
+    } else if (entity.harvestTicket === null) {
+      responseEntity.harvestTicketId = null;
+    }
+
+    responseEntity.id = entity.id;
+    responseEntity.createdAt = entity.createdAt;
+    responseEntity.updatedAt = entity.updatedAt;
+
+    return responseEntity;
   }
 }

@@ -7,6 +7,7 @@ import { HarvestDetail } from '../../../../domain/harvest-detail';
 import { HarvestDetailRepository } from '../../harvest-detail.repository';
 import { HarvestDetailMapper } from '../mappers/harvest-detail.mapper';
 import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
+import { HarvestDetailResponse } from '../../../../dto/harvest-detail-response.dto';
 
 @Injectable()
 export class HarvestDetailRelationalRepository
@@ -29,13 +30,13 @@ export class HarvestDetailRelationalRepository
     paginationOptions,
   }: {
     paginationOptions: IPaginationOptions;
-  }): Promise<HarvestDetail[]> {
+  }): Promise<HarvestDetailResponse[]> {
     const entities = await this.harvestDetailRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
     });
 
-    return entities.map((entity) => HarvestDetailMapper.toDomain(entity));
+    return entities.map((entity) => HarvestDetailMapper.toResponse(entity));
   }
 
   async findById(
@@ -54,6 +55,17 @@ export class HarvestDetailRelationalRepository
     });
 
     return entities.map((entity) => HarvestDetailMapper.toDomain(entity));
+  }
+
+  async findByHarvestTicketId(
+    harvestTicketId: string,
+  ): Promise<HarvestDetailResponse[]> {
+    const entities = await this.harvestDetailRepository.find({
+      where: { harvestTicket: { id: harvestTicketId } },
+      relations: ['harvestTicket', 'product'],
+    });
+
+    return entities.map((entity) => HarvestDetailMapper.toResponse(entity));
   }
 
   async update(
