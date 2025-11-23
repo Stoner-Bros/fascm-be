@@ -54,11 +54,15 @@ export class ProductsService {
 
       categoryId,
 
-      status: createProductDto.status,
+      status: 'Active',
 
-      storageHumidityRange: createProductDto.storageHumidityRange,
+      minStorageHumidity: createProductDto.minStorageHumidity,
 
-      storageTemperatureRange: createProductDto.storageTemperatureRange,
+      maxStorageHumidity: createProductDto.maxStorageHumidity,
+
+      minStorageTemperature: createProductDto.minStorageTemperature,
+
+      maxStorageTemperature: createProductDto.maxStorageTemperature,
 
       description: createProductDto.description,
 
@@ -126,11 +130,13 @@ export class ProductsService {
 
       categoryId,
 
-      status: updateProductDto.status,
+      minStorageHumidity: updateProductDto.minStorageHumidity,
 
-      storageHumidityRange: updateProductDto.storageHumidityRange,
+      maxStorageHumidity: updateProductDto.maxStorageHumidity,
 
-      storageTemperatureRange: updateProductDto.storageTemperatureRange,
+      minStorageTemperature: updateProductDto.minStorageTemperature,
+
+      maxStorageTemperature: updateProductDto.maxStorageTemperature,
 
       description: updateProductDto.description,
 
@@ -140,5 +146,20 @@ export class ProductsService {
 
   remove(id: Product['id']) {
     return this.productRepository.remove(id);
+  }
+
+  async updateStatus(id: Product['id']) {
+    const product = await this.productRepository.findById(id);
+    if (!product) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          product: 'notExists',
+        },
+      });
+    }
+    return this.productRepository.update(id, {
+      status: product.status === 'Active' ? 'Inactive' : 'Active',
+    });
   }
 }

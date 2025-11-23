@@ -19,9 +19,11 @@ export class ProductMapper {
 
     domainEntity.status = raw.status;
 
-    domainEntity.storageHumidityRange = raw.storageHumidityRange;
+    domainEntity.minStorageHumidity = raw.minStorageHumidity;
+    domainEntity.maxStorageHumidity = raw.maxStorageHumidity;
 
-    domainEntity.storageTemperatureRange = raw.storageTemperatureRange;
+    domainEntity.minStorageTemperature = raw.minStorageTemperature;
+    domainEntity.maxStorageTemperature = raw.maxStorageTemperature;
 
     domainEntity.description = raw.description;
 
@@ -50,10 +52,13 @@ export class ProductMapper {
 
     persistenceEntity.status = domainEntity.status;
 
-    persistenceEntity.storageHumidityRange = domainEntity.storageHumidityRange;
+    persistenceEntity.minStorageHumidity = domainEntity.minStorageHumidity;
+    persistenceEntity.maxStorageHumidity = domainEntity.maxStorageHumidity;
 
-    persistenceEntity.storageTemperatureRange =
-      domainEntity.storageTemperatureRange;
+    persistenceEntity.minStorageTemperature =
+      domainEntity.minStorageTemperature;
+    persistenceEntity.minStorageTemperature =
+      domainEntity.minStorageTemperature;
 
     persistenceEntity.description = domainEntity.description;
 

@@ -53,7 +53,7 @@ export class CreateProductDto {
   })
   @IsOptional()
   @IsString()
-  status?: string | null;
+  minStorageHumidity?: string | null;
 
   @ApiProperty({
     required: false,
@@ -61,7 +61,7 @@ export class CreateProductDto {
   })
   @IsOptional()
   @IsString()
-  storageHumidityRange?: string | null;
+  maxStorageHumidity?: string | null;
 
   @ApiProperty({
     required: false,
@@ -69,7 +69,15 @@ export class CreateProductDto {
   })
   @IsOptional()
   @IsString()
-  storageTemperatureRange?: string | null;
+  minStorageTemperature?: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => String,
+  })
+  @IsOptional()
+  @IsString()
+  maxStorageTemperature?: string | null;
 
   @ApiProperty({
     required: false,

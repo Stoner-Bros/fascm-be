@@ -30,13 +30,25 @@ export class Product {
     type: () => String,
     nullable: true,
   })
-  storageHumidityRange?: string | null;
+  minStorageHumidity?: string | null;
 
   @ApiProperty({
     type: () => String,
     nullable: true,
   })
-  storageTemperatureRange?: string | null;
+  maxStorageHumidity?: string | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  minStorageTemperature?: string | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  maxStorageTemperature?: string | null;
 
   @ApiProperty({
     type: () => String,

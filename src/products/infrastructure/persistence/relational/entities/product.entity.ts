@@ -40,13 +40,25 @@ export class ProductEntity extends EntityRelationalHelper {
     nullable: true,
     type: String,
   })
-  storageHumidityRange?: string | null;
+  minStorageHumidity?: string | null;
 
   @Column({
     nullable: true,
     type: String,
   })
-  storageTemperatureRange?: string | null;
+  maxStorageHumidity?: string | null;
+
+  @Column({
+    nullable: true,
+    type: String,
+  })
+  minStorageTemperature?: string | null;
+
+  @Column({
+    nullable: true,
+    type: String,
+  })
+  maxStorageTemperature?: string | null;
 
   @Column({
     nullable: true,

@@ -109,4 +109,17 @@ export class ProductsController {
   remove(@Param('id') id: string) {
     return this.productsService.remove(id);
   }
+
+  @Patch(':id/status')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: Product,
+  })
+  updateStatus(@Param('id') id: string) {
+    return this.productsService.updateStatus(id);
+  }
 }
