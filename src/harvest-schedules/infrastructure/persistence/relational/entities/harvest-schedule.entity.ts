@@ -3,7 +3,6 @@ import { SupplierEntity } from '../../../../../suppliers/infrastructure/persiste
 import {
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
   ManyToOne,
   Column,

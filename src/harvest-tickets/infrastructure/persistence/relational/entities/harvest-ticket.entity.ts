@@ -3,12 +3,12 @@ import { HarvestScheduleEntity } from '../../../../../harvest-schedules/infrastr
 import {
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
   JoinColumn,
   OneToOne,
   Column,
   BeforeInsert,
+  PrimaryColumn,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -86,7 +86,9 @@ export class HarvestTicketEntity extends EntityRelationalHelper {
   @JoinColumn()
   harvestScheduleId?: HarvestScheduleEntity | null;
 
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({
+    type: String,
+  })
   id: string;
 
   @BeforeInsert()
