@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { HarvestScheduleStatusEnum } from '../harvest-schedule-status.enum';
 
 export class ConfirmHarvestScheduleDto {
@@ -14,4 +14,14 @@ export class ConfirmHarvestScheduleDto {
   status:
     | HarvestScheduleStatusEnum.APPROVED
     | HarvestScheduleStatusEnum.REJECTED;
+
+  @ApiProperty({
+    type: String,
+    required: false,
+    description:
+      'Reason for rejection (optional, but recommended when rejecting)',
+  })
+  @IsOptional()
+  @IsString()
+  reason?: string;
 }

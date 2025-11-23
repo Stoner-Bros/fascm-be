@@ -118,6 +118,7 @@ export class HarvestSchedulesController {
     return this.harvestSchedulesService.confirm(
       id,
       confirmHarvestScheduleDto.status,
+      confirmHarvestScheduleDto.reason,
     );
   }
 

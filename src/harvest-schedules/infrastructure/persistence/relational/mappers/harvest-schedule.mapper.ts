@@ -20,6 +20,7 @@ export class HarvestScheduleMapper {
     }
 
     domainEntity.id = raw.id;
+    domainEntity.reason = raw.reason;
     domainEntity.createdAt = raw.createdAt;
     domainEntity.updatedAt = raw.updatedAt;
 

@@ -95,6 +95,7 @@ export class HarvestScheduleRelationalRepository
   async confirm(
     id: HarvestSchedule['id'],
     status: HarvestScheduleStatusEnum,
+    reason?: string,
   ): Promise<HarvestSchedule | null> {
     const entity = await this.harvestScheduleRepository.findOne({
       where: { id },
@@ -105,6 +106,7 @@ export class HarvestScheduleRelationalRepository
     }
 
     entity.status = status;
+    entity.reason = reason ?? null;
     const updatedEntity = await this.harvestScheduleRepository.save(entity);
     return HarvestScheduleMapper.toDomain(updatedEntity);
   }
