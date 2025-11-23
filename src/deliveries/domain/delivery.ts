@@ -5,6 +5,42 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class Delivery {
   @ApiProperty({
+    type: () => Number,
+    nullable: true,
+  })
+  endLng?: number | null;
+
+  @ApiProperty({
+    type: () => Number,
+    nullable: true,
+  })
+  endLat?: number | null;
+
+  @ApiProperty({
+    type: () => Number,
+    nullable: true,
+  })
+  startLng?: number | null;
+
+  @ApiProperty({
+    type: () => Number,
+    nullable: true,
+  })
+  startLat?: number | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  endAddress?: string | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  startAddress?: string | null;
+
+  @ApiProperty({
     type: () => String,
     nullable: true,
   })

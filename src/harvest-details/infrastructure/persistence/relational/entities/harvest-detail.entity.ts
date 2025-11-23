@@ -5,10 +5,11 @@ import { HarvestTicketEntity } from '../../../../../harvest-tickets/infrastructu
 import {
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
   ManyToOne,
   Column,
+  PrimaryColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -52,9 +53,20 @@ export class HarvestDetailEntity extends EntityRelationalHelper {
   @ManyToOne(() => HarvestTicketEntity, { eager: true, nullable: true })
   harvestTicket?: HarvestTicketEntity | null;
 
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({
+    type: String,
+  })
   id: string;
 
+  @BeforeInsert()
+  async generateId() {
+    if (this.id) return;
+    const last = await HarvestDetailEntity.createQueryBuilder('c')
+      .orderBy('c.id', 'DESC')
+      .getOne();
+    const next = last ? Number((last.id ?? '').split('_')[1] ?? 0) + 1 : 1;
+    this.id = `HD_${String(next).padStart(4, '0')}`;
+  }
   @CreateDateColumn()
   createdAt: Date;
 

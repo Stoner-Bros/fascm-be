@@ -5,11 +5,12 @@ import { OrderScheduleEntity } from '../../../../../order-schedules/infrastructu
 import {
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
   JoinColumn,
   OneToOne,
   Column,
+  PrimaryColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -73,8 +74,20 @@ export class OrderEntity extends EntityRelationalHelper {
   @JoinColumn()
   orderSchedule?: OrderScheduleEntity | null;
 
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({
+    type: String,
+  })
   id: string;
+
+  @BeforeInsert()
+  async generateId() {
+    if (this.id) return;
+    const last = await OrderEntity.createQueryBuilder('o')
+      .orderBy('o.id', 'DESC')
+      .getOne();
+    const next = last ? Number((last.id ?? '').split('_')[1] ?? 0) + 1 : 1;
+    this.id = `ORD_${String(next).padStart(4, '0')}`;
+  }
 
   @CreateDateColumn()
   createdAt: Date;

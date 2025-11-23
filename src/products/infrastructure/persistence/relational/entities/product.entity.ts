@@ -3,10 +3,11 @@ import { CategoryEntity } from '../../../../../categories/infrastructure/persist
 import {
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
   Column,
   ManyToOne,
+  PrimaryColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -59,9 +60,20 @@ export class ProductEntity extends EntityRelationalHelper {
   })
   name?: string | null;
 
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({
+    type: String,
+  })
   id: string;
 
+  @BeforeInsert()
+  async generateId() {
+    if (this.id) return;
+    const last = await ProductEntity.createQueryBuilder('p')
+      .orderBy('p.id', 'DESC')
+      .getOne();
+    const next = last ? Number((last.id ?? '').split('_')[1] ?? 0) + 1 : 1;
+    this.id = `PROD_${String(next).padStart(4, '0')}`;
+  }
   @CreateDateColumn()
   createdAt: Date;
 

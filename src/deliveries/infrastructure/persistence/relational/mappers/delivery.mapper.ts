@@ -11,6 +11,18 @@ import { DeliveryEntity } from '../entities/delivery.entity';
 export class DeliveryMapper {
   static toDomain(raw: DeliveryEntity): Delivery {
     const domainEntity = new Delivery();
+    domainEntity.endLng = raw.endLng;
+
+    domainEntity.endLat = raw.endLat;
+
+    domainEntity.startLng = raw.startLng;
+
+    domainEntity.startLat = raw.startLat;
+
+    domainEntity.endAddress = raw.endAddress;
+
+    domainEntity.startAddress = raw.startAddress;
+
     domainEntity.status = raw.status;
 
     domainEntity.endTime = raw.endTime;
@@ -48,6 +60,18 @@ export class DeliveryMapper {
 
   static toPersistence(domainEntity: Delivery): DeliveryEntity {
     const persistenceEntity = new DeliveryEntity();
+    persistenceEntity.endLng = domainEntity.endLng;
+
+    persistenceEntity.endLat = domainEntity.endLat;
+
+    persistenceEntity.startLng = domainEntity.startLng;
+
+    persistenceEntity.startLat = domainEntity.startLat;
+
+    persistenceEntity.endAddress = domainEntity.endAddress;
+
+    persistenceEntity.startAddress = domainEntity.startAddress;
+
     persistenceEntity.status = domainEntity.status;
 
     persistenceEntity.endTime = domainEntity.endTime;

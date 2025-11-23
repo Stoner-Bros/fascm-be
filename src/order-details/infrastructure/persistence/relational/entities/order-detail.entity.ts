@@ -5,10 +5,11 @@ import { OrderEntity } from '../../../../../orders/infrastructure/persistence/re
 import {
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
   ManyToOne,
   Column,
+  PrimaryColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -52,9 +53,20 @@ export class OrderDetailEntity extends EntityRelationalHelper {
   @ManyToOne(() => OrderEntity, { eager: true, nullable: true })
   order?: OrderEntity | null;
 
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({
+    type: String,
+  })
   id: string;
 
+  @BeforeInsert()
+  async generateId() {
+    if (this.id) return;
+    const last = await OrderDetailEntity.createQueryBuilder('od')
+      .orderBy('od.id', 'DESC')
+      .getOne();
+    const next = last ? Number((last.id ?? '').split('_')[1] ?? 0) + 1 : 1;
+    this.id = `ODT_${String(next).padStart(4, '0')}`;
+  }
   @CreateDateColumn()
   createdAt: Date;
 

@@ -1,9 +1,10 @@
 import {
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
   Column,
+  BeforeInsert,
+  PrimaryColumn,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -23,9 +24,20 @@ export class CategoryEntity extends EntityRelationalHelper {
   })
   vietnameseName?: string | null;
 
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({
+    type: String,
+  })
   id: string;
 
+  @BeforeInsert()
+  async generateId() {
+    if (this.id) return;
+    const last = await CategoryEntity.createQueryBuilder('c')
+      .orderBy('c.id', 'DESC')
+      .getOne();
+    const next = last ? Number((last.id ?? '').split('_')[1] ?? 0) + 1 : 1;
+    this.id = `CAT_${String(next).padStart(4, '0')}`;
+  }
   @CreateDateColumn()
   createdAt: Date;
 

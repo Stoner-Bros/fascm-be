@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import { ConsigneesService } from './consignees.service';
 import { CreateConsigneeDto } from './dto/create-consignee.dto';
@@ -68,6 +69,18 @@ export class ConsigneesController {
       }),
       { page, limit },
     );
+  }
+
+  @Get('mine')
+  @ApiOkResponse({
+    type: Consignee,
+  })
+  async findMine(@Req() req: any) {
+    const userId = req?.user?.id as string | undefined;
+    const consignee = await this.consigneesService.findByUserId(
+      String(userId ?? ''),
+    );
+    return consignee;
   }
 
   @Get(':id')
