@@ -18,6 +18,7 @@ import {
   IsOptional,
   IsDate,
   IsString,
+  IsNumber,
 } from 'class-validator';
 
 import {
@@ -26,6 +27,54 @@ import {
 } from '@nestjs/swagger';
 
 export class CreateDeliveryDto {
+  @ApiProperty({
+    required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  endLng?: number | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  endLat?: number | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  startLng?: number | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  startLat?: number | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => String,
+  })
+  @IsOptional()
+  @IsString()
+  endAddress?: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => String,
+  })
+  @IsOptional()
+  @IsString()
+  startAddress?: string | null;
+
   @ApiProperty({
     required: false,
     type: () => String,

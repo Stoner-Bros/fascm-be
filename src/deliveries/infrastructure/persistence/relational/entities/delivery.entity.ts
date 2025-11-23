@@ -20,6 +20,42 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
 export class DeliveryEntity extends EntityRelationalHelper {
   @Column({
     nullable: true,
+    type: Number,
+  })
+  endLng?: number | null;
+
+  @Column({
+    nullable: true,
+    type: Number,
+  })
+  endLat?: number | null;
+
+  @Column({
+    nullable: true,
+    type: Number,
+  })
+  startLng?: number | null;
+
+  @Column({
+    nullable: true,
+    type: Number,
+  })
+  startLat?: number | null;
+
+  @Column({
+    nullable: true,
+    type: String,
+  })
+  endAddress?: string | null;
+
+  @Column({
+    nullable: true,
+    type: String,
+  })
+  startAddress?: string | null;
+
+  @Column({
+    nullable: true,
     type: String,
   })
   status?: string | null;

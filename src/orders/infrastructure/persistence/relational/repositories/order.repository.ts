@@ -31,6 +31,7 @@ export class OrderRelationalRepository implements OrderRepository {
     const entities = await this.orderRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
+      order: { createdAt: 'DESC' },
     });
 
     return entities.map((entity) => OrderMapper.toDomain(entity));
@@ -51,6 +52,9 @@ export class OrderRelationalRepository implements OrderRepository {
     if (filters?.consigneeUserId) {
       qb.andWhere('user.id = :userId', { userId: filters.consigneeUserId });
     }
+
+    qb.orderBy('order.orderDate', 'DESC');
+    qb.addOrderBy('order.createdAt', 'DESC');
 
     qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
     qb.take(paginationOptions.limit);

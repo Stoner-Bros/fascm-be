@@ -3,10 +3,11 @@ import { ConsigneeEntity } from '../../../../../consignees/infrastructure/persis
 import {
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
   ManyToOne,
   Column,
+  PrimaryColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -35,9 +36,20 @@ export class OrderScheduleEntity extends EntityRelationalHelper {
   @ManyToOne(() => ConsigneeEntity, { eager: true, nullable: true })
   consignee?: ConsigneeEntity | null;
 
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({
+    type: String,
+  })
   id: string;
 
+  @BeforeInsert()
+  async generateId() {
+    if (this.id) return;
+    const last = await OrderScheduleEntity.createQueryBuilder('os')
+      .orderBy('os.id', 'DESC')
+      .getOne();
+    const next = last ? Number((last.id ?? '').split('_')[1] ?? 0) + 1 : 1;
+    this.id = `ORDSCH_${String(next).padStart(4, '0')}`;
+  }
   @CreateDateColumn()
   createdAt: Date;
 

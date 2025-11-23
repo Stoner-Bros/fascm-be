@@ -5,12 +5,13 @@ import { HarvestDetailEntity } from '../../../../../harvest-details/infrastructu
 import {
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
   JoinColumn,
   OneToOne,
   ManyToOne,
   Column,
+  PrimaryColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -43,8 +44,20 @@ export class InboundBatchEntity extends EntityRelationalHelper {
   @JoinColumn()
   harvestDetail?: HarvestDetailEntity | null;
 
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({
+    type: String,
+  })
   id: string;
+
+  @BeforeInsert()
+  async generateId() {
+    if (this.id) return;
+    const last = await InboundBatchEntity.createQueryBuilder('c')
+      .orderBy('c.id', 'DESC')
+      .getOne();
+    const next = last ? Number((last.id ?? '').split('_')[1] ?? 0) + 1 : 1;
+    this.id = `IB_${String(next).padStart(4, '0')}`;
+  }
 
   @CreateDateColumn()
   createdAt: Date;

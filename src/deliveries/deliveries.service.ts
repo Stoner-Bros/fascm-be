@@ -96,6 +96,18 @@ export class DeliveriesService {
     return this.deliveryRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
+      endLng: createDeliveryDto.endLng,
+
+      endLat: createDeliveryDto.endLat,
+
+      startLng: createDeliveryDto.startLng,
+
+      startLat: createDeliveryDto.startLat,
+
+      endAddress: createDeliveryDto.endAddress,
+
+      startAddress: createDeliveryDto.startAddress,
+
       status: createDeliveryDto.status,
 
       endTime: createDeliveryDto.endTime,
@@ -199,6 +211,18 @@ export class DeliveriesService {
     return this.deliveryRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
+      endLng: updateDeliveryDto.endLng,
+
+      endLat: updateDeliveryDto.endLat,
+
+      startLng: updateDeliveryDto.startLng,
+
+      startLat: updateDeliveryDto.startLat,
+
+      endAddress: updateDeliveryDto.endAddress,
+
+      startAddress: updateDeliveryDto.startAddress,
+
       status: updateDeliveryDto.status,
 
       endTime: updateDeliveryDto.endTime,
