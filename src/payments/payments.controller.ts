@@ -10,14 +10,19 @@ import {
   Post,
   Query,
   Sse,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import {
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
@@ -28,12 +33,10 @@ import { CreatePaymentDto } from './dto/create-payment.dto';
 import { FindAllPaymentsDto } from './dto/find-all-payments.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { PaymentsService } from './payments.service';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 @ApiTags('Payments')
-// @ApiBearerAuth()
-// @UseGuards(AuthGuard('jwt'))
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'))
 @Controller({
   path: 'payments',
   version: '1',
@@ -141,17 +144,6 @@ export class PaymentsController {
       Number(paymentCode),
       body?.cancellationReason,
     );
-  }
-
-  @Post('webhook/payos')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Handle PayOS webhook for payment status updates' })
-  @ApiOkResponse({
-    description: 'Webhook processed successfully',
-  })
-  handlePayOSWebhook(@Body() webhookData: any) {
-    console.log('webhookData from controller', webhookData);
-    return this.paymentsService.confirmWebhook(webhookData);
   }
 
   @Patch('confirm-payment-paid-by-cash/:paymentCode')
