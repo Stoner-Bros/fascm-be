@@ -28,7 +28,12 @@ npm run seed:run:relational
 
 6. Run app in dev mode
 
-npm run start:dev
+npm run dev
 
-Open http://localhost:3000 for API
-Open http://localhost:3000/docs for swagger
+Open http://localhost:8080 for API
+Open http://localhost:8080/docs for swagger
+
+
+**THAY DOI DB
+npm run migration:generate -- src/database/migrations/[ten cua dot mirgation]
+npm run migration:run
