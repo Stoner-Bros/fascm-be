@@ -32,6 +32,13 @@ export class HarvestSchedule {
   })
   id: string;
 
+  //add reason for rejection
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  reason?: string | null;
+
   @ApiProperty()
   createdAt: Date;
 

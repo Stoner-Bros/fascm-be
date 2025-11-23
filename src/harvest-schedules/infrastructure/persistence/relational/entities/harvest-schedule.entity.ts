@@ -53,6 +53,12 @@ export class HarvestScheduleEntity extends EntityRelationalHelper {
     this.id = `HS_${String(next).padStart(4, '0')}`;
   }
 
+  @Column({
+    nullable: true,
+    type: String,
+  })
+  reason?: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

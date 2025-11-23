@@ -125,6 +125,7 @@ export class HarvestSchedulesService {
     status:
       | HarvestScheduleStatusEnum.APPROVED
       | HarvestScheduleStatusEnum.REJECTED,
+    reason?: string,
   ) {
     const harvestSchedule = await this.harvestScheduleRepository.findById(id);
 
@@ -146,9 +147,7 @@ export class HarvestSchedulesService {
       });
     }
 
-    return this.harvestScheduleRepository.update(id, {
-      status,
-    });
+    return this.harvestScheduleRepository.confirm(id, status, reason);
   }
 
   async cancel(id: HarvestSchedule['id']) {

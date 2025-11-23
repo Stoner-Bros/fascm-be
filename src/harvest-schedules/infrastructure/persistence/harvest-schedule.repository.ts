@@ -35,5 +35,6 @@ export abstract class HarvestScheduleRepository {
   abstract confirm(
     id: HarvestSchedule['id'],
     status: HarvestScheduleStatusEnum,
+    reason?: string,
   ): Promise<HarvestSchedule | null>;
 }
