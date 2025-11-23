@@ -8,7 +8,9 @@ import {
   Delete,
   UseGuards,
   Query,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { HarvestTicketsService } from './harvest-tickets.service';
 import { CreateHarvestTicketDto } from './dto/create-harvest-ticket.dto';
 import { UpdateHarvestTicketDto } from './dto/update-harvest-ticket.dto';
@@ -98,6 +100,40 @@ export class HarvestTicketsController {
     @Body() updateHarvestTicketDto: UpdateHarvestTicketDto,
   ) {
     return this.harvestTicketsService.update(id, updateHarvestTicketDto);
+  }
+
+  @Patch(':id/recalculate')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: HarvestTicket,
+  })
+  recalculate(@Param('id') id: string) {
+    return this.harvestTicketsService.recalculateTicketTotals(id);
+  }
+
+  @Get(':id/invoice')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  async downloadInvoice(
+    @Param('id') id: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const pdfBuffer = await this.harvestTicketsService.generateInvoicePdf(id);
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="harvest-invoice-${id}.pdf"`,
+      'Content-Length': pdfBuffer.length.toString(),
+    });
+
+    res.end(pdfBuffer);
   }
 
   @Delete(':id')

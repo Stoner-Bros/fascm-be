@@ -3,6 +3,7 @@ import { HarvestTicketsModule } from '../harvest-tickets/harvest-tickets.module'
 import {
   // do not remove this comment
   Module,
+  forwardRef,
 } from '@nestjs/common';
 import { HarvestDetailsService } from './harvest-details.service';
 import { HarvestDetailsController } from './harvest-details.controller';
@@ -12,7 +13,7 @@ import { RelationalHarvestDetailPersistenceModule } from './infrastructure/persi
   imports: [
     ProductsModule,
 
-    HarvestTicketsModule,
+    forwardRef(() => HarvestTicketsModule),
 
     // do not remove this comment
     RelationalHarvestDetailPersistenceModule,

@@ -9,6 +9,8 @@ import {
   Injectable,
   HttpStatus,
   UnprocessableEntityException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { CreateHarvestDetailDto } from './dto/create-harvest-detail.dto';
 import { UpdateHarvestDetailDto } from './dto/update-harvest-detail.dto';
@@ -21,6 +23,7 @@ export class HarvestDetailsService {
   constructor(
     private readonly productService: ProductsService,
 
+    @Inject(forwardRef(() => HarvestTicketsService))
     private readonly harvestTicketService: HarvestTicketsService,
 
     // Dependencies here
@@ -69,7 +72,7 @@ export class HarvestDetailsService {
       harvestTicket = null;
     }
 
-    return this.harvestDetailRepository.create({
+    const createdDetail = await this.harvestDetailRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
       taxRate: createHarvestDetailDto.taxRate,
@@ -86,6 +89,13 @@ export class HarvestDetailsService {
 
       harvestTicket,
     });
+
+    // Recalculate harvest ticket totals after creating detail
+    if (harvestTicket?.id) {
+      await this.harvestTicketService.recalculateTicketTotals(harvestTicket.id);
+    }
+
+    return createdDetail;
   }
 
   findAllWithPagination({
@@ -159,7 +169,7 @@ export class HarvestDetailsService {
       harvestTicket = null;
     }
 
-    return this.harvestDetailRepository.update(id, {
+    const updatedDetail = await this.harvestDetailRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
       taxRate: updateHarvestDetailDto.taxRate,
@@ -176,9 +186,26 @@ export class HarvestDetailsService {
 
       harvestTicket,
     });
+
+    // Recalculate harvest ticket totals after updating detail
+    if (harvestTicket?.id) {
+      await this.harvestTicketService.recalculateTicketTotals(harvestTicket.id);
+    }
+
+    return updatedDetail;
   }
 
-  remove(id: HarvestDetail['id']) {
-    return this.harvestDetailRepository.remove(id);
+  async remove(id: HarvestDetail['id']) {
+    // Get the detail first to know which ticket to recalculate
+    const detail = await this.harvestDetailRepository.findById(id);
+    const harvestTicketId = detail?.harvestTicket?.id;
+
+    // Remove the detail
+    await this.harvestDetailRepository.remove(id);
+
+    // Recalculate harvest ticket totals after removing detail
+    if (harvestTicketId) {
+      await this.harvestTicketService.recalculateTicketTotals(harvestTicketId);
+    }
   }
 }

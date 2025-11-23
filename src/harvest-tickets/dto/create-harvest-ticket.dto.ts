@@ -13,7 +13,6 @@ import {
   IsNotEmptyObject,
   IsOptional,
   IsString,
-  IsNumber,
   IsDate,
 } from 'class-validator';
 
@@ -32,53 +31,53 @@ export class CreateHarvestTicketDto {
   @IsDate()
   date?: Date | null;
 
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  quantity?: number | null;
+  // @ApiProperty({
+  //   required: false,
+  //   type: () => Number,
+  // })
+  // @IsOptional()
+  // @IsNumber()
+  // quantity?: number | null;
 
-  @ApiProperty({
-    required: false,
-    type: () => String,
-  })
-  @IsOptional()
-  @IsString()
-  unit?: string | null;
+  // @ApiProperty({
+  //   required: false,
+  //   type: () => String,
+  // })
+  // @IsOptional()
+  // @IsString()
+  // unit?: string | null;
 
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  totalPayment?: number | null;
+  // @ApiProperty({
+  //   required: false,
+  //   type: () => Number,
+  // })
+  // @IsOptional()
+  // @IsNumber()
+  // totalPayment?: number | null;
 
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  vatAmount?: number | null;
+  // @ApiProperty({
+  //   required: false,
+  //   type: () => Number,
+  // })
+  // @IsOptional()
+  // @IsNumber()
+  // vatAmount?: number | null;
 
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  totalAmount?: number | null;
+  // @ApiProperty({
+  //   required: false,
+  //   type: () => Number,
+  // })
+  // @IsOptional()
+  // @IsNumber()
+  // totalAmount?: number | null;
 
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  taxRate?: number | null;
+  // @ApiProperty({
+  //   required: false,
+  //   type: () => Number,
+  // })
+  // @IsOptional()
+  // @IsNumber()
+  // taxRate?: number | null;
 
   @ApiProperty({
     required: false,

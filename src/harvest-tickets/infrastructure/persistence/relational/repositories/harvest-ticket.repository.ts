@@ -64,20 +64,32 @@ export class HarvestTicketRelationalRepository
   ): Promise<HarvestTicket> {
     const entity = await this.harvestTicketRepository.findOne({
       where: { id },
+      relations: ['harvestScheduleId'],
     });
 
     if (!entity) {
       throw new Error('Record not found');
     }
 
-    const updatedEntity = await this.harvestTicketRepository.save(
-      this.harvestTicketRepository.create(
-        HarvestTicketMapper.toPersistence({
-          ...HarvestTicketMapper.toDomain(entity),
-          ...payload,
-        }),
-      ),
-    );
+    // Directly update the fields from payload
+    if (payload.quantity !== undefined) entity.quantity = payload.quantity;
+    if (payload.unit !== undefined) entity.unit = payload.unit;
+    if (payload.totalPayment !== undefined)
+      entity.totalPayment = payload.totalPayment;
+    if (payload.vatAmount !== undefined) entity.vatAmount = payload.vatAmount;
+    if (payload.totalAmount !== undefined)
+      entity.totalAmount = payload.totalAmount;
+    if (payload.taxRate !== undefined) entity.taxRate = payload.taxRate;
+    if (payload.date !== undefined) entity.date = payload.date;
+    if (payload.accountNumber !== undefined)
+      entity.accountNumber = payload.accountNumber;
+    if (payload.paymentMethod !== undefined)
+      entity.paymentMethod = payload.paymentMethod;
+    if (payload.ticketNumber !== undefined)
+      entity.ticketNumber = payload.ticketNumber;
+    if (payload.ticketUrl !== undefined) entity.ticketUrl = payload.ticketUrl;
+
+    const updatedEntity = await this.harvestTicketRepository.save(entity);
 
     return HarvestTicketMapper.toDomain(updatedEntity);
   }

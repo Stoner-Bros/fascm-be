@@ -6,12 +6,17 @@ import {
   Injectable,
   HttpStatus,
   UnprocessableEntityException,
+  Inject,
+  forwardRef,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateHarvestTicketDto } from './dto/create-harvest-ticket.dto';
 import { UpdateHarvestTicketDto } from './dto/update-harvest-ticket.dto';
 import { HarvestTicketRepository } from './infrastructure/persistence/harvest-ticket.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { HarvestTicket } from './domain/harvest-ticket';
+import { HarvestDetailRepository } from '../harvest-details/infrastructure/persistence/harvest-detail.repository';
+import { PdfGeneratorService } from '../utils/pdf-generator.helper';
 
 @Injectable()
 export class HarvestTicketsService {
@@ -20,6 +25,9 @@ export class HarvestTicketsService {
 
     // Dependencies here
     private readonly harvestTicketRepository: HarvestTicketRepository,
+    @Inject(forwardRef(() => HarvestDetailRepository))
+    private readonly harvestDetailRepository: HarvestDetailRepository,
+    private readonly pdfGeneratorService: PdfGeneratorService,
   ) {}
 
   async create(createHarvestTicketDto: CreateHarvestTicketDto) {
@@ -51,17 +59,17 @@ export class HarvestTicketsService {
       // <creating-property-payload />
       date: createHarvestTicketDto.date,
 
-      quantity: createHarvestTicketDto.quantity,
+      quantity: 0,
 
-      unit: createHarvestTicketDto.unit,
+      unit: null,
 
-      totalPayment: createHarvestTicketDto.totalPayment,
+      totalPayment: 0,
 
-      vatAmount: createHarvestTicketDto.vatAmount,
+      vatAmount: 0,
 
-      totalAmount: createHarvestTicketDto.totalAmount,
+      totalAmount: 0,
 
-      taxRate: createHarvestTicketDto.taxRate,
+      taxRate: 0,
 
       accountNumber: createHarvestTicketDto.accountNumber,
 
@@ -129,17 +137,17 @@ export class HarvestTicketsService {
       // <updating-property-payload />
       date: updateHarvestTicketDto.date,
 
-      quantity: updateHarvestTicketDto.quantity,
+      // quantity: updateHarvestTicketDto.quantity,
 
-      unit: updateHarvestTicketDto.unit,
+      // unit: updateHarvestTicketDto.unit,
 
-      totalPayment: updateHarvestTicketDto.totalPayment,
+      // totalPayment: updateHarvestTicketDto.totalPayment,
 
-      vatAmount: updateHarvestTicketDto.vatAmount,
+      // vatAmount: updateHarvestTicketDto.vatAmount,
 
-      totalAmount: updateHarvestTicketDto.totalAmount,
+      // totalAmount: updateHarvestTicketDto.totalAmount,
 
-      taxRate: updateHarvestTicketDto.taxRate,
+      // taxRate: updateHarvestTicketDto.taxRate,
 
       accountNumber: updateHarvestTicketDto.accountNumber,
 
@@ -151,6 +159,86 @@ export class HarvestTicketsService {
 
       harvestScheduleId,
     });
+  }
+
+  async recalculateTicketTotals(harvestTicketId: string) {
+    // Get all harvest details for this ticket
+    const details =
+      await this.harvestDetailRepository.findByHarvestTicketId(harvestTicketId);
+
+    if (!details || details.length === 0) {
+      // If no details, set everything to 0
+      return this.harvestTicketRepository.update(harvestTicketId, {
+        quantity: 0,
+        totalAmount: 0,
+        totalPayment: 0,
+        vatAmount: 0,
+        taxRate: 0,
+        unit: null,
+      });
+    }
+
+    // Calculate totals from details
+    const totalQuantity = details.reduce(
+      (sum, detail) => sum + (detail.quantity || 0),
+      0,
+    );
+    const totalAmount = details.reduce(
+      (sum, detail) => sum + (detail.amount || 0),
+      0,
+    );
+
+    // Get unit from first detail (assuming all details have same unit)
+    const unit = details[0]?.unit || null;
+
+    // Update harvest ticket with calculated values
+    return this.harvestTicketRepository.update(harvestTicketId, {
+      quantity: totalQuantity,
+      totalAmount: totalAmount,
+      totalPayment: totalAmount, // totalPayment = totalAmount
+      vatAmount: 0, // Default to 0
+      taxRate: 0, // Default to 0
+      unit: unit,
+    });
+  }
+
+  async generateInvoicePdf(id: HarvestTicket['id']): Promise<Buffer> {
+    // Get harvest ticket with full data
+    const ticket = await this.harvestTicketRepository.findById(id);
+
+    if (!ticket) {
+      throw new NotFoundException('Harvest ticket not found');
+    }
+
+    // Get all harvest details
+    const details =
+      await this.harvestDetailRepository.findByHarvestTicketId(id);
+
+    // Format date
+    const formattedDate = ticket.date
+      ? new Date(ticket.date).toLocaleDateString('vi-VN')
+      : '';
+
+    // Prepare data for template
+    const templateData = {
+      ticketNumber: ticket.ticketNumber || 'N/A',
+      date: formattedDate,
+      paymentMethod: ticket.paymentMethod || 'N/A',
+      accountNumber: ticket.accountNumber,
+      harvestScheduleId: ticket.harvestScheduleId,
+      details: details,
+      quantity: ticket.quantity || 0,
+      unit: ticket.unit || '',
+      totalAmount: ticket.totalAmount || 0,
+      vatAmount: ticket.vatAmount || 0,
+      totalPayment: ticket.totalPayment || 0,
+    };
+
+    // Generate PDF
+    return this.pdfGeneratorService.generatePdfFromTemplate(
+      'harvest-invoice',
+      templateData,
+    );
   }
 
   remove(id: HarvestTicket['id']) {
