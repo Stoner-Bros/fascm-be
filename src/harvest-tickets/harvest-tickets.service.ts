@@ -16,7 +16,7 @@ import { HarvestTicketRepository } from './infrastructure/persistence/harvest-ti
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { HarvestTicket } from './domain/harvest-ticket';
 import { HarvestDetailRepository } from '../harvest-details/infrastructure/persistence/harvest-detail.repository';
-import { PdfGeneratorService } from '../utils/pdf-generator.service';
+import { PdfGeneratorService } from '../utils/pdf-generator.helper';
 
 @Injectable()
 export class HarvestTicketsService {

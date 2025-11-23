@@ -34,6 +34,7 @@ export class PdfGeneratorService {
     const templatePath = join(
       process.cwd(),
       'src',
+      'harvest-tickets',
       'templates',
       `${templateName}.hbs`,
     );

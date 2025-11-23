@@ -8,7 +8,7 @@ import {
 import { HarvestTicketsService } from './harvest-tickets.service';
 import { HarvestTicketsController } from './harvest-tickets.controller';
 import { RelationalHarvestTicketPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
-import { PdfGeneratorService } from '../utils/pdf-generator.service';
+import { PdfGeneratorService } from '../utils/pdf-generator.helper';
 
 @Module({
   imports: [
