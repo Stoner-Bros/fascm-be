@@ -1,9 +1,21 @@
 // Don't forget to use the class-validator decorators in the DTO properties.
 // import { Allow } from 'class-validator';
 
-import { PartialType } from '@nestjs/swagger';
-import { CreateDeliveryStaffDto } from './create-delivery-staff.dto';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { DeliveryStaffRegisterDto } from './create-delivery-staff.dto';
+import { UserDto } from 'src/users/dto/user.dto';
+import { IsNotEmptyObject, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class UpdateDeliveryStaffDto extends PartialType(
-  CreateDeliveryStaffDto,
-) {}
+  DeliveryStaffRegisterDto,
+) {
+  @ApiProperty({
+    required: true,
+    type: () => UserDto,
+  })
+  @ValidateNested()
+  @Type(() => UserDto)
+  @IsNotEmptyObject()
+  user: UserDto;
+}

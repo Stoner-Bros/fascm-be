@@ -1,4 +1,6 @@
 import { Supplier } from '../../../../domain/supplier';
+import { WarehouseMapper } from '../../../../../warehouses/infrastructure/persistence/relational/mappers/warehouse.mapper';
+
 import { UserMapper } from '../../../../../users/infrastructure/persistence/relational/mappers/user.mapper';
 
 import { SupplierEntity } from '../entities/supplier.entity';
@@ -6,6 +8,12 @@ import { SupplierEntity } from '../entities/supplier.entity';
 export class SupplierMapper {
   static toDomain(raw: SupplierEntity): Supplier {
     const domainEntity = new Supplier();
+    if (raw.warehouse) {
+      domainEntity.warehouse = WarehouseMapper.toDomain(raw.warehouse);
+    } else if (raw.warehouse === null) {
+      domainEntity.warehouse = null;
+    }
+
     if (raw.user) {
       domainEntity.user = UserMapper.toDomain(raw.user);
     }
@@ -33,6 +41,14 @@ export class SupplierMapper {
 
   static toPersistence(domainEntity: Supplier): SupplierEntity {
     const persistenceEntity = new SupplierEntity();
+    if (domainEntity.warehouse) {
+      persistenceEntity.warehouse = WarehouseMapper.toPersistence(
+        domainEntity.warehouse,
+      );
+    } else if (domainEntity.warehouse === null) {
+      persistenceEntity.warehouse = null;
+    }
+
     if (domainEntity.user) {
       persistenceEntity.user = UserMapper.toPersistence(domainEntity.user);
     }

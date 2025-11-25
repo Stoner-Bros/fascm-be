@@ -7,11 +7,12 @@ import {
 import { StaffsService } from './staffs.service';
 import { StaffsController } from './staffs.controller';
 import { RelationalStaffPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
     WarehousesModule,
-
+    AuthModule,
     UsersModule,
 
     // do not remove this comment

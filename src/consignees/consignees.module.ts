@@ -6,10 +6,12 @@ import {
 import { ConsigneesService } from './consignees.service';
 import { ConsigneesController } from './consignees.controller';
 import { RelationalConsigneePersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
     UsersModule,
+    AuthModule,
 
     // do not remove this comment
     RelationalConsigneePersistenceModule,

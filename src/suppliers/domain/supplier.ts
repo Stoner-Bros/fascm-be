@@ -1,12 +1,19 @@
+import { Warehouse } from '../../warehouses/domain/warehouse';
 import { User } from '../../users/domain/user';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class Supplier {
   @ApiProperty({
-    type: () => User,
-    nullable: false,
+    type: () => Warehouse,
+    nullable: true,
   })
-  user: User;
+  warehouse?: Warehouse | null;
+
+  @ApiProperty({
+    type: () => User,
+    nullable: true,
+  })
+  user?: User | null;
 
   @ApiProperty({
     type: () => String,

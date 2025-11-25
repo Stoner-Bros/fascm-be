@@ -1,3 +1,5 @@
+import { WarehouseEntity } from '../../../../../warehouses/infrastructure/persistence/relational/entities/warehouse.entity';
+
 import { UserEntity } from '../../../../../users/infrastructure/persistence/relational/entities/user.entity';
 
 import {
@@ -8,6 +10,7 @@ import {
   Column,
   JoinColumn,
   OneToOne,
+  ManyToOne,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -15,9 +18,12 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
   name: 'supplier',
 })
 export class SupplierEntity extends EntityRelationalHelper {
-  @OneToOne(() => UserEntity, { eager: true, nullable: false })
+  @ManyToOne(() => WarehouseEntity, { eager: true, nullable: true })
+  warehouse?: WarehouseEntity | null;
+
+  @OneToOne(() => UserEntity, { eager: true, nullable: true })
   @JoinColumn()
-  user: UserEntity;
+  user?: UserEntity | null;
 
   @Column({
     nullable: true,

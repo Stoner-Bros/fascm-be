@@ -18,12 +18,14 @@ import { UpdateDeliveryStaffDto } from './dto/update-delivery-staff.dto';
 import { DeliveryStaffRepository } from './infrastructure/persistence/delivery-staff.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { DeliveryStaff } from './domain/delivery-staff';
+import { AuthService } from 'src/auth/auth.service';
+import { RoleEnum } from 'src/roles/roles.enum';
 
 @Injectable()
 export class DeliveryStaffsService {
   constructor(
     private readonly truckService: TrucksService,
-
+    private readonly authService: AuthService,
     private readonly warehouseService: WarehousesService,
 
     private readonly userService: UsersService,
@@ -73,9 +75,13 @@ export class DeliveryStaffsService {
       warehouse = null;
     }
 
-    const userObject = await this.userService.findById(
-      createDeliveryStaffDto.user.id,
+    const userObject = await this.authService.register(
+      createDeliveryStaffDto.user,
     );
+
+    userObject.role = { id: RoleEnum.delivery_staff };
+    await this.userService.update(userObject.id, userObject);
+
     if (!userObject) {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,

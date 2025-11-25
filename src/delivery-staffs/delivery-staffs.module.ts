@@ -8,11 +8,12 @@ import {
 import { DeliveryStaffsService } from './delivery-staffs.service';
 import { DeliveryStaffsController } from './delivery-staffs.controller';
 import { RelationalDeliveryStaffPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
     TrucksModule,
-
+    AuthModule,
     WarehousesModule,
 
     UsersModule,

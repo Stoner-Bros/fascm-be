@@ -1,5 +1,3 @@
-import { UserDto } from '../../users/dto/user.dto';
-
 import {
   // decorators here
   Type,
@@ -18,8 +16,9 @@ import {
   // decorators here
   ApiProperty,
 } from '@nestjs/swagger';
+import { AuthRegisterLoginDto } from 'src/auth/dto/auth-register-login.dto';
 
-export class CreateConsigneeDto {
+export class ConsigneeRegisterDto {
   @ApiProperty({
     required: false,
     type: () => String,
@@ -75,16 +74,17 @@ export class CreateConsigneeDto {
   @IsOptional()
   @IsString()
   representativeName?: string | null;
+  // Don't forget to use the class-validator decorators in the DTO properties.
+}
 
+export class CreateConsigneeDto extends ConsigneeRegisterDto {
   @ApiProperty({
     required: false,
-    type: () => UserDto,
+    type: () => AuthRegisterLoginDto,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => UserDto)
+  @Type(() => AuthRegisterLoginDto)
   @IsNotEmptyObject()
-  user?: UserDto | null;
-
-  // Don't forget to use the class-validator decorators in the DTO properties.
+  user?: AuthRegisterLoginDto | null;
 }

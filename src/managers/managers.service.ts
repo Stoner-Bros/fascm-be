@@ -15,12 +15,14 @@ import { UpdateManagerDto } from './dto/update-manager.dto';
 import { ManagerRepository } from './infrastructure/persistence/manager.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { Manager } from './domain/manager';
+import { AuthService } from 'src/auth/auth.service';
+import { RoleEnum } from 'src/roles/roles.enum';
 
 @Injectable()
 export class ManagersService {
   constructor(
     private readonly warehouseService: WarehousesService,
-
+    private readonly authService: AuthService,
     private readonly userService: UsersService,
 
     // Dependencies here
@@ -52,9 +54,11 @@ export class ManagersService {
     let user: User | null | undefined = undefined;
 
     if (createManagerDto.user) {
-      const userObject = await this.userService.findById(
-        createManagerDto.user.id,
-      );
+      const userObject = await this.authService.register(createManagerDto.user);
+
+      userObject.role = { id: RoleEnum.manager }; // Set role to Manager
+      await this.userService.update(userObject.id, userObject);
+
       if (!userObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
