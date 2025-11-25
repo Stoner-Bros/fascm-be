@@ -15,12 +15,14 @@ import { UpdateStaffDto } from './dto/update-staff.dto';
 import { StaffRepository } from './infrastructure/persistence/staff.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { Staff } from './domain/staff';
+import { AuthService } from 'src/auth/auth.service';
+import { RoleEnum } from 'src/roles/roles.enum';
 
 @Injectable()
 export class StaffsService {
   constructor(
     private readonly warehouseService: WarehousesService,
-
+    private readonly authService: AuthService,
     private readonly userService: UsersService,
 
     // Dependencies here
@@ -52,9 +54,11 @@ export class StaffsService {
     let user: User | null | undefined = undefined;
 
     if (createStaffDto.user) {
-      const userObject = await this.userService.findById(
-        createStaffDto.user.id,
-      );
+      const userObject = await this.authService.register(createStaffDto.user);
+
+      userObject.role = { id: RoleEnum.staff };
+      await this.userService.update(userObject.id, userObject);
+
       if (!userObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,

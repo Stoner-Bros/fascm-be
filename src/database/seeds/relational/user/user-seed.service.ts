@@ -6,16 +6,48 @@ import bcrypt from 'bcryptjs';
 import { RoleEnum } from '../../../../roles/roles.enum';
 import { StatusEnum } from '../../../../statuses/statuses.enum';
 import { UserEntity } from '../../../../users/infrastructure/persistence/relational/entities/user.entity';
+import { ManagerEntity } from 'src/managers/infrastructure/persistence/relational/entities/manager.entity';
+import { StaffEntity } from 'src/staffs/infrastructure/persistence/relational/entities/staff.entity';
+import { DeliveryStaffEntity } from 'src/delivery-staffs/infrastructure/persistence/relational/entities/delivery-staff.entity';
+import { ConsigneeEntity } from 'src/consignees/infrastructure/persistence/relational/entities/consignee.entity';
+import { SupplierEntity } from 'src/suppliers/infrastructure/persistence/relational/entities/supplier.entity';
+import { WarehouseEntity } from 'src/warehouses/infrastructure/persistence/relational/entities/warehouse.entity';
+import { TruckEntity } from 'src/trucks/infrastructure/persistence/relational/entities/truck.entity';
 
 @Injectable()
 export class UserSeedService {
   constructor(
     @InjectRepository(UserEntity)
-    private repository: Repository<UserEntity>,
+    private userRepo: Repository<UserEntity>,
+
+    @InjectRepository(ManagerEntity)
+    private managerRepo: Repository<ManagerEntity>,
+
+    @InjectRepository(StaffEntity)
+    private staffRepo: Repository<StaffEntity>,
+
+    @InjectRepository(DeliveryStaffEntity)
+    private dStaffRepo: Repository<DeliveryStaffEntity>,
+
+    @InjectRepository(ConsigneeEntity)
+    private consigneeRepo: Repository<ConsigneeEntity>,
+
+    @InjectRepository(SupplierEntity)
+    private supplierRepo: Repository<SupplierEntity>,
+
+    @InjectRepository(WarehouseEntity)
+    private warehouseRepo: Repository<WarehouseEntity>,
+
+    @InjectRepository(TruckEntity)
+    private truckRepo: Repository<TruckEntity>,
   ) {}
 
   async run() {
-    const countAdmin = await this.repository.count({
+    const warehouses = await this.warehouseRepo.find();
+    const trucks = await this.truckRepo.find();
+
+    // 1. Admin User
+    const countAdmin = await this.userRepo.count({
       where: {
         role: {
           id: RoleEnum.admin,
@@ -27,8 +59,8 @@ export class UserSeedService {
       const salt = await bcrypt.genSalt();
       const password = await bcrypt.hash('secret', salt);
 
-      await this.repository.save(
-        this.repository.create({
+      await this.userRepo.save(
+        this.userRepo.create({
           firstName: 'Super',
           lastName: 'Admin',
           email: 'admin@example.com',
@@ -45,7 +77,8 @@ export class UserSeedService {
       );
     }
 
-    const countManager = await this.repository.count({
+    // 2. Manager Users
+    const countManager = await this.userRepo.count({
       where: {
         role: {
           id: RoleEnum.manager,
@@ -54,28 +87,62 @@ export class UserSeedService {
     });
 
     if (!countManager) {
-      const salt = await bcrypt.genSalt();
-      const password = await bcrypt.hash('secret', salt);
+      const managers = [
+        {
+          firstName: 'Nguyễn',
+          lastName: 'Văn An',
+          email: 'manager1@example.com',
+          position: 'Quản lý kho Hà Nội',
+          warehouse: warehouses[0],
+        },
+        {
+          firstName: 'Trần',
+          lastName: 'Thị Bình',
+          email: 'manager2@example.com',
+          position: 'Quản lý kho TP.HCM',
+          warehouse: warehouses[1],
+        },
+        {
+          firstName: 'Lê',
+          lastName: 'Văn Cường',
+          email: 'manager3@example.com',
+          position: 'Quản lý kho miền Trung',
+          warehouse: warehouses[2],
+        },
+      ];
 
-      await this.repository.save(
-        this.repository.create({
-          firstName: 'Super',
-          lastName: 'Manager',
-          email: 'manager@example.com',
-          password,
-          role: {
-            id: RoleEnum.manager,
-            name: 'Manager',
-          },
-          status: {
-            id: StatusEnum.active,
-            name: 'Active',
-          },
-        }),
-      );
+      for (const managerData of managers) {
+        const salt = await bcrypt.genSalt();
+        const password = await bcrypt.hash('secret', salt);
+
+        const user = await this.userRepo.save(
+          this.userRepo.create({
+            firstName: managerData.firstName,
+            lastName: managerData.lastName,
+            email: managerData.email,
+            password,
+            role: {
+              id: RoleEnum.manager,
+              name: 'Manager',
+            },
+            status: {
+              id: StatusEnum.active,
+              name: 'Active',
+            },
+          }),
+        );
+
+        await this.managerRepo.save(
+          this.managerRepo.create({
+            user: user,
+            warehouse: managerData.warehouse,
+          }),
+        );
+      }
     }
 
-    const countStaff = await this.repository.count({
+    // 3. Staff Users
+    const countStaff = await this.userRepo.count({
       where: {
         role: {
           id: RoleEnum.staff,
@@ -84,28 +151,77 @@ export class UserSeedService {
     });
 
     if (!countStaff) {
-      const salt = await bcrypt.genSalt();
-      const password = await bcrypt.hash('secret', salt);
+      const staffs = [
+        {
+          firstName: 'Phạm',
+          lastName: 'Văn Dũng',
+          email: 'staff1@example.com',
+          position: 'Nhân viên kho',
+          warehouse: warehouses[0],
+        },
+        {
+          firstName: 'Hoàng',
+          lastName: 'Thị Em',
+          email: 'staff2@example.com',
+          position: 'Nhân viên kiểm định',
+          warehouse: warehouses[0],
+        },
+        {
+          firstName: 'Đặng',
+          lastName: 'Văn Phúc',
+          email: 'staff3@example.com',
+          position: 'Nhân viên đóng gói',
+          warehouse: warehouses[1],
+        },
+        {
+          firstName: 'Võ',
+          lastName: 'Thị Giang',
+          email: 'staff4@example.com',
+          position: 'Nhân viên sơ chế',
+          warehouse: warehouses[1],
+        },
+        {
+          firstName: 'Bùi',
+          lastName: 'Văn Hải',
+          email: 'staff5@example.com',
+          position: 'Nhân viên thu hoạch',
+          warehouse: warehouses[2],
+        },
+      ];
 
-      await this.repository.save(
-        this.repository.create({
-          firstName: 'Super',
-          lastName: 'Staff',
-          email: 'staff@example.com',
-          password,
-          role: {
-            id: RoleEnum.staff,
-            name: 'Staff',
-          },
-          status: {
-            id: StatusEnum.active,
-            name: 'Active',
-          },
-        }),
-      );
+      for (const staffData of staffs) {
+        const salt = await bcrypt.genSalt();
+        const password = await bcrypt.hash('secret', salt);
+
+        const user = await this.userRepo.save(
+          this.userRepo.create({
+            firstName: staffData.firstName,
+            lastName: staffData.lastName,
+            email: staffData.email,
+            password,
+            role: {
+              id: RoleEnum.staff,
+              name: 'Staff',
+            },
+            status: {
+              id: StatusEnum.active,
+              name: 'Active',
+            },
+          }),
+        );
+
+        await this.staffRepo.save(
+          this.staffRepo.create({
+            user: user,
+            position: staffData.position,
+            warehouse: staffData.warehouse,
+          }),
+        );
+      }
     }
 
-    const countDeliveryStaff = await this.repository.count({
+    // 4. Delivery Staff Users
+    const countDeliveryStaff = await this.userRepo.count({
       where: {
         role: {
           id: RoleEnum.delivery_staff,
@@ -114,28 +230,70 @@ export class UserSeedService {
     });
 
     if (!countDeliveryStaff) {
-      const salt = await bcrypt.genSalt();
-      const password = await bcrypt.hash('secret', salt);
+      const deliveryStaffs = [
+        {
+          firstName: 'Ngô',
+          lastName: 'Văn Khánh',
+          email: 'deliverystaff1@example.com',
+          truck: trucks[0],
+          warehouse: warehouses[0],
+        },
+        {
+          firstName: 'Dương',
+          lastName: 'Thị Loan',
+          email: 'deliverystaff2@example.com',
+          truck: trucks[1],
+          warehouse: warehouses[1],
+        },
+        {
+          firstName: 'Lý',
+          lastName: 'Văn Minh',
+          email: 'deliverystaff3@example.com',
+          truck: trucks[2],
+          warehouse: warehouses[2],
+        },
+        {
+          firstName: 'Hồ',
+          lastName: 'Thị Nga',
+          email: 'deliverystaff4@example.com',
+          truck: trucks[3],
+          warehouse: warehouses[3],
+        },
+      ];
 
-      await this.repository.save(
-        this.repository.create({
-          firstName: 'Super',
-          lastName: 'Delivery Staff',
-          email: 'deliverystaff@example.com',
-          password,
-          role: {
-            id: RoleEnum.delivery_staff,
-            name: 'Delivery Staff',
-          },
-          status: {
-            id: StatusEnum.active,
-            name: 'Active',
-          },
-        }),
-      );
+      for (const dStaffData of deliveryStaffs) {
+        const salt = await bcrypt.genSalt();
+        const password = await bcrypt.hash('secret', salt);
+
+        const user = await this.userRepo.save(
+          this.userRepo.create({
+            firstName: dStaffData.firstName,
+            lastName: dStaffData.lastName,
+            email: dStaffData.email,
+            password,
+            role: {
+              id: RoleEnum.delivery_staff,
+              name: 'Delivery Staff',
+            },
+            status: {
+              id: StatusEnum.active,
+              name: 'Active',
+            },
+          }),
+        );
+
+        await this.dStaffRepo.save(
+          this.dStaffRepo.create({
+            user: user,
+            truck: dStaffData.truck,
+            warehouse: dStaffData.warehouse,
+          }),
+        );
+      }
     }
 
-    const countConsignee = await this.repository.count({
+    // 5. Consignee Users
+    const countConsignee = await this.userRepo.count({
       where: {
         role: {
           id: RoleEnum.consignee,
@@ -144,28 +302,65 @@ export class UserSeedService {
     });
 
     if (!countConsignee) {
-      const salt = await bcrypt.genSalt();
-      const password = await bcrypt.hash('secret', salt);
+      const consignees = [
+        {
+          firstName: 'Siêu thị',
+          lastName: 'BigC',
+          email: 'bigc@example.com',
+        },
+        {
+          firstName: 'Cửa hàng',
+          lastName: 'VinMart',
+          email: 'vinmart@example.com',
+        },
+        {
+          firstName: 'Nhà hàng',
+          lastName: 'Golden Dragon',
+          email: 'goldendragon@example.com',
+        },
+        {
+          firstName: 'Chợ',
+          lastName: 'Bến Thành',
+          email: 'benthanh@example.com',
+        },
+        {
+          firstName: 'Siêu thị',
+          lastName: 'Lotte Mart',
+          email: 'lottemart@example.com',
+        },
+      ];
 
-      await this.repository.save(
-        this.repository.create({
-          firstName: 'Super',
-          lastName: 'Consignee',
-          email: 'consignee@example.com',
-          password,
-          role: {
-            id: RoleEnum.consignee,
-            name: 'Consignee',
-          },
-          status: {
-            id: StatusEnum.active,
-            name: 'Active',
-          },
-        }),
-      );
+      for (const consigneeData of consignees) {
+        const salt = await bcrypt.genSalt();
+        const password = await bcrypt.hash('secret', salt);
+
+        const user = await this.userRepo.save(
+          this.userRepo.create({
+            firstName: consigneeData.firstName,
+            lastName: consigneeData.lastName,
+            email: consigneeData.email,
+            password,
+            role: {
+              id: RoleEnum.consignee,
+              name: 'Consignee',
+            },
+            status: {
+              id: StatusEnum.active,
+              name: 'Active',
+            },
+          }),
+        );
+
+        await this.consigneeRepo.save(
+          this.consigneeRepo.create({
+            user: user,
+          }),
+        );
+      }
     }
 
-    const countSupplier = await this.repository.count({
+    // 6. Supplier Users
+    const countSupplier = await this.userRepo.count({
       where: {
         role: {
           id: RoleEnum.supplier,
@@ -174,55 +369,68 @@ export class UserSeedService {
     });
 
     if (!countSupplier) {
-      const salt = await bcrypt.genSalt();
-      const password = await bcrypt.hash('secret', salt);
-
-      await this.repository.save(
-        this.repository.create({
-          firstName: 'Super',
-          lastName: 'Supplier',
-          email: 'supplier@example.com',
-          password,
-          role: {
-            id: RoleEnum.supplier,
-            name: 'Supplier',
-          },
-          status: {
-            id: StatusEnum.active,
-            name: 'Active',
-          },
-        }),
-      );
-    }
-
-    const countUser = await this.repository.count({
-      where: {
-        role: {
-          id: RoleEnum.user,
+      const suppliers = [
+        {
+          firstName: 'Nông trường',
+          lastName: 'Đà Lạt Organic',
+          email: 'dalatorganic@example.com',
         },
-      },
-    });
+        {
+          firstName: 'HTX',
+          lastName: 'Rau sạch Bình Dương',
+          email: 'rausachbd@example.com',
+        },
+        {
+          firstName: 'Trang trại',
+          lastName: 'Green Farm',
+          email: 'greenfarm@example.com',
+        },
+        {
+          firstName: 'Công ty',
+          lastName: 'TNHH Nông sản Sạch',
+          email: 'nongsansach@example.com',
+        },
+        {
+          firstName: 'Hợp tác xã',
+          lastName: 'Rau Củ Quả Lâm Đồng',
+          email: 'raucuqualamdong@example.com',
+        },
+        {
+          firstName: 'Nông dân',
+          lastName: 'Nguyễn Văn Tám',
+          email: 'nguyenvantam@example.com',
+        },
+      ];
 
-    if (!countUser) {
-      const salt = await bcrypt.genSalt();
-      const password = await bcrypt.hash('secret', salt);
+      for (const supplierData of suppliers) {
+        const salt = await bcrypt.genSalt();
+        const password = await bcrypt.hash('secret', salt);
 
-      await this.repository.save(
-        this.repository.create({
-          firstName: 'Super',
-          lastName: 'User',
-          email: 'user@example.com',
-          password,
-          role: {
-            id: RoleEnum.user,
-            name: 'User',
-          },
-          status: {
-            id: StatusEnum.active,
-            name: 'Active',
-          },
-        }),
-      );
+        const user = await this.userRepo.save(
+          this.userRepo.create({
+            firstName: supplierData.firstName,
+            lastName: supplierData.lastName,
+            email: supplierData.email,
+            password,
+            role: {
+              id: RoleEnum.supplier,
+              name: 'Supplier',
+            },
+            status: {
+              id: StatusEnum.active,
+              name: 'Active',
+            },
+          }),
+        );
+
+        await this.supplierRepo.save(
+          this.supplierRepo.create({
+            user: user,
+            gardenName: `${supplierData.lastName} Garden`,
+            representativeName: `${supplierData.firstName} ${supplierData.lastName}`,
+          }),
+        );
+      }
     }
   }
 }

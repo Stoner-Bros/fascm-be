@@ -1,7 +1,5 @@
 import { WarehouseDto } from '../../warehouses/dto/warehouse.dto';
 
-import { UserDto } from '../../users/dto/user.dto';
-
 import {
   // decorators here
   Type,
@@ -19,8 +17,9 @@ import {
   // decorators here
   ApiProperty,
 } from '@nestjs/swagger';
+import { AuthRegisterLoginDto } from 'src/auth/dto/auth-register-login.dto';
 
-export class CreateManagerDto {
+export class ManagerRegisterDto {
   @ApiProperty({
     required: false,
     type: () => WarehouseDto,
@@ -31,15 +30,18 @@ export class CreateManagerDto {
   @IsNotEmptyObject()
   warehouse?: WarehouseDto | null;
 
+  // Don't forget to use the class-validator decorators in the DTO properties.
+}
+
+export class CreateManagerDto extends ManagerRegisterDto {
+  // Don't forget to use the class-validator decorators in the DTO properties.
   @ApiProperty({
     required: false,
-    type: () => UserDto,
+    type: () => AuthRegisterLoginDto,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => UserDto)
+  @Type(() => AuthRegisterLoginDto)
   @IsNotEmptyObject()
-  user?: UserDto | null;
-
-  // Don't forget to use the class-validator decorators in the DTO properties.
+  user?: AuthRegisterLoginDto | null;
 }

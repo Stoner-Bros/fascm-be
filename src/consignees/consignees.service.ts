@@ -12,11 +12,14 @@ import { UpdateConsigneeDto } from './dto/update-consignee.dto';
 import { ConsigneeRepository } from './infrastructure/persistence/consignee.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { Consignee } from './domain/consignee';
+import { AuthService } from 'src/auth/auth.service';
+import { RoleEnum } from 'src/roles/roles.enum';
 
 @Injectable()
 export class ConsigneesService {
   constructor(
     private readonly userService: UsersService,
+    private readonly authService: AuthService,
 
     // Dependencies here
     private readonly consigneeRepository: ConsigneeRepository,
@@ -29,9 +32,13 @@ export class ConsigneesService {
     let user: User | null | undefined = undefined;
 
     if (createConsigneeDto.user) {
-      const userObject = await this.userService.findById(
-        createConsigneeDto.user.id,
+      const userObject = await this.authService.register(
+        createConsigneeDto.user,
       );
+
+      userObject.role = { id: RoleEnum.consignee };
+      await this.userService.update(userObject.id, userObject);
+
       if (!userObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,

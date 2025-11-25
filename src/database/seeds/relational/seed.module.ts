@@ -7,6 +7,11 @@ import { TypeOrmConfigService } from '../../typeorm-config.service';
 import { RoleSeedModule } from './role/role-seed.module';
 import { StatusSeedModule } from './status/status-seed.module';
 import { UserSeedModule } from './user/user-seed.module';
+import { WarehouseSeedModule } from './warehouse/warehouse-seed.module';
+import { AreaSeedModule } from './area/area-seed.module';
+import { CategorySeedModule } from './category/category-seed.module';
+import { ProductSeedModule } from './product/product-seed.module';
+import { TruckSeedModule } from './truck/truck-seed.module';
 import databaseConfig from '../../config/database.config';
 import appConfig from '../../../config/app.config';
 
@@ -15,6 +20,11 @@ import appConfig from '../../../config/app.config';
     RoleSeedModule,
     StatusSeedModule,
     UserSeedModule,
+    WarehouseSeedModule,
+    AreaSeedModule,
+    CategorySeedModule,
+    ProductSeedModule,
+    TruckSeedModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, appConfig],
