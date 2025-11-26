@@ -5,15 +5,15 @@ import { ApiProperty } from '@nestjs/swagger';
 export class IoTDevice {
   @ApiProperty({
     type: () => Truck,
-    nullable: false,
+    nullable: true,
   })
-  truck: Truck;
+  truck: Truck | null;
 
   @ApiProperty({
     type: () => Area,
-    nullable: false,
+    nullable: true,
   })
-  area: Area;
+  area: Area | null;
 
   @ApiProperty({
     type: () => String,

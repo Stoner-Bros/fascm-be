@@ -5,10 +5,11 @@ import { AreaEntity } from '../../../../../areas/infrastructure/persistence/rela
 import {
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn,
   Column,
   ManyToOne,
+  BeforeInsert,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -18,15 +19,15 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
 export class IoTDeviceEntity extends EntityRelationalHelper {
   @ManyToOne(() => TruckEntity, (parentEntity) => parentEntity.iotDevice, {
     eager: false,
-    nullable: false,
+    nullable: true,
   })
-  truck: TruckEntity;
+  truck: TruckEntity | null;
 
   @ManyToOne(() => AreaEntity, (parentEntity) => parentEntity.iotDevice, {
     eager: false,
-    nullable: false,
+    nullable: true,
   })
-  area: AreaEntity;
+  area: AreaEntity | null;
 
   @Column({
     nullable: true,
@@ -52,8 +53,20 @@ export class IoTDeviceEntity extends EntityRelationalHelper {
   })
   type?: string | null;
 
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({
+    type: String,
+  })
   id: string;
+
+  @BeforeInsert()
+  async generateId() {
+    if (this.id) return;
+    const last = await IoTDeviceEntity.createQueryBuilder('c')
+      .orderBy('c.id', 'DESC')
+      .getOne();
+    const next = last ? Number((last.id ?? '').split('_')[1] ?? 0) + 1 : 1;
+    this.id = `IOT_${String(next).padStart(4, '0')}`;
+  }
 
   @CreateDateColumn()
   createdAt: Date;

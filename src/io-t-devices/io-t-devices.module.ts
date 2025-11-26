@@ -8,6 +8,7 @@ import {
 import { IoTDevicesService } from './io-t-devices.service';
 import { IoTDevicesController } from './io-t-devices.controller';
 import { RelationalIoTDevicePersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+import { MqttService } from './mqtt.service';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { RelationalIoTDevicePersistenceModule } from './infrastructure/persisten
     RelationalIoTDevicePersistenceModule,
   ],
   controllers: [IoTDevicesController],
-  providers: [IoTDevicesService],
+  providers: [IoTDevicesService, MqttService],
   exports: [IoTDevicesService, RelationalIoTDevicePersistenceModule],
 })
 export class IoTDevicesModule {}
