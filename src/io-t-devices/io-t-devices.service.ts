@@ -34,38 +34,67 @@ export class IoTDevicesService {
   async create(createIoTDeviceDto: CreateIoTDeviceDto) {
     // Do not remove comment below.
     // <creating-property />
-    const truckObject = await this.truckService.findById(
-      createIoTDeviceDto.truck.id,
-    );
-    if (!truckObject) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          truck: 'notExists',
-        },
-      });
-    }
-    const truck = truckObject;
 
-    const areaObject = await this.areaService.findById(
-      createIoTDeviceDto.area.id,
-    );
-    if (!areaObject) {
+    // Validate that either truck or area is provided, but not both or neither
+    const hasTruck = createIoTDeviceDto.truck?.id;
+    const hasArea = createIoTDeviceDto.area?.id;
+
+    if (!hasTruck && !hasArea) {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,
         errors: {
-          area: 'notExists',
+          device: 'mustHaveEitherTruckOrArea',
         },
       });
     }
-    const area = areaObject;
+
+    if (hasTruck && hasArea) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          device: 'cannotHaveBothTruckAndArea',
+        },
+      });
+    }
+
+    let truck: Truck | undefined = undefined;
+    if (hasTruck) {
+      const truckObject = await this.truckService.findById(
+        createIoTDeviceDto.truck!.id,
+      );
+      if (!truckObject) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            truck: 'notExists',
+          },
+        });
+      }
+      truck = truckObject;
+    }
+
+    let area: Area | undefined = undefined;
+    if (hasArea) {
+      const areaObject = await this.areaService.findById(
+        createIoTDeviceDto.area!.id,
+      );
+      if (!areaObject) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            area: 'notExists',
+          },
+        });
+      }
+      area = areaObject;
+    }
 
     return this.ioTDeviceRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      truck,
+      truck: truck ?? null,
 
-      area,
+      area: area ?? null,
 
       status: createIoTDeviceDto.status,
 
@@ -105,38 +134,60 @@ export class IoTDevicesService {
   ) {
     // Do not remove comment below.
     // <updating-property />
-    let truck: Truck | undefined = undefined;
 
-    if (updateIoTDeviceDto.truck) {
-      const truckObject = await this.truckService.findById(
-        updateIoTDeviceDto.truck.id,
-      );
-      if (!truckObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            truck: 'notExists',
-          },
-        });
-      }
-      truck = truckObject;
+    // Validate that if both truck and area are provided, they can't both have values
+    const hasTruck = updateIoTDeviceDto.truck?.id;
+    const hasArea = updateIoTDeviceDto.area?.id;
+
+    if (hasTruck && hasArea) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          device: 'cannotHaveBothTruckAndArea',
+        },
+      });
     }
 
-    let area: Area | undefined = undefined;
+    let truck: Truck | null | undefined = undefined;
 
-    if (updateIoTDeviceDto.area) {
-      const areaObject = await this.areaService.findById(
-        updateIoTDeviceDto.area.id,
-      );
-      if (!areaObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            area: 'notExists',
-          },
-        });
+    if (updateIoTDeviceDto.truck !== undefined) {
+      if (updateIoTDeviceDto.truck?.id) {
+        const truckObject = await this.truckService.findById(
+          updateIoTDeviceDto.truck.id,
+        );
+        if (!truckObject) {
+          throw new UnprocessableEntityException({
+            status: HttpStatus.UNPROCESSABLE_ENTITY,
+            errors: {
+              truck: 'notExists',
+            },
+          });
+        }
+        truck = truckObject;
+      } else {
+        truck = null;
       }
-      area = areaObject;
+    }
+
+    let area: Area | null | undefined = undefined;
+
+    if (updateIoTDeviceDto.area !== undefined) {
+      if (updateIoTDeviceDto.area?.id) {
+        const areaObject = await this.areaService.findById(
+          updateIoTDeviceDto.area.id,
+        );
+        if (!areaObject) {
+          throw new UnprocessableEntityException({
+            status: HttpStatus.UNPROCESSABLE_ENTITY,
+            errors: {
+              area: 'notExists',
+            },
+          });
+        }
+        area = areaObject;
+      } else {
+        area = null;
+      }
     }
 
     return this.ioTDeviceRepository.update(id, {
@@ -158,5 +209,42 @@ export class IoTDevicesService {
 
   remove(id: IoTDevice['id']) {
     return this.ioTDeviceRepository.remove(id);
+  }
+
+  async updateDeviceData(
+    deviceId: string,
+    temperature: number,
+    humidity: number,
+  ) {
+    const device = await this.ioTDeviceRepository.findById(deviceId);
+
+    if (!device) {
+      return;
+    }
+
+    // Tạo JSON string với temperature và humidity
+    const data = JSON.stringify({
+      temperature,
+      humidity,
+    });
+
+    // Cập nhật device
+    return this.ioTDeviceRepository.update(deviceId, {
+      data,
+      lastDataTime: new Date(),
+      status: 'active',
+    });
+  }
+
+  async setDeviceOffline(deviceId: string) {
+    const device = await this.ioTDeviceRepository.findById(deviceId);
+
+    if (!device) {
+      return;
+    }
+
+    return this.ioTDeviceRepository.update(deviceId, {
+      status: 'inactive',
+    });
   }
 }
