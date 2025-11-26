@@ -10,8 +10,10 @@ export abstract class DeliveryRepository {
 
   abstract findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { orderScheduleId?: string };
   }): Promise<Delivery[]>;
 
   abstract findById(id: Delivery['id']): Promise<NullableType<Delivery>>;

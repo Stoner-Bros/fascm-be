@@ -124,14 +124,17 @@ export class DeliveriesService {
 
   findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { orderScheduleId?: string };
   }) {
     return this.deliveryRepository.findAllWithPagination({
       paginationOptions: {
         page: paginationOptions.page,
         limit: paginationOptions.limit,
       },
+      filters,
     });
   }
 

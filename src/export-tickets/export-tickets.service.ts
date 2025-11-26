@@ -56,6 +56,11 @@ export class ExportTicketsService {
     });
   }
 
+  async createBulk(createExportTicketDtos: CreateExportTicketDto[]) {
+    const tasks = createExportTicketDtos.map((dto) => this.create(dto));
+    return Promise.all(tasks);
+  }
+
   findAllWithPagination({
     paginationOptions,
   }: {

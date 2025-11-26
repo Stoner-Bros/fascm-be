@@ -8,6 +8,7 @@ import {
 import { DeliveriesService } from './deliveries.service';
 import { DeliveriesController } from './deliveries.controller';
 import { RelationalDeliveryPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+import { DeliveryGateway } from './delivery.gateway';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { RelationalDeliveryPersistenceModule } from './infrastructure/persistenc
     RelationalDeliveryPersistenceModule,
   ],
   controllers: [DeliveriesController],
-  providers: [DeliveriesService],
+  providers: [DeliveriesService, DeliveryGateway],
   exports: [DeliveriesService, RelationalDeliveryPersistenceModule],
 })
 export class DeliveriesModule {}

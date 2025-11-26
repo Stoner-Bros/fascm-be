@@ -65,6 +65,9 @@ export class DeliveriesController {
           page,
           limit,
         },
+        filters: {
+          orderScheduleId: query?.orderScheduleId,
+        },
       }),
       { page, limit },
     );

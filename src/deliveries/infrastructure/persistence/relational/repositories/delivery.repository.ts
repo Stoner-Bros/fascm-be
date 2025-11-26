@@ -25,14 +25,26 @@ export class DeliveryRelationalRepository implements DeliveryRepository {
 
   async findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { orderScheduleId?: string };
   }): Promise<Delivery[]> {
-    const entities = await this.deliveryRepository.find({
-      skip: (paginationOptions.page - 1) * paginationOptions.limit,
-      take: paginationOptions.limit,
-    });
+    const qb = this.deliveryRepository.createQueryBuilder('delivery');
+    qb.leftJoinAndSelect('delivery.orderSchedule', 'orderSchedule');
+    qb.leftJoinAndSelect('delivery.truck', 'truck');
+    qb.leftJoinAndSelect('delivery.harvestSchedule', 'harvestSchedule');
 
+    if (filters?.orderScheduleId) {
+      qb.andWhere('orderSchedule.id = :orderScheduleId', {
+        orderScheduleId: filters.orderScheduleId,
+      });
+    }
+
+    qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
+    qb.take(paginationOptions.limit);
+
+    const entities = await qb.getMany();
     return entities.map((entity) => DeliveryMapper.toDomain(entity));
   }
 

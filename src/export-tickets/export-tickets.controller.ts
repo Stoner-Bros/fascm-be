@@ -46,6 +46,14 @@ export class ExportTicketsController {
     return this.exportTicketsService.create(createExportTicketDto);
   }
 
+  @Post('many')
+  @ApiCreatedResponse({
+    type: [ExportTicket],
+  })
+  createBulk(@Body() createExportTicketDtos: CreateExportTicketDto[]) {
+    return this.exportTicketsService.createBulk(createExportTicketDtos);
+  }
+
   @Get()
   @ApiOkResponse({
     type: InfinityPaginationResponse(ExportTicket),

@@ -7,10 +7,11 @@ import { OrderScheduleEntity } from '../../../../../order-schedules/infrastructu
 import {
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
   ManyToOne,
   Column,
+  PrimaryColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -20,25 +21,25 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
 export class DeliveryEntity extends EntityRelationalHelper {
   @Column({
     nullable: true,
-    type: Number,
+    type: 'double precision',
   })
   endLng?: number | null;
 
   @Column({
     nullable: true,
-    type: Number,
+    type: 'double precision',
   })
   endLat?: number | null;
 
   @Column({
     nullable: true,
-    type: Number,
+    type: 'double precision',
   })
   startLng?: number | null;
 
   @Column({
     nullable: true,
-    type: Number,
+    type: 'double precision',
   })
   startLat?: number | null;
 
@@ -81,8 +82,19 @@ export class DeliveryEntity extends EntityRelationalHelper {
   @ManyToOne(() => OrderScheduleEntity, { eager: true, nullable: true })
   orderSchedule?: OrderScheduleEntity | null;
 
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({
+    type: String,
+  })
   id: string;
+  @BeforeInsert()
+  async generateId() {
+    if (this.id) return;
+    const last = await DeliveryEntity.createQueryBuilder('c')
+      .orderBy('c.id', 'DESC')
+      .getOne();
+    const next = last ? Number((last.id ?? '').split('_')[1] ?? 0) + 1 : 1;
+    this.id = `DEL_${String(next).padStart(4, '0')}`;
+  }
 
   @CreateDateColumn()
   createdAt: Date;
