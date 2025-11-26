@@ -17,6 +17,7 @@ import { UpdateIoTDeviceDto } from './dto/update-io-t-device.dto';
 import { IoTDeviceRepository } from './infrastructure/persistence/io-t-device.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { IoTDevice } from './domain/io-t-device';
+import { NullableType } from 'src/utils/types/nullable.type';
 
 @Injectable()
 export class IoTDevicesService {
@@ -246,5 +247,17 @@ export class IoTDevicesService {
     return this.ioTDeviceRepository.update(deviceId, {
       status: 'inactive',
     });
+  }
+
+  async findAreaByDeviceId(deviceId: string): Promise<NullableType<Area>> {
+    const areaId =
+      await this.ioTDeviceRepository.findAreaWithDeviceId(deviceId);
+
+    if (!areaId) {
+      return null;
+    }
+
+    const area = await this.areaService.findById(areaId);
+    return area;
   }
 }

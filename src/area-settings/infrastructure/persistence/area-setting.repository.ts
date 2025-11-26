@@ -24,4 +24,6 @@ export abstract class AreaSettingRepository {
   ): Promise<AreaSetting | null>;
 
   abstract remove(id: AreaSetting['id']): Promise<void>;
+
+  abstract findByAreaId(areaId: string): Promise<NullableType<AreaSetting>>;
 }

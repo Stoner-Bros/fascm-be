@@ -1,6 +1,8 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import * as mqtt from 'mqtt';
 import { IoTDevicesService } from './io-t-devices.service';
+import { AreaSettingsService } from 'src/area-settings/area-settings.service';
+import { AreaAlertsService } from 'src/area-alerts/area-alerts.service';
 
 @Injectable()
 export class MqttService implements OnModuleInit, OnModuleDestroy {
@@ -12,7 +14,11 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   private readonly TOPIC_DATA = 'sensors/dht22/data';
   private readonly TOPIC_STATUS = 'sensors/dht22/status';
 
-  constructor(private readonly ioTDevicesService: IoTDevicesService) {}
+  constructor(
+    private readonly ioTDevicesService: IoTDevicesService,
+    private readonly areaSettingService: AreaSettingsService,
+    private readonly areaAlertService: AreaAlertsService,
+  ) {}
 
   onModuleInit() {
     this.connectToBroker();
@@ -94,6 +100,56 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       data.temperature,
       data.humidity,
     );
+
+    // Find the area with iot devide id
+    const area = await this.ioTDevicesService.findAreaByDeviceId(data.deviceId);
+    if (area) {
+      const areaSetting = await this.areaSettingService.findByAreaId(area.id);
+      if (areaSetting) {
+        // Compare with area settings min.max temperature and humidity (if set) and create alert if out of range
+
+        const existAlert = await this.areaAlertService.findActiveAlertByAreaId(
+          area.id,
+        );
+
+        if (
+          (areaSetting.minTemperature !== null &&
+            areaSetting.minTemperature !== undefined &&
+            data.temperature < areaSetting.minTemperature) ||
+          (areaSetting.maxTemperature !== null &&
+            areaSetting.maxTemperature !== undefined &&
+            data.temperature > areaSetting.maxTemperature) ||
+          (areaSetting.minHumidity !== null &&
+            areaSetting.minHumidity !== undefined &&
+            data.humidity < areaSetting.minHumidity) ||
+          (areaSetting.maxHumidity !== null &&
+            areaSetting.maxHumidity !== undefined &&
+            data.humidity > areaSetting.maxHumidity)
+        ) {
+          if (existAlert) {
+            // An active alert already exists for this area
+            existAlert.status = 'active';
+            existAlert.message = `Alert for temperature and humidity out of range. Current temperature: ${data.temperature}, humidity: ${data.humidity}`;
+            await this.areaAlertService.update(existAlert.id, existAlert);
+            return;
+          }
+          await this.areaAlertService.create({
+            area: {
+              id: area.id,
+            },
+            status: 'active',
+            message: `Alert for temperature and humidity out of range. Current temperature: ${data.temperature}, humidity: ${data.humidity}`,
+            alertType: 'sensor',
+          });
+        } else {
+          if (existAlert) {
+            // Resolve the existing alert
+            existAlert.status = 'resolved';
+            await this.areaAlertService.update(existAlert.id, existAlert);
+          }
+        }
+      }
+    }
   }
 
   private async handleStatusMessage(payload: string) {

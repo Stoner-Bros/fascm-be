@@ -6,13 +6,25 @@ export class AreaSetting {
     type: () => Number,
     nullable: true,
   })
-  humidityThreshold?: number | null;
+  minHumidity?: number | null;
 
   @ApiProperty({
     type: () => Number,
     nullable: true,
   })
-  temperatureThreshold?: number | null;
+  maxHumidity?: number | null;
+
+  @ApiProperty({
+    type: () => Number,
+    nullable: true,
+  })
+  minTemperature?: number | null;
+
+  @ApiProperty({
+    type: () => Number,
+    nullable: true,
+  })
+  maxTemperature?: number | null;
 
   @ApiProperty({
     type: () => Area,

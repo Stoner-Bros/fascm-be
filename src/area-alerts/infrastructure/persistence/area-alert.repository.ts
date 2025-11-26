@@ -24,4 +24,8 @@ export abstract class AreaAlertRepository {
   ): Promise<AreaAlert | null>;
 
   abstract remove(id: AreaAlert['id']): Promise<void>;
+
+  abstract findActiveAlertByAreaId(
+    areaId: string,
+  ): Promise<NullableType<AreaAlert>>;
 }

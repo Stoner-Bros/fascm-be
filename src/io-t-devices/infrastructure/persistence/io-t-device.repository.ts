@@ -24,4 +24,8 @@ export abstract class IoTDeviceRepository {
   ): Promise<IoTDevice | null>;
 
   abstract remove(id: IoTDevice['id']): Promise<void>;
+
+  abstract findAreaWithDeviceId(
+    deviceId: IoTDevice['id'],
+  ): Promise<NullableType<string>>;
 }

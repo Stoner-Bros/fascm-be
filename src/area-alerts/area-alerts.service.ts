@@ -121,4 +121,8 @@ export class AreaAlertsService {
   remove(id: AreaAlert['id']) {
     return this.areaAlertRepository.remove(id);
   }
+
+  findActiveAlertByAreaId(areaId: string) {
+    return this.areaAlertRepository.findActiveAlertByAreaId(areaId);
+  }
 }

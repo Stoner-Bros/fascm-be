@@ -26,7 +26,7 @@ export class CreateAreaSettingDto {
   })
   @IsOptional()
   @IsNumber()
-  humidityThreshold?: number | null;
+  minHumidity?: number | null;
 
   @ApiProperty({
     required: false,
@@ -34,7 +34,23 @@ export class CreateAreaSettingDto {
   })
   @IsOptional()
   @IsNumber()
-  temperatureThreshold?: number | null;
+  maxHumidity?: number | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  minTemperature?: number | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  maxTemperature?: number | null;
 
   @ApiProperty({
     required: false,

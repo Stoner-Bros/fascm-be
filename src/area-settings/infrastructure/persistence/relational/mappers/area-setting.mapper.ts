@@ -7,9 +7,14 @@ import { AreaSettingEntity } from '../entities/area-setting.entity';
 export class AreaSettingMapper {
   static toDomain(raw: AreaSettingEntity): AreaSetting {
     const domainEntity = new AreaSetting();
-    domainEntity.humidityThreshold = raw.humidityThreshold;
 
-    domainEntity.temperatureThreshold = raw.temperatureThreshold;
+    domainEntity.minHumidity = raw.minHumidity;
+
+    domainEntity.maxHumidity = raw.maxHumidity;
+
+    domainEntity.minTemperature = raw.minTemperature;
+
+    domainEntity.maxTemperature = raw.maxTemperature;
 
     if (raw.area) {
       domainEntity.area = AreaMapper.toDomain(raw.area);
@@ -26,10 +31,12 @@ export class AreaSettingMapper {
 
   static toPersistence(domainEntity: AreaSetting): AreaSettingEntity {
     const persistenceEntity = new AreaSettingEntity();
-    persistenceEntity.humidityThreshold = domainEntity.humidityThreshold;
+    persistenceEntity.minHumidity = domainEntity.minHumidity;
+    persistenceEntity.maxHumidity = domainEntity.maxHumidity;
 
-    persistenceEntity.temperatureThreshold = domainEntity.temperatureThreshold;
+    persistenceEntity.minTemperature = domainEntity.minTemperature;
 
+    persistenceEntity.maxTemperature = domainEntity.maxTemperature;
     if (domainEntity.area) {
       persistenceEntity.area = AreaMapper.toPersistence(domainEntity.area);
     } else if (domainEntity.area === null) {

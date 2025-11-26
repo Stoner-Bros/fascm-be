@@ -79,4 +79,14 @@ export class AreaAlertRelationalRepository implements AreaAlertRepository {
   async remove(id: AreaAlert['id']): Promise<void> {
     await this.areaAlertRepository.delete(id);
   }
+
+  async findActiveAlertByAreaId(
+    areaId: string,
+  ): Promise<NullableType<AreaAlert>> {
+    const entity = await this.areaAlertRepository.findOne({
+      where: { area: { id: areaId } },
+    });
+
+    return entity ? AreaAlertMapper.toDomain(entity) : null;
+  }
 }

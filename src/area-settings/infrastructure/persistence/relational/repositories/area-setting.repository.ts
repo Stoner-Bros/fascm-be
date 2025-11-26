@@ -79,4 +79,12 @@ export class AreaSettingRelationalRepository implements AreaSettingRepository {
   async remove(id: AreaSetting['id']): Promise<void> {
     await this.areaSettingRepository.delete(id);
   }
+
+  async findByAreaId(areaId: string): Promise<NullableType<AreaSetting>> {
+    const entity = await this.areaSettingRepository.findOne({
+      where: { area: { id: areaId } },
+    });
+
+    return entity ? AreaSettingMapper.toDomain(entity) : null;
+  }
 }

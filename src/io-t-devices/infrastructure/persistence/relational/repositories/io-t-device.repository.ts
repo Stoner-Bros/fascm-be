@@ -79,4 +79,15 @@ export class IoTDeviceRelationalRepository implements IoTDeviceRepository {
   async remove(id: IoTDevice['id']): Promise<void> {
     await this.ioTDeviceRepository.delete(id);
   }
+
+  async findAreaWithDeviceId(
+    deviceId: IoTDevice['id'],
+  ): Promise<NullableType<string>> {
+    const entity = await this.ioTDeviceRepository.findOne({
+      where: { id: deviceId },
+      relations: ['area'],
+    });
+
+    return entity && entity.area ? entity.area.id : null;
+  }
 }

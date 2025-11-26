@@ -47,10 +47,10 @@ export class AreaSettingsService {
     return this.areaSettingRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      humidityThreshold: createAreaSettingDto.humidityThreshold,
-
-      temperatureThreshold: createAreaSettingDto.temperatureThreshold,
-
+      minHumidity: createAreaSettingDto.minHumidity,
+      maxHumidity: createAreaSettingDto.maxHumidity,
+      minTemperature: createAreaSettingDto.minTemperature,
+      maxTemperature: createAreaSettingDto.maxTemperature,
       area,
     });
   }
@@ -106,9 +106,10 @@ export class AreaSettingsService {
     return this.areaSettingRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      humidityThreshold: updateAreaSettingDto.humidityThreshold,
-
-      temperatureThreshold: updateAreaSettingDto.temperatureThreshold,
+      minHumidity: updateAreaSettingDto.minHumidity,
+      maxHumidity: updateAreaSettingDto.maxHumidity,
+      minTemperature: updateAreaSettingDto.minTemperature,
+      maxTemperature: updateAreaSettingDto.maxTemperature,
 
       area,
     });
@@ -116,5 +117,9 @@ export class AreaSettingsService {
 
   remove(id: AreaSetting['id']) {
     return this.areaSettingRepository.remove(id);
+  }
+
+  findByAreaId(areaId: string) {
+    return this.areaSettingRepository.findByAreaId(areaId);
   }
 }

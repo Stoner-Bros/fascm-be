@@ -19,13 +19,25 @@ export class AreaSettingEntity extends EntityRelationalHelper {
     nullable: true,
     type: Number,
   })
-  humidityThreshold?: number | null;
+  minHumidity?: number | null;
 
   @Column({
     nullable: true,
     type: Number,
   })
-  temperatureThreshold?: number | null;
+  maxHumidity?: number | null;
+
+  @Column({
+    nullable: true,
+    type: Number,
+  })
+  minTemperature?: number | null;
+
+  @Column({
+    nullable: true,
+    type: Number,
+  })
+  maxTemperature?: number | null;
 
   @OneToOne(() => AreaEntity, { eager: true, nullable: true })
   @JoinColumn()
