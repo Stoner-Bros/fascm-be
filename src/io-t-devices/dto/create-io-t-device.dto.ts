@@ -9,7 +9,7 @@ import {
   IsOptional,
   IsDate,
   ValidateNested,
-  IsNotEmptyObject,
+  ValidateIf,
 } from 'class-validator';
 
 import {
@@ -26,22 +26,26 @@ import {
 
 export class CreateIoTDeviceDto {
   @ApiProperty({
-    required: true,
+    required: false,
     type: () => TruckDto,
+    nullable: true,
   })
+  @IsOptional()
+  @ValidateIf((o) => o.truck?.id !== null && o.truck?.id !== undefined)
   @ValidateNested()
   @Type(() => TruckDto)
-  @IsNotEmptyObject()
-  truck: TruckDto;
+  truck?: TruckDto | null;
 
   @ApiProperty({
-    required: true,
+    required: false,
     type: () => AreaDto,
+    nullable: true,
   })
+  @IsOptional()
+  @ValidateIf((o) => o.area?.id !== null && o.area?.id !== undefined)
   @ValidateNested()
   @Type(() => AreaDto)
-  @IsNotEmptyObject()
-  area: AreaDto;
+  area?: AreaDto | null;
 
   @ApiProperty({
     required: false,
