@@ -21,6 +21,7 @@ import { PdfGeneratorService } from '../utils/pdf-generator.helper';
 @Injectable()
 export class HarvestTicketsService {
   constructor(
+    @Inject(forwardRef(() => HarvestSchedulesService))
     private readonly harvestScheduleService: HarvestSchedulesService,
 
     // Dependencies here

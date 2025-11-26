@@ -27,4 +27,8 @@ export abstract class HarvestTicketRepository {
   ): Promise<HarvestTicket | null>;
 
   abstract remove(id: HarvestTicket['id']): Promise<void>;
+
+  abstract findByHarvestScheduleId(
+    harvestScheduleId: string,
+  ): Promise<HarvestTicketResponse>;
 }

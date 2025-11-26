@@ -20,6 +20,7 @@ import {
   // decorators here
   ApiProperty,
 } from '@nestjs/swagger';
+import { AreaDto } from 'src/areas/dto/area.dto';
 
 export class CreateImportTicketDto {
   @ApiProperty({
@@ -28,15 +29,7 @@ export class CreateImportTicketDto {
   })
   @IsOptional()
   @IsNumber()
-  numberOfBatch?: number | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  percent?: number | null;
+  realityQuantity?: number | null;
 
   @ApiProperty({
     required: false,
@@ -56,6 +49,16 @@ export class CreateImportTicketDto {
   @Type(() => InboundBatchDto)
   @IsNotEmptyObject()
   inboundBatch?: InboundBatchDto | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => AreaDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AreaDto)
+  @IsNotEmptyObject()
+  area?: AreaDto | null;
 
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

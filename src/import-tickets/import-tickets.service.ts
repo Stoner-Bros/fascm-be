@@ -6,17 +6,23 @@ import {
   Injectable,
   HttpStatus,
   UnprocessableEntityException,
+  forwardRef,
+  Inject,
 } from '@nestjs/common';
 import { CreateImportTicketDto } from './dto/create-import-ticket.dto';
 import { UpdateImportTicketDto } from './dto/update-import-ticket.dto';
 import { ImportTicketRepository } from './infrastructure/persistence/import-ticket.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { ImportTicket } from './domain/import-ticket';
+import { BatchesService } from 'src/batches/batches.service';
 
 @Injectable()
 export class ImportTicketsService {
   constructor(
     private readonly inboundBatchService: InboundBatchesService,
+
+    @Inject(forwardRef(() => BatchesService))
+    private readonly batchesService: BatchesService,
 
     // Dependencies here
     private readonly importTicketRepository: ImportTicketRepository,
@@ -45,17 +51,34 @@ export class ImportTicketsService {
       inboundBatch = null;
     }
 
-    return this.importTicketRepository.create({
+    const importTicket = await this.importTicketRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      numberOfBatch: createImportTicketDto.numberOfBatch,
+      numberOfBatch: (createImportTicketDto.realityQuantity || 0) / 20,
 
-      percent: createImportTicketDto.percent,
+      percent:
+        ((createImportTicketDto.realityQuantity || 0) /
+          (inboundBatch?.quantity || 1)) *
+        100,
 
       importDate: createImportTicketDto.importDate,
 
       inboundBatch,
     });
+
+    for (let i = 0; i < (importTicket.numberOfBatch || 0); i++) {
+      await this.batchesService.create({
+        quantity: 20,
+        unit: 'kg',
+        importTicket: { id: importTicket.id },
+        area: createImportTicketDto.area
+          ? { id: createImportTicketDto.area.id }
+          : null,
+        product: inboundBatch?.product ? { id: inboundBatch.product.id } : null,
+      });
+    }
+
+    return importTicket;
   }
 
   findAllWithPagination({
@@ -109,9 +132,12 @@ export class ImportTicketsService {
     return this.importTicketRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      numberOfBatch: updateImportTicketDto.numberOfBatch,
+      numberOfBatch: (updateImportTicketDto.realityQuantity || 0) / 20,
 
-      percent: updateImportTicketDto.percent,
+      percent:
+        ((updateImportTicketDto.realityQuantity || 0) /
+          (inboundBatch?.quantity || 1)) *
+        100,
 
       importDate: updateImportTicketDto.importDate,
 

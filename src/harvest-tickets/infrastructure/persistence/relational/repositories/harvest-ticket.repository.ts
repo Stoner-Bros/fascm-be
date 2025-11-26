@@ -97,4 +97,15 @@ export class HarvestTicketRelationalRepository
   async remove(id: HarvestTicket['id']): Promise<void> {
     await this.harvestTicketRepository.delete(id);
   }
+
+  async findByHarvestScheduleId(
+    harvestScheduleId: string,
+  ): Promise<HarvestTicketResponse> {
+    const entities = await this.harvestTicketRepository.find({
+      where: { harvestScheduleId: { id: harvestScheduleId } },
+      relations: ['harvestScheduleId'],
+    });
+
+    return HarvestTicketMapper.toResponse(entities[0]);
+  }
 }

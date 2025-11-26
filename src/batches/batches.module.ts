@@ -3,6 +3,7 @@ import { AreasModule } from '../areas/areas.module';
 import { ProductsModule } from '../products/products.module';
 import { ImportTicketsModule } from '../import-tickets/import-tickets.module';
 import {
+  forwardRef,
   // do not remove this comment
   Module,
 } from '@nestjs/common';
@@ -18,7 +19,7 @@ import { RelationalBatchPersistenceModule } from './infrastructure/persistence/r
 
     ProductsModule,
 
-    ImportTicketsModule,
+    forwardRef(() => ImportTicketsModule),
 
     // do not remove this comment
     RelationalBatchPersistenceModule,

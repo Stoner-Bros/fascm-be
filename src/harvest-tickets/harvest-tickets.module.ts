@@ -12,7 +12,7 @@ import { PdfGeneratorService } from '../utils/pdf-generator.helper';
 
 @Module({
   imports: [
-    HarvestSchedulesModule,
+    forwardRef(() => HarvestSchedulesModule),
     forwardRef(() => HarvestDetailsModule),
 
     // do not remove this comment

@@ -15,6 +15,8 @@ import {
   Injectable,
   HttpStatus,
   UnprocessableEntityException,
+  forwardRef,
+  Inject,
 } from '@nestjs/common';
 import { CreateBatchDto } from './dto/create-batch.dto';
 import { UpdateBatchDto } from './dto/update-batch.dto';
@@ -31,6 +33,7 @@ export class BatchesService {
 
     private readonly productService: ProductsService,
 
+    @Inject(forwardRef(() => ImportTicketsService))
     private readonly importTicketService: ImportTicketsService,
 
     // Dependencies here

@@ -6,6 +6,8 @@ import {
   Injectable,
   HttpStatus,
   UnprocessableEntityException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { CreateHarvestScheduleDto } from './dto/create-harvest-schedule.dto';
 import { UpdateHarvestScheduleDto } from './dto/update-harvest-schedule.dto';
@@ -13,6 +15,9 @@ import { HarvestScheduleRepository } from './infrastructure/persistence/harvest-
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { HarvestSchedule } from './domain/harvest-schedule';
 import { HarvestScheduleStatusEnum } from './harvest-schedule-status.enum';
+import { HarvestTicketRepository } from 'src/harvest-tickets/infrastructure/persistence/harvest-ticket.repository';
+import { HarvestDetailRepository } from 'src/harvest-details/infrastructure/persistence/harvest-detail.repository';
+import { InboundBatchesService } from 'src/inbound-batches/inbound-batches.service';
 
 @Injectable()
 export class HarvestSchedulesService {
@@ -21,6 +26,11 @@ export class HarvestSchedulesService {
 
     // Dependencies here
     private readonly harvestScheduleRepository: HarvestScheduleRepository,
+    @Inject(forwardRef(() => HarvestTicketRepository))
+    private readonly harvestTicketRepository: HarvestTicketRepository,
+    @Inject(forwardRef(() => HarvestDetailRepository))
+    private readonly harvestDetailRepository: HarvestDetailRepository,
+    private readonly inboundBatchService: InboundBatchesService,
   ) {}
 
   async create(createHarvestScheduleDto: CreateHarvestScheduleDto) {
@@ -145,6 +155,28 @@ export class HarvestSchedulesService {
           status: 'cannotConfirmNonPendingSchedule',
         },
       });
+    }
+
+    // Check if approving, create inbound batch base on harvest details
+    if (status === HarvestScheduleStatusEnum.APPROVED) {
+      const harvestTicket =
+        await this.harvestTicketRepository.findByHarvestScheduleId(id);
+      const harvestDetails =
+        await this.harvestDetailRepository.findByHarvestTicketId(
+          harvestTicket.id,
+        );
+
+      if (harvestDetails.length > 0) {
+        // Each harvest detail will create an inbound batch
+        for (const detail of harvestDetails) {
+          await this.inboundBatchService.create({
+            quantity: detail.quantity,
+            unit: detail.unit,
+            product: detail.product,
+            harvestDetail: detail,
+          });
+        }
+      }
     }
 
     return this.harvestScheduleRepository.confirm(id, status, reason);
