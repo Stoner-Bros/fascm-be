@@ -499,7 +499,7 @@ export class AuthService {
   ): Promise<Omit<LoginResponseDto, 'user'>> {
     const session = await this.sessionService.findById(data.sessionId);
 
-    if (!session) {
+    if (!session || session.deletedAt !== null) {
       throw new UnauthorizedException();
     }
 
