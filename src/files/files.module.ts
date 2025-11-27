@@ -9,15 +9,28 @@ import { FileConfig, FileDriver } from './config/file-config.type';
 import { FilesLocalModule } from './infrastructure/uploader/local/files.module';
 import { FilesS3Module } from './infrastructure/uploader/s3/files.module';
 import { FilesS3PresignedModule } from './infrastructure/uploader/s3-presigned/files.module';
+import { FilesCloudinaryModule } from './infrastructure/uploader/cloudinary/files.module';
 
 const infrastructurePersistenceModule = RelationalFilePersistenceModule;
 
-const infrastructureUploaderModule =
-  (fileConfig() as FileConfig).driver === FileDriver.LOCAL
-    ? FilesLocalModule
-    : (fileConfig() as FileConfig).driver === FileDriver.S3
-      ? FilesS3Module
-      : FilesS3PresignedModule;
+function getUploaderModule() {
+  const config = fileConfig() as FileConfig;
+
+  switch (config.driver) {
+    case FileDriver.LOCAL:
+      return FilesLocalModule;
+    case FileDriver.S3:
+      return FilesS3Module;
+    case FileDriver.S3_PRESIGNED:
+      return FilesS3PresignedModule;
+    case FileDriver.CLOUDINARY:
+      return FilesCloudinaryModule;
+    default:
+      return FilesLocalModule; // fallback to local
+  }
+}
+
+const infrastructureUploaderModule = getUploaderModule();
 
 @Module({
   imports: [
