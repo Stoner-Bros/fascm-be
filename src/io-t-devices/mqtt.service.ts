@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import * as mqtt from 'mqtt';
 import { IoTDevicesService } from './io-t-devices.service';
+import { IoTGateway } from './iot.gateway';
 import { AreaSettingsService } from 'src/area-settings/area-settings.service';
 import { AreaAlertsService } from 'src/area-alerts/area-alerts.service';
 
@@ -18,6 +19,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     private readonly ioTDevicesService: IoTDevicesService,
     private readonly areaSettingService: AreaSettingsService,
     private readonly areaAlertService: AreaAlertsService,
+    private readonly iotGateway: IoTGateway,
   ) {}
 
   onModuleInit() {
@@ -84,7 +86,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       // MQTT client reconnecting
     });
   }
-
+  //connect to socket io
   private async handleSensorData(data: {
     deviceId?: string;
     temperature: number;
@@ -100,6 +102,16 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       data.temperature,
       data.humidity,
     );
+
+    const device = await this.ioTDevicesService.findById(data.deviceId);
+    this.iotGateway.broadcastUpdate({
+      deviceId: data.deviceId,
+      areaId: device?.area?.id ?? null,
+      truckId: device?.truck?.id ?? null,
+      temperature: data.temperature,
+      humidity: data.humidity,
+      timestamp: new Date().toISOString(),
+    });
 
     // Find the area with iot devide id
     const area = await this.ioTDevicesService.findAreaByDeviceId(data.deviceId);

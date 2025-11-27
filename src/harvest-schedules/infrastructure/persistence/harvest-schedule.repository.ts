@@ -11,8 +11,12 @@ export abstract class HarvestScheduleRepository {
 
   abstract findAllWithPagination({
     paginationOptions,
+    filters,
+    sort,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { status?: HarvestScheduleStatusEnum };
+    sort?: 'ASC' | 'DESC';
   }): Promise<HarvestSchedule[]>;
 
   abstract findById(

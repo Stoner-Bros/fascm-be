@@ -28,17 +28,24 @@ export class HarvestScheduleRelationalRepository
 
   async findAllWithPagination({
     paginationOptions,
+    filters,
+    sort,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { status?: HarvestScheduleStatusEnum };
+    sort?: 'ASC' | 'DESC';
   }): Promise<HarvestSchedule[]> {
-    const entities = await this.harvestScheduleRepository.find({
-      skip: (paginationOptions.page - 1) * paginationOptions.limit,
-      take: paginationOptions.limit,
-      order: {
-        id: 'ASC',
-      },
-    });
+    const qb = this.harvestScheduleRepository.createQueryBuilder('hs');
+    qb.leftJoinAndSelect('hs.supplierId', 'supplier');
+    if (filters?.status) {
+      qb.andWhere('hs.status = :status', { status: filters.status });
+    }
 
+    qb.orderBy('hs.createdAt', sort ?? 'DESC');
+    qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
+    qb.take(paginationOptions.limit);
+
+    const entities = await qb.getMany();
     return entities.map((entity) => HarvestScheduleMapper.toDomain(entity));
   }
 

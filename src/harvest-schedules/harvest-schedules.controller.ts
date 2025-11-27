@@ -61,6 +61,8 @@ export class HarvestSchedulesController {
     if (limit > 50) {
       limit = 50;
     }
+    const status = query?.status;
+    const sort = query?.sort === 'asc' ? 'ASC' : 'DESC';
 
     return infinityPagination(
       await this.harvestSchedulesService.findAllWithPagination({
@@ -68,6 +70,8 @@ export class HarvestSchedulesController {
           page,
           limit,
         },
+        filters: { status },
+        sort,
       }),
       { page, limit },
     );

@@ -71,14 +71,20 @@ export class HarvestSchedulesService {
 
   findAllWithPagination({
     paginationOptions,
+    filters,
+    sort,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { status?: HarvestScheduleStatusEnum };
+    sort?: 'ASC' | 'DESC';
   }) {
     return this.harvestScheduleRepository.findAllWithPagination({
       paginationOptions: {
         page: paginationOptions.page,
         limit: paginationOptions.limit,
       },
+      filters,
+      sort,
     });
   }
 

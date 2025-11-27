@@ -32,6 +32,27 @@ export class DeliveriesService {
     private readonly deliveryRepository: DeliveryRepository,
   ) {}
 
+  private async resolveCoords(
+    address?: string | null,
+  ): Promise<{ lat: number; lon: number } | null> {
+    try {
+      const q = (address ?? '').trim();
+      if (!q) return null;
+      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`;
+      const res = await fetch(url, {
+        headers: { 'User-Agent': 'capstone-app' },
+      });
+      const arr = await res.json();
+      if (Array.isArray(arr) && arr.length > 0) {
+        const item = arr[0];
+        const lat = Number(item.lat);
+        const lon = Number(item.lon);
+        if (!Number.isNaN(lat) && !Number.isNaN(lon)) return { lat, lon };
+      }
+    } catch {}
+    return null;
+  }
+
   async create(createDeliveryDto: CreateDeliveryDto) {
     // Do not remove comment below.
     // <creating-property />
@@ -91,6 +112,27 @@ export class DeliveriesService {
       orderSchedule = orderScheduleObject;
     } else if (createDeliveryDto.orderSchedule === null) {
       orderSchedule = null;
+    }
+
+    if (
+      createDeliveryDto.endAddress &&
+      (createDeliveryDto.endLat == null || createDeliveryDto.endLng == null)
+    ) {
+      const c = await this.resolveCoords(createDeliveryDto.endAddress);
+      if (c) {
+        createDeliveryDto.endLat = c.lat;
+        createDeliveryDto.endLng = c.lon;
+      }
+    }
+    if (
+      createDeliveryDto.startAddress &&
+      (createDeliveryDto.startLat == null || createDeliveryDto.startLng == null)
+    ) {
+      const c = await this.resolveCoords(createDeliveryDto.startAddress);
+      if (c) {
+        createDeliveryDto.startLat = c.lat;
+        createDeliveryDto.startLng = c.lon;
+      }
     }
 
     return this.deliveryRepository.create({
@@ -209,6 +251,27 @@ export class DeliveriesService {
       orderSchedule = orderScheduleObject;
     } else if (updateDeliveryDto.orderSchedule === null) {
       orderSchedule = null;
+    }
+
+    if (
+      updateDeliveryDto.endAddress &&
+      (updateDeliveryDto.endLat == null || updateDeliveryDto.endLng == null)
+    ) {
+      const c = await this.resolveCoords(updateDeliveryDto.endAddress);
+      if (c) {
+        updateDeliveryDto.endLat = c.lat;
+        updateDeliveryDto.endLng = c.lon;
+      }
+    }
+    if (
+      updateDeliveryDto.startAddress &&
+      (updateDeliveryDto.startLat == null || updateDeliveryDto.startLng == null)
+    ) {
+      const c = await this.resolveCoords(updateDeliveryDto.startAddress);
+      if (c) {
+        updateDeliveryDto.startLat = c.lat;
+        updateDeliveryDto.startLng = c.lon;
+      }
     }
 
     return this.deliveryRepository.update(id, {
