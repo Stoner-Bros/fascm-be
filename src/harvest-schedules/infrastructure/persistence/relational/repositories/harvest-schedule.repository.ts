@@ -34,6 +34,9 @@ export class HarvestScheduleRelationalRepository
     const entities = await this.harvestScheduleRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
+      order: {
+        id: 'ASC',
+      },
     });
 
     return entities.map((entity) => HarvestScheduleMapper.toDomain(entity));

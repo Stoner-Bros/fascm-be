@@ -41,6 +41,7 @@ export class DeliveryRelationalRepository implements DeliveryRepository {
       });
     }
 
+    qb.orderBy('delivery.id', 'ASC');
     qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
     qb.take(paginationOptions.limit);
 

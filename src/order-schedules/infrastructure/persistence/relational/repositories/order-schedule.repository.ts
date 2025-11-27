@@ -33,6 +33,9 @@ export class OrderScheduleRelationalRepository
     const entities = await this.orderScheduleRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
+      order: {
+        id: 'ASC',
+      },
     });
 
     return entities.map((entity) => OrderScheduleMapper.toDomain(entity));
