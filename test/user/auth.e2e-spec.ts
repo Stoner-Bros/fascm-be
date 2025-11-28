@@ -44,13 +44,13 @@ describe('Auth Module', () => {
     });
 
     describe('Login', () => {
-      it('should successfully with unconfirmed email: /api/v1/auth/email/login (POST)', () => {
+      it('should unsuccessfully with unconfirmed email: /api/v1/auth/email/login (POST)', () => {
         return request(app)
           .post('/api/v1/auth/email/login')
           .send({ email: newUserEmail, password: newUserPassword })
-          .expect(200)
+          .expect(422)
           .expect(({ body }) => {
-            expect(body.token).toBeDefined();
+            expect(body.errors.email).toBeDefined();
           });
       });
     });
@@ -273,7 +273,7 @@ describe('Auth Module', () => {
         .send({
           email: newUserNewEmail,
         })
-        .expect(200);
+        .expect(401);
 
       const hash = await request(mail)
         .get('/email')
