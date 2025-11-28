@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Query,
+  SerializeOptions,
 } from '@nestjs/common';
 import { ManagersService } from './managers.service';
 import { CreateManagerDto } from './dto/create-manager.dto';
@@ -27,6 +28,8 @@ import {
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
 import { FindAllManagersDto } from './dto/find-all-managers.dto';
+import { Roles } from 'src/roles/roles.decorator';
+import { RoleEnum } from 'src/roles/roles.enum';
 
 @ApiTags('Managers')
 @ApiBearerAuth()
@@ -39,6 +42,10 @@ export class ManagersController {
   constructor(private readonly managersService: ManagersService) {}
 
   @Post()
+  @Roles(RoleEnum.admin)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @ApiCreatedResponse({
     type: Manager,
   })
@@ -47,6 +54,10 @@ export class ManagersController {
   }
 
   @Get()
+  @Roles(RoleEnum.admin)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @ApiOkResponse({
     type: InfinityPaginationResponse(Manager),
   })
@@ -71,6 +82,10 @@ export class ManagersController {
   }
 
   @Get(':id')
+  @Roles(RoleEnum.admin)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @ApiParam({
     name: 'id',
     type: String,
@@ -84,6 +99,10 @@ export class ManagersController {
   }
 
   @Patch(':id')
+  @Roles(RoleEnum.admin)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @ApiParam({
     name: 'id',
     type: String,
@@ -97,6 +116,10 @@ export class ManagersController {
   }
 
   @Delete(':id')
+  @Roles(RoleEnum.admin)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @ApiParam({
     name: 'id',
     type: String,

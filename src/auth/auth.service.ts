@@ -51,6 +51,15 @@ export class AuthService {
       });
     }
 
+    if (user.status?.id?.toString() !== StatusEnum.active.toString()) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          email: 'inactiveUser',
+        },
+      });
+    }
+
     if (user.provider !== AuthProvidersEnum.email) {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,

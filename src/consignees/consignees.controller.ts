@@ -9,6 +9,7 @@ import {
   UseGuards,
   Query,
   Req,
+  SerializeOptions,
 } from '@nestjs/common';
 import { ConsigneesService } from './consignees.service';
 import { CreateConsigneeDto } from './dto/create-consignee.dto';
@@ -28,6 +29,8 @@ import {
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
 import { FindAllConsigneesDto } from './dto/find-all-consignees.dto';
+import { RoleEnum } from 'src/roles/roles.enum';
+import { Roles } from 'src/roles/roles.decorator';
 
 @ApiTags('Consignees')
 @ApiBearerAuth()
@@ -40,6 +43,10 @@ export class ConsigneesController {
   constructor(private readonly consigneesService: ConsigneesService) {}
 
   @Post()
+  @Roles(RoleEnum.admin, RoleEnum.manager)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @ApiCreatedResponse({
     type: Consignee,
   })
@@ -48,6 +55,10 @@ export class ConsigneesController {
   }
 
   @Get()
+  @Roles(RoleEnum.admin, RoleEnum.manager)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @ApiOkResponse({
     type: InfinityPaginationResponse(Consignee),
   })
@@ -72,6 +83,10 @@ export class ConsigneesController {
   }
 
   @Get('mine')
+  @Roles(RoleEnum.consignee)
+  @SerializeOptions({
+    groups: ['me'],
+  })
   @ApiOkResponse({
     type: Consignee,
   })
@@ -84,6 +99,10 @@ export class ConsigneesController {
   }
 
   @Get(':id')
+  @Roles(RoleEnum.admin, RoleEnum.manager)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @ApiParam({
     name: 'id',
     type: String,
@@ -97,6 +116,10 @@ export class ConsigneesController {
   }
 
   @Patch(':id')
+  @Roles(RoleEnum.admin, RoleEnum.manager)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @ApiParam({
     name: 'id',
     type: String,
@@ -113,6 +136,10 @@ export class ConsigneesController {
   }
 
   @Delete(':id')
+  @Roles(RoleEnum.admin, RoleEnum.manager)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @ApiParam({
     name: 'id',
     type: String,

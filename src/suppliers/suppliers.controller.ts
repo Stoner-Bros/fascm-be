@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Query,
+  SerializeOptions,
 } from '@nestjs/common';
 import { SuppliersService } from './suppliers.service';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
@@ -27,6 +28,8 @@ import {
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
 import { FindAllSuppliersDto } from './dto/find-all-suppliers.dto';
+import { RoleEnum } from 'src/roles/roles.enum';
+import { Roles } from 'src/roles/roles.decorator';
 
 @ApiTags('Suppliers')
 @ApiBearerAuth()
@@ -39,6 +42,10 @@ export class SuppliersController {
   constructor(private readonly suppliersService: SuppliersService) {}
 
   @Post()
+  @Roles(RoleEnum.admin, RoleEnum.manager)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @ApiCreatedResponse({
     type: Supplier,
   })
@@ -47,6 +54,10 @@ export class SuppliersController {
   }
 
   @Get()
+  @Roles(RoleEnum.admin, RoleEnum.manager)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @ApiOkResponse({
     type: InfinityPaginationResponse(Supplier),
   })
@@ -71,6 +82,10 @@ export class SuppliersController {
   }
 
   @Get(':id')
+  @Roles(RoleEnum.admin, RoleEnum.manager)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @ApiParam({
     name: 'id',
     type: String,
@@ -84,6 +99,10 @@ export class SuppliersController {
   }
 
   @Patch(':id')
+  @Roles(RoleEnum.admin, RoleEnum.manager)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @ApiParam({
     name: 'id',
     type: String,
@@ -100,6 +119,10 @@ export class SuppliersController {
   }
 
   @Delete(':id')
+  @Roles(RoleEnum.admin, RoleEnum.manager)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @ApiParam({
     name: 'id',
     type: String,
