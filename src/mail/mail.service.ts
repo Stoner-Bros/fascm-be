@@ -7,6 +7,7 @@ import { MaybeType } from '../utils/types/maybe.type';
 import { MailerService } from '../mailer/mailer.service';
 import path from 'path';
 import { AllConfigType } from '../config/config.type';
+import { RoleEnum } from 'src/roles/roles.enum';
 
 @Injectable()
 export class MailService {
@@ -15,7 +16,36 @@ export class MailService {
     private readonly configService: ConfigService<AllConfigType>,
   ) {}
 
-  async userSignUp(mailData: MailData<{ hash: string }>): Promise<void> {
+  private getDomain = (userRole: string | number): string => {
+    const adminRoles = [
+      RoleEnum.admin,
+      RoleEnum.manager,
+      RoleEnum.staff,
+      RoleEnum.delivery_staff,
+    ];
+
+    const partnerRoles = [RoleEnum.consignee, RoleEnum.supplier];
+
+    if (adminRoles.includes(userRole as RoleEnum)) {
+      const adminDomain = this.configService.get('app.adminDomain', {
+        infer: true,
+      });
+      return adminDomain || '';
+    }
+
+    if (partnerRoles.includes(userRole as RoleEnum)) {
+      const frontendDomain = this.configService.get('app.frontendDomain', {
+        infer: true,
+      });
+      return frontendDomain || '';
+    }
+
+    throw new Error('Unauthorized role');
+  };
+
+  async userSignUp(
+    mailData: MailData<{ hash: string; role: string | number }>,
+  ): Promise<void> {
     const i18n = I18nContext.current();
     let emailConfirmTitle: MaybeType<string>;
     let text1: MaybeType<string>;
@@ -32,9 +62,7 @@ export class MailService {
     }
 
     const url = new URL(
-      this.configService.getOrThrow('app.frontendDomain', {
-        infer: true,
-      }) + '/auth/confirm-email',
+      this.getDomain(mailData.data.role) + '/auth/confirm-email',
     );
     url.searchParams.set('hash', mailData.data.hash);
 

@@ -19,7 +19,6 @@ import { AuthConfirmEmailDto } from './dto/auth-confirm-email.dto';
 import { AuthResetPasswordDto } from './dto/auth-reset-password.dto';
 import { AuthUpdateDto } from './dto/auth-update.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { AuthRegisterLoginDto } from './dto/auth-register-login.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { NullableType } from '../utils/types/nullable.type';
 import { User } from '../users/domain/user';
@@ -45,25 +44,37 @@ export class AuthController {
     return this.service.validateLogin(loginDto);
   }
 
-  @Post('email/register')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async register(@Body() createUserDto: AuthRegisterLoginDto): Promise<User> {
-    return this.service.register(createUserDto);
-  }
+  // @Post('email/register')
+  // @HttpCode(HttpStatus.NO_CONTENT)
+  // async register(@Body() createUserDto: AuthRegisterLoginDto): Promise<User> {
+  //   return this.service.register(createUserDto);
+  // }
 
+  @SerializeOptions({
+    groups: ['me'],
+  })
   @Post('email/confirm')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOkResponse({
+    type: LoginResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
   async confirmEmail(
     @Body() confirmEmailDto: AuthConfirmEmailDto,
-  ): Promise<void> {
+  ): Promise<LoginResponseDto> {
     return this.service.confirmEmail(confirmEmailDto.hash);
   }
 
+  @SerializeOptions({
+    groups: ['me'],
+  })
   @Post('email/confirm/new')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOkResponse({
+    type: LoginResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
   async confirmNewEmail(
     @Body() confirmEmailDto: AuthConfirmEmailDto,
-  ): Promise<void> {
+  ): Promise<LoginResponseDto> {
     return this.service.confirmNewEmail(confirmEmailDto.hash);
   }
 

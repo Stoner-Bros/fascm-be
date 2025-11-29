@@ -77,10 +77,8 @@ export class DeliveryStaffsService {
 
     const userObject = await this.authService.register(
       createDeliveryStaffDto.user,
+      RoleEnum.delivery_staff,
     );
-
-    userObject.role = { id: RoleEnum.delivery_staff };
-    await this.userService.update(userObject.id, userObject);
 
     if (!userObject) {
       throw new UnprocessableEntityException({

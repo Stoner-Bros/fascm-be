@@ -57,10 +57,8 @@ export class SuppliersService {
     if (createSupplierDto.user) {
       const userObject = await this.authService.register(
         createSupplierDto.user,
+        RoleEnum.supplier,
       );
-
-      userObject.role = { id: RoleEnum.supplier };
-      await this.userService.update(userObject.id, userObject);
 
       if (!userObject) {
         throw new UnprocessableEntityException({

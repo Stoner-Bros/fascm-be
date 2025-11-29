@@ -54,10 +54,10 @@ export class ManagersService {
     let user: User | null | undefined = undefined;
 
     if (createManagerDto.user) {
-      const userObject = await this.authService.register(createManagerDto.user);
-
-      userObject.role = { id: RoleEnum.manager }; // Set role to Manager
-      await this.userService.update(userObject.id, userObject);
+      const userObject = await this.authService.register(
+        createManagerDto.user,
+        RoleEnum.manager,
+      );
 
       if (!userObject) {
         throw new UnprocessableEntityException({

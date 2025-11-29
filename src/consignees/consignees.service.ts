@@ -34,10 +34,8 @@ export class ConsigneesService {
     if (createConsigneeDto.user) {
       const userObject = await this.authService.register(
         createConsigneeDto.user,
+        RoleEnum.consignee,
       );
-
-      userObject.role = { id: RoleEnum.consignee };
-      await this.userService.update(userObject.id, userObject);
 
       if (!userObject) {
         throw new UnprocessableEntityException({

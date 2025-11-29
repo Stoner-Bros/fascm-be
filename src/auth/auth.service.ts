@@ -202,12 +202,12 @@ export class AuthService {
     };
   }
 
-  async register(dto: AuthRegisterLoginDto): Promise<User> {
+  async register(dto: AuthRegisterLoginDto, roleId: RoleEnum): Promise<User> {
     const user = await this.usersService.create({
       ...dto,
       email: dto.email,
       role: {
-        id: RoleEnum.user,
+        id: roleId,
       },
       status: {
         id: StatusEnum.inactive,
@@ -232,13 +232,14 @@ export class AuthService {
       to: dto.email,
       data: {
         hash,
+        role: user.role?.id || RoleEnum.user,
       },
     });
 
     return user;
   }
 
-  async confirmEmail(hash: string): Promise<void> {
+  async confirmEmail(hash: string): Promise<LoginResponseDto> {
     let userId: User['id'];
 
     try {
@@ -277,9 +278,34 @@ export class AuthService {
     };
 
     await this.usersService.update(user.id, user);
+
+    // Generate session and tokens for immediate login
+    const sessionHash = crypto
+      .createHash('sha256')
+      .update(randomStringGenerator())
+      .digest('hex');
+
+    const session = await this.sessionService.create({
+      user,
+      hash: sessionHash,
+    });
+
+    const { token, refreshToken, tokenExpires } = await this.getTokensData({
+      id: user.id,
+      role: user.role,
+      sessionId: session.id,
+      hash: sessionHash,
+    });
+
+    return {
+      refreshToken,
+      token,
+      tokenExpires,
+      user,
+    };
   }
 
-  async confirmNewEmail(hash: string): Promise<void> {
+  async confirmNewEmail(hash: string): Promise<LoginResponseDto> {
     let userId: User['id'];
     let newEmail: User['email'];
 
@@ -319,6 +345,31 @@ export class AuthService {
     };
 
     await this.usersService.update(user.id, user);
+
+    // Generate session and tokens for immediate login
+    const sessionHash = crypto
+      .createHash('sha256')
+      .update(randomStringGenerator())
+      .digest('hex');
+
+    const session = await this.sessionService.create({
+      user,
+      hash: sessionHash,
+    });
+
+    const { token, refreshToken, tokenExpires } = await this.getTokensData({
+      id: user.id,
+      role: user.role,
+      sessionId: session.id,
+      hash: sessionHash,
+    });
+
+    return {
+      refreshToken,
+      token,
+      tokenExpires,
+      user,
+    };
   }
 
   async forgotPassword(email: string): Promise<void> {

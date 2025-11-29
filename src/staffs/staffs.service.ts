@@ -54,10 +54,10 @@ export class StaffsService {
     let user: User | null | undefined = undefined;
 
     if (createStaffDto.user) {
-      const userObject = await this.authService.register(createStaffDto.user);
-
-      userObject.role = { id: RoleEnum.staff };
-      await this.userService.update(userObject.id, userObject);
+      const userObject = await this.authService.register(
+        createStaffDto.user,
+        RoleEnum.staff,
+      );
 
       if (!userObject) {
         throw new UnprocessableEntityException({
