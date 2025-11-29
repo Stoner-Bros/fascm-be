@@ -14,6 +14,7 @@ import {
   BeforeInsert,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
+import { DeliveryStatusEnum } from '../../../../enum/delivery-status.enum';
 
 @Entity({
   name: 'delivery',
@@ -57,9 +58,10 @@ export class DeliveryEntity extends EntityRelationalHelper {
 
   @Column({
     nullable: true,
-    type: String,
+    type: 'enum',
+    enum: DeliveryStatusEnum,
   })
-  status?: string | null;
+  status?: DeliveryStatusEnum | null;
 
   @Column({
     nullable: true,

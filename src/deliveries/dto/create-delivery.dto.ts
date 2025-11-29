@@ -17,14 +17,17 @@ import {
   IsNotEmptyObject,
   IsOptional,
   IsDate,
-  IsString,
+  IsEnum,
   IsNumber,
+  IsString,
 } from 'class-validator';
 
 import {
   // decorators here
   ApiProperty,
 } from '@nestjs/swagger';
+
+import { DeliveryStatusEnum } from '../enum/delivery-status.enum';
 
 export class CreateDeliveryDto {
   @ApiProperty({
@@ -77,11 +80,11 @@ export class CreateDeliveryDto {
 
   @ApiProperty({
     required: false,
-    type: () => String,
+    enum: DeliveryStatusEnum,
   })
   @IsOptional()
-  @IsString()
-  status?: string | null;
+  @IsEnum(DeliveryStatusEnum)
+  status?: DeliveryStatusEnum | null;
 
   @ApiProperty({
     required: false,

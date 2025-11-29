@@ -12,12 +12,14 @@ import {
   Injectable,
   HttpStatus,
   UnprocessableEntityException,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { UpdateDeliveryDto } from './dto/update-delivery.dto';
 import { DeliveryRepository } from './infrastructure/persistence/delivery.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { Delivery } from './domain/delivery';
+import { DeliveryStatusEnum } from './enum/delivery-status.enum';
 
 @Injectable()
 export class DeliveriesService {
@@ -188,6 +190,14 @@ export class DeliveriesService {
     return this.deliveryRepository.findByIds(ids);
   }
 
+  findByOrderScheduleId(orderScheduleId: OrderSchedule['id']) {
+    return this.deliveryRepository.findByOrderScheduleId(orderScheduleId);
+  }
+
+  findByHarvestScheduleId(harvestScheduleId: HarvestSchedule['id']) {
+    return this.deliveryRepository.findByHarvestScheduleId(harvestScheduleId);
+  }
+
   async update(
     id: Delivery['id'],
 
@@ -305,5 +315,50 @@ export class DeliveriesService {
 
   remove(id: Delivery['id']) {
     return this.deliveryRepository.remove(id);
+  }
+
+  async updateStatus(id: Delivery['id'], status: Delivery['status']) {
+    const delivery = await this.deliveryRepository.findById(id);
+
+    if (!delivery) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          id: 'notExists',
+        },
+      });
+    }
+
+    const currentStatus = delivery.status;
+
+    const allowedTransitions: Record<string, DeliveryStatusEnum[]> = {
+      scheduled: [DeliveryStatusEnum.DELIVERING, DeliveryStatusEnum.CANCELLED],
+      delivering: [
+        DeliveryStatusEnum.COMPLETED,
+        DeliveryStatusEnum.CANCELLED,
+        DeliveryStatusEnum.DELAYED,
+      ],
+      completed: [],
+      cancelled: [],
+      delayed: [],
+    };
+
+    if (
+      allowedTransitions[currentStatus ?? ''] &&
+      !allowedTransitions[currentStatus ?? ''].includes(
+        status as DeliveryStatusEnum,
+      )
+    ) {
+      throw new BadRequestException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          status: `invalidTransitionFrom${currentStatus}To${status}`,
+        },
+      });
+    }
+
+    return this.deliveryRepository.update(id, {
+      status,
+    });
   }
 }

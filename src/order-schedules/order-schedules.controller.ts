@@ -14,6 +14,7 @@ import { OrderSchedulesService } from './order-schedules.service';
 import { ConsigneesService } from '../consignees/consignees.service';
 import { CreateOrderScheduleDto } from './dto/create-order-schedule.dto';
 import { UpdateOrderScheduleDto } from './dto/update-order-schedule.dto';
+import { UpdateOrderScheduleStatusDto } from './dto/update-order-schedule-status.dto';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -125,5 +126,24 @@ export class OrderSchedulesController {
   })
   remove(@Param('id') id: string) {
     return this.orderSchedulesService.remove(id);
+  }
+
+  @Patch(':id/status')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: OrderSchedule,
+  })
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateOrderScheduleStatusDto: UpdateOrderScheduleStatusDto,
+  ) {
+    return this.orderSchedulesService.updateStatus(
+      id,
+      updateOrderScheduleStatusDto.status,
+    );
   }
 }

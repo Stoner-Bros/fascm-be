@@ -10,6 +10,7 @@ import { RelationalHarvestSchedulePersistenceModule } from './infrastructure/per
 import { HarvestTicketsModule } from 'src/harvest-tickets/harvest-tickets.module';
 import { HarvestDetailsModule } from 'src/harvest-details/harvest-details.module';
 import { InboundBatchesModule } from 'src/inbound-batches/inbound-batches.module';
+import { DeliveriesModule } from 'src/deliveries/deliveries.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { InboundBatchesModule } from 'src/inbound-batches/inbound-batches.module
 
     forwardRef(() => HarvestTicketsModule),
     forwardRef(() => HarvestDetailsModule),
+    forwardRef(() => DeliveriesModule),
     InboundBatchesModule,
     // do not remove this comment
     RelationalHarvestSchedulePersistenceModule,

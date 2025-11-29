@@ -12,6 +12,7 @@ import {
 import { DeliveriesService } from './deliveries.service';
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { UpdateDeliveryDto } from './dto/update-delivery.dto';
+import { UpdateDeliveryStatusDto } from './dto/update-delivery-status.dto';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -110,5 +111,24 @@ export class DeliveriesController {
   })
   remove(@Param('id') id: string) {
     return this.deliveriesService.remove(id);
+  }
+
+  @Patch(':id/status')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: Delivery,
+  })
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateDeliveryStatusDto: UpdateDeliveryStatusDto,
+  ) {
+    return this.deliveriesService.updateStatus(
+      id,
+      updateDeliveryStatusDto.status,
+    );
   }
 }

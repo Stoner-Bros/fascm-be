@@ -65,6 +65,28 @@ export class DeliveryRelationalRepository implements DeliveryRepository {
     return entities.map((entity) => DeliveryMapper.toDomain(entity));
   }
 
+  async findByOrderScheduleId(
+    orderScheduleId: string,
+  ): Promise<NullableType<Delivery>> {
+    const entity = await this.deliveryRepository.findOne({
+      where: { orderSchedule: { id: orderScheduleId } },
+      relations: ['orderSchedule', 'harvestSchedule', 'truck'],
+    });
+
+    return entity ? DeliveryMapper.toDomain(entity) : null;
+  }
+
+  async findByHarvestScheduleId(
+    harvestScheduleId: string,
+  ): Promise<NullableType<Delivery>> {
+    const entity = await this.deliveryRepository.findOne({
+      where: { harvestSchedule: { id: harvestScheduleId } },
+      relations: ['orderSchedule', 'harvestSchedule', 'truck'],
+    });
+
+    return entity ? DeliveryMapper.toDomain(entity) : null;
+  }
+
   async update(
     id: Delivery['id'],
     payload: Partial<Delivery>,

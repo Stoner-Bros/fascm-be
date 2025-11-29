@@ -10,7 +10,7 @@ import {
   BeforeInsert,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
-import { HarvestScheduleStatusEnum } from '../../../../harvest-schedule-status.enum';
+import { HarvestScheduleStatusEnum } from '../../../../enum/harvest-schedule-status.enum';
 
 @Entity({
   name: 'harvest_schedule',

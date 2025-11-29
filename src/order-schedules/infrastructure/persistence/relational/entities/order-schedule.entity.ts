@@ -10,6 +10,7 @@ import {
   BeforeInsert,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
+import { OrderScheduleStatusEnum } from '../../../../enum/order-schedule-status.enum';
 
 @Entity({
   name: 'order_schedule',
@@ -23,9 +24,10 @@ export class OrderScheduleEntity extends EntityRelationalHelper {
 
   @Column({
     nullable: true,
-    type: String,
+    type: 'enum',
+    enum: OrderScheduleStatusEnum,
   })
-  status?: string | null;
+  status?: OrderScheduleStatusEnum | null;
 
   @Column({
     nullable: true,

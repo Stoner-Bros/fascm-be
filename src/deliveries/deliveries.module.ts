@@ -4,6 +4,7 @@ import { OrderSchedulesModule } from '../order-schedules/order-schedules.module'
 import {
   // do not remove this comment
   Module,
+  forwardRef,
 } from '@nestjs/common';
 import { DeliveriesService } from './deliveries.service';
 import { DeliveriesController } from './deliveries.controller';
@@ -16,7 +17,7 @@ import { DeliveryGateway } from './delivery.gateway';
 
     HarvestSchedulesModule,
 
-    OrderSchedulesModule,
+    forwardRef(() => OrderSchedulesModule),
 
     // do not remove this comment
     RelationalDeliveryPersistenceModule,

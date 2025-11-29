@@ -2,6 +2,7 @@ import { Truck } from '../../trucks/domain/truck';
 import { HarvestSchedule } from '../../harvest-schedules/domain/harvest-schedule';
 import { OrderSchedule } from '../../order-schedules/domain/order-schedule';
 import { ApiProperty } from '@nestjs/swagger';
+import { DeliveryStatusEnum } from '../enum/delivery-status.enum';
 
 export class Delivery {
   @ApiProperty({
@@ -41,10 +42,10 @@ export class Delivery {
   startAddress?: string | null;
 
   @ApiProperty({
-    type: () => String,
+    enum: DeliveryStatusEnum,
     nullable: true,
   })
-  status?: string | null;
+  status?: DeliveryStatusEnum | null;
 
   @ApiProperty({
     type: () => Date,

@@ -2,7 +2,7 @@ import { DeepPartial } from '../../../utils/types/deep-partial.type';
 import { NullableType } from '../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../utils/types/pagination-options';
 import { HarvestSchedule } from '../../domain/harvest-schedule';
-import { HarvestScheduleStatusEnum } from '../../harvest-schedule-status.enum';
+import { HarvestScheduleStatusEnum } from '../../enum/harvest-schedule-status.enum';
 
 export abstract class HarvestScheduleRepository {
   abstract create(

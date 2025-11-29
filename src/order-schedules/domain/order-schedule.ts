@@ -1,5 +1,6 @@
 import { Consignee } from '../../consignees/domain/consignee';
 import { ApiProperty } from '@nestjs/swagger';
+import { OrderScheduleStatusEnum } from '../enum/order-schedule-status.enum';
 
 export class OrderSchedule {
   @ApiProperty({
@@ -9,10 +10,10 @@ export class OrderSchedule {
   description?: string | null;
 
   @ApiProperty({
-    type: () => String,
+    enum: OrderScheduleStatusEnum,
     nullable: true,
   })
-  status?: string | null;
+  status?: OrderScheduleStatusEnum | null;
 
   @ApiProperty({
     type: () => Date,

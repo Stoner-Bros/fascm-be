@@ -3,17 +3,13 @@ import { ConsigneeDto } from '../../consignees/dto/consignee.dto';
 import {
   // decorators here
   Type,
-  Transform,
 } from 'class-transformer';
 
 import {
-  // decorators here
-
-  ValidateNested,
   IsNotEmptyObject,
   IsOptional,
-  IsDate,
-  IsString,
+  // decorators here
+  ValidateNested,
 } from 'class-validator';
 
 import {
@@ -27,25 +23,7 @@ export class CreateOrderScheduleDto {
     type: () => String,
   })
   @IsOptional()
-  @IsString()
   description?: string | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => String,
-  })
-  @IsOptional()
-  @IsString()
-  status?: string | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => Date,
-  })
-  @IsOptional()
-  @Transform(({ value }) => new Date(value))
-  @IsDate()
-  orderDate?: Date | null;
 
   @ApiProperty({
     required: false,

@@ -1,6 +1,6 @@
 import { Supplier } from '../../suppliers/domain/supplier';
 import { ApiProperty } from '@nestjs/swagger';
-import { HarvestScheduleStatusEnum } from '../harvest-schedule-status.enum';
+import { HarvestScheduleStatusEnum } from '../enum/harvest-schedule-status.enum';
 
 export class HarvestSchedule {
   @ApiProperty({

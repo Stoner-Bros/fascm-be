@@ -7,7 +7,7 @@ import { HarvestSchedule } from '../../../../domain/harvest-schedule';
 import { HarvestScheduleRepository } from '../../harvest-schedule.repository';
 import { HarvestScheduleMapper } from '../mappers/harvest-schedule.mapper';
 import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
-import { HarvestScheduleStatusEnum } from '../../../../harvest-schedule-status.enum';
+import { HarvestScheduleStatusEnum } from '../../../../enum/harvest-schedule-status.enum';
 
 @Injectable()
 export class HarvestScheduleRelationalRepository

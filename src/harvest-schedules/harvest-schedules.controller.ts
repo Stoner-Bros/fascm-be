@@ -1,18 +1,15 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { HarvestSchedulesService } from './harvest-schedules.service';
-import { CreateHarvestScheduleDto } from './dto/create-harvest-schedule.dto';
-import { UpdateHarvestScheduleDto } from './dto/update-harvest-schedule.dto';
-import { ConfirmHarvestScheduleDto } from './dto/confirm-harvest-schedule.dto';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -20,14 +17,17 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { HarvestSchedule } from './domain/harvest-schedule';
-import { AuthGuard } from '@nestjs/passport';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
+import { HarvestSchedule } from './domain/harvest-schedule';
+import { CreateHarvestScheduleDto } from './dto/create-harvest-schedule.dto';
 import { FindAllHarvestSchedulesDto } from './dto/find-all-harvest-schedules.dto';
+import { UpdateHarvestScheduleStatusDto } from './dto/update-harvest-schedule-status.dto';
+import { UpdateHarvestScheduleDto } from './dto/update-harvest-schedule.dto';
+import { HarvestSchedulesService } from './harvest-schedules.service';
 
 @ApiTags('Harvestschedules')
 @ApiBearerAuth()
@@ -106,52 +106,6 @@ export class HarvestSchedulesController {
     return this.harvestSchedulesService.update(id, updateHarvestScheduleDto);
   }
 
-  @Patch(':id/confirm')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-  })
-  @ApiOkResponse({
-    type: HarvestSchedule,
-  })
-  confirm(
-    @Param('id') id: string,
-    @Body() confirmHarvestScheduleDto: ConfirmHarvestScheduleDto,
-  ) {
-    return this.harvestSchedulesService.confirm(
-      id,
-      confirmHarvestScheduleDto.status,
-      confirmHarvestScheduleDto.reason,
-    );
-  }
-
-  @Patch(':id/cancel')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-  })
-  @ApiOkResponse({
-    type: HarvestSchedule,
-  })
-  cancel(@Param('id') id: string) {
-    return this.harvestSchedulesService.cancel(id);
-  }
-
-  @Patch(':id/complete')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-  })
-  @ApiOkResponse({
-    type: HarvestSchedule,
-  })
-  complete(@Param('id') id: string) {
-    return this.harvestSchedulesService.complete(id);
-  }
-
   @Delete(':id')
   @ApiParam({
     name: 'id',
@@ -160,5 +114,24 @@ export class HarvestSchedulesController {
   })
   remove(@Param('id') id: string) {
     return this.harvestSchedulesService.remove(id);
+  }
+
+  @Patch(':id/status')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: HarvestSchedule,
+  })
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateHarvestScheduleStatusDto: UpdateHarvestScheduleStatusDto,
+  ) {
+    return this.harvestSchedulesService.updateStatus(
+      id,
+      updateHarvestScheduleStatusDto.status,
+    );
   }
 }
