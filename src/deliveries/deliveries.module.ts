@@ -15,7 +15,7 @@ import { DeliveryGateway } from './delivery.gateway';
   imports: [
     TrucksModule,
 
-    HarvestSchedulesModule,
+    forwardRef(() => HarvestSchedulesModule),
 
     forwardRef(() => OrderSchedulesModule),
 

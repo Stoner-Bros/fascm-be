@@ -374,31 +374,37 @@ export class UserSeedService {
           firstName: 'Nông trường',
           lastName: 'Đà Lạt Organic',
           email: 'dalatorganic@example.com',
+          warehouse: warehouses[0],
         },
         {
           firstName: 'HTX',
           lastName: 'Rau sạch Bình Dương',
           email: 'rausachbd@example.com',
+          warehouse: warehouses[1],
         },
         {
           firstName: 'Trang trại',
           lastName: 'Green Farm',
           email: 'greenfarm@example.com',
+          warehouse: warehouses[2],
         },
         {
           firstName: 'Công ty',
           lastName: 'TNHH Nông sản Sạch',
           email: 'nongsansach@example.com',
+          warehouse: warehouses[3],
         },
         {
           firstName: 'Hợp tác xã',
           lastName: 'Rau Củ Quả Lâm Đồng',
           email: 'raucuqualamdong@example.com',
+          warehouse: warehouses[4],
         },
         {
           firstName: 'Nông dân',
           lastName: 'Nguyễn Văn Tám',
           email: 'nguyenvantam@example.com',
+          warehouse: warehouses[0],
         },
       ];
 
@@ -428,6 +434,7 @@ export class UserSeedService {
             user: user,
             gardenName: `${supplierData.lastName} Garden`,
             representativeName: `${supplierData.firstName} ${supplierData.lastName}`,
+            warehouse: supplierData.warehouse,
           }),
         );
       }

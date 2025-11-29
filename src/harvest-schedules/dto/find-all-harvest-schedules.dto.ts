@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsIn, IsNumber, IsOptional } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { HarvestScheduleStatusEnum } from '../harvest-schedule-status.enum';
+import { HarvestScheduleStatusEnum } from '../enum/harvest-schedule-status.enum';
 
 export class FindAllHarvestSchedulesDto {
   @ApiPropertyOptional()

@@ -13,6 +13,8 @@ import {
   HttpStatus,
   UnprocessableEntityException,
   BadRequestException,
+  forwardRef,
+  Inject,
 } from '@nestjs/common';
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { UpdateDeliveryDto } from './dto/update-delivery.dto';
@@ -26,6 +28,7 @@ export class DeliveriesService {
   constructor(
     private readonly truckService: TrucksService,
 
+    @Inject(forwardRef(() => HarvestSchedulesService))
     private readonly harvestScheduleService: HarvestSchedulesService,
 
     private readonly orderScheduleService: OrderSchedulesService,
