@@ -92,7 +92,7 @@ export class StaffsController {
   })
   async findMine(@Req() req: any) {
     const userId = req?.user?.id as string | undefined;
-    const staff = await this.staffsService.findByUserId(String(userId ?? ''));
+    const staff = await this.staffsService.findByUserId(Number(userId ?? ''));
     return staff;
   }
 

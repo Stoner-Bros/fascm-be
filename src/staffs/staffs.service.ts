@@ -83,7 +83,7 @@ export class StaffsService {
     });
   }
 
-  async findByUserId(userId: string): Promise<Staff | null> {
+  async findByUserId(userId: number): Promise<Staff | null> {
     return this.staffRepository.findByUserId(userId);
   }
 

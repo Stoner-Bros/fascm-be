@@ -16,7 +16,7 @@ export abstract class ManagerRepository {
 
   abstract findById(id: Manager['id']): Promise<NullableType<Manager>>;
 
-  abstract findByUserId(userId: string): Promise<NullableType<Manager>>;
+  abstract findByUserId(userId: number): Promise<NullableType<Manager>>;
 
   abstract findByIds(ids: Manager['id'][]): Promise<Manager[]>;
 

@@ -93,7 +93,7 @@ export class ManagersController {
   async findMine(@Req() req: any) {
     const userId = req?.user?.id as string | undefined;
     const manager = await this.managersService.findByUserId(
-      String(userId ?? ''),
+      Number(userId ?? ''),
     );
     return manager;
   }

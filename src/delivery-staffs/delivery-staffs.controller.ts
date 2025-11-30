@@ -93,7 +93,7 @@ export class DeliveryStaffsController {
   async findMine(@Req() req: any) {
     const userId = req?.user?.id as string | undefined;
     const deliveryStaff = await this.deliveryStaffsService.findByUserId(
-      String(userId ?? ''),
+      Number(userId ?? ''),
     );
     return deliveryStaff;
   }

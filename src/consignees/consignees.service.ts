@@ -88,7 +88,7 @@ export class ConsigneesService {
     return this.consigneeRepository.findById(id);
   }
 
-  findByUserId(userId: string) {
+  findByUserId(userId: number) {
     return this.consigneeRepository.findByUserId(userId);
   }
 

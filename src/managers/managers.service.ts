@@ -81,7 +81,7 @@ export class ManagersService {
     });
   }
 
-  async findByUserId(userId: string) {
+  async findByUserId(userId: number) {
     return this.managerRepository.findByUserId(userId);
   }
 

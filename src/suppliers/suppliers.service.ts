@@ -97,7 +97,7 @@ export class SuppliersService {
     });
   }
 
-  async findByUserId(userId: string): Promise<NullableType<Supplier>> {
+  async findByUserId(userId: number): Promise<NullableType<Supplier>> {
     return this.supplierRepository.findByUserId(userId);
   }
 

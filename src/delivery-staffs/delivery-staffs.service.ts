@@ -124,7 +124,7 @@ export class DeliveryStaffsService {
     return this.deliveryStaffRepository.findById(id);
   }
 
-  findByUserId(userId: string) {
+  findByUserId(userId: number) {
     return this.deliveryStaffRepository.findByUserId(userId);
   }
 

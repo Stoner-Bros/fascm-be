@@ -93,7 +93,7 @@ export class SuppliersController {
   async findMine(@Req() req: any) {
     const userId = req?.user?.id as string | undefined;
     const supplier = await this.suppliersService.findByUserId(
-      String(userId ?? ''),
+      Number(userId ?? ''),
     );
     return supplier;
   }

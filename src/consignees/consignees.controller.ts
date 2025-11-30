@@ -92,9 +92,7 @@ export class ConsigneesController {
   })
   async findMine(@Req() req: any) {
     const userId = req?.user?.id as string | undefined;
-    const consignee = await this.consigneesService.findByUserId(
-      String(userId ?? ''),
-    );
+    const consignee = await this.consigneesService.findByUserId(Number(userId));
     return consignee;
   }
 

@@ -23,11 +23,10 @@ export class StaffRelationalRepository implements StaffRepository {
     return StaffMapper.toDomain(newEntity);
   }
 
-  async findByUserId(userId: string): Promise<NullableType<Staff>> {
-    const qb = this.staffRepository.createQueryBuilder('staff');
-    qb.leftJoinAndSelect('staff.user', 'user');
-    qb.where('user.id = :userId', { userId });
-    const entity = await qb.getOne();
+  async findByUserId(userId: number): Promise<NullableType<Staff>> {
+    const entity = await this.staffRepository.findOne({
+      where: { user: { id: userId } },
+    });
     return entity ? StaffMapper.toDomain(entity) : null;
   }
 

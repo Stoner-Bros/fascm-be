@@ -16,7 +16,7 @@ export abstract class ConsigneeRepository {
 
   abstract findById(id: Consignee['id']): Promise<NullableType<Consignee>>;
 
-  abstract findByUserId(userId: string): Promise<NullableType<Consignee>>;
+  abstract findByUserId(userId: number): Promise<NullableType<Consignee>>;
 
   abstract findByIds(ids: Consignee['id'][]): Promise<Consignee[]>;
 
