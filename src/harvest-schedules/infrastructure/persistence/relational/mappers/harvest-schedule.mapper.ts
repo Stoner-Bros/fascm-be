@@ -7,6 +7,8 @@ import { HarvestScheduleEntity } from '../entities/harvest-schedule.entity';
 export class HarvestScheduleMapper {
   static toDomain(raw: HarvestScheduleEntity): HarvestSchedule {
     const domainEntity = new HarvestSchedule();
+    domainEntity.address = raw.address;
+
     domainEntity.description = raw.description;
 
     domainEntity.status = raw.status;
@@ -29,6 +31,8 @@ export class HarvestScheduleMapper {
 
   static toPersistence(domainEntity: HarvestSchedule): HarvestScheduleEntity {
     const persistenceEntity = new HarvestScheduleEntity();
+    persistenceEntity.address = domainEntity.address;
+
     persistenceEntity.description = domainEntity.description;
 
     persistenceEntity.status = domainEntity.status;

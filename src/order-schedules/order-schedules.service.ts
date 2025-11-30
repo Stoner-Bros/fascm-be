@@ -59,6 +59,8 @@ export class OrderSchedulesService {
     return this.orderScheduleRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
+      address: createOrderScheduleDto.address,
+
       description: createOrderScheduleDto.description,
 
       status: OrderScheduleStatusEnum.PENDING,
@@ -118,6 +120,8 @@ export class OrderSchedulesService {
     return this.orderScheduleRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
+      address: updateOrderScheduleDto.address,
+
       description: updateOrderScheduleDto.description,
 
       status: OrderScheduleStatusEnum.PENDING,
