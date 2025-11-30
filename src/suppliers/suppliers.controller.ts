@@ -9,6 +9,7 @@ import {
   UseGuards,
   Query,
   SerializeOptions,
+  Req,
 } from '@nestjs/common';
 import { SuppliersService } from './suppliers.service';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
@@ -79,6 +80,22 @@ export class SuppliersController {
       }),
       { page, limit },
     );
+  }
+
+  @Get('mine')
+  @Roles(RoleEnum.supplier)
+  @SerializeOptions({
+    groups: ['me'],
+  })
+  @ApiOkResponse({
+    type: Supplier,
+  })
+  async findMine(@Req() req: any) {
+    const userId = req?.user?.id as string | undefined;
+    const supplier = await this.suppliersService.findByUserId(
+      String(userId ?? ''),
+    );
+    return supplier;
   }
 
   @Get(':id')

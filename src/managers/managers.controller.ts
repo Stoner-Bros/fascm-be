@@ -9,6 +9,7 @@ import {
   UseGuards,
   Query,
   SerializeOptions,
+  Req,
 } from '@nestjs/common';
 import { ManagersService } from './managers.service';
 import { CreateManagerDto } from './dto/create-manager.dto';
@@ -79,6 +80,22 @@ export class ManagersController {
       }),
       { page, limit },
     );
+  }
+
+  @Get('mine')
+  @Roles(RoleEnum.manager)
+  @SerializeOptions({
+    groups: ['me'],
+  })
+  @ApiOkResponse({
+    type: Manager,
+  })
+  async findMine(@Req() req: any) {
+    const userId = req?.user?.id as string | undefined;
+    const manager = await this.managersService.findByUserId(
+      String(userId ?? ''),
+    );
+    return manager;
   }
 
   @Get(':id')

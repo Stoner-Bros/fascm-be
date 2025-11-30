@@ -9,6 +9,7 @@ import {
   UseGuards,
   Query,
   SerializeOptions,
+  Req,
 } from '@nestjs/common';
 import { DeliveryStaffsService } from './delivery-staffs.service';
 import { CreateDeliveryStaffDto } from './dto/create-delivery-staff.dto';
@@ -79,6 +80,22 @@ export class DeliveryStaffsController {
       }),
       { page, limit },
     );
+  }
+
+  @Get('mine')
+  @Roles(RoleEnum.delivery_staff)
+  @SerializeOptions({
+    groups: ['me'],
+  })
+  @ApiOkResponse({
+    type: DeliveryStaff,
+  })
+  async findMine(@Req() req: any) {
+    const userId = req?.user?.id as string | undefined;
+    const deliveryStaff = await this.deliveryStaffsService.findByUserId(
+      String(userId ?? ''),
+    );
+    return deliveryStaff;
   }
 
   @Get(':id')

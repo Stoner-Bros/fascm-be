@@ -17,6 +17,7 @@ import { IPaginationOptions } from '../utils/types/pagination-options';
 import { Supplier } from './domain/supplier';
 import { AuthService } from 'src/auth/auth.service';
 import { RoleEnum } from 'src/roles/roles.enum';
+import { NullableType } from 'src/utils/types/nullable.type';
 
 @Injectable()
 export class SuppliersService {
@@ -94,6 +95,10 @@ export class SuppliersService {
 
       representativeName: createSupplierDto.representativeName,
     });
+  }
+
+  async findByUserId(userId: string): Promise<NullableType<Supplier>> {
+    return this.supplierRepository.findByUserId(userId);
   }
 
   findAllWithPagination({

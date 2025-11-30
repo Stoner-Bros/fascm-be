@@ -36,6 +36,14 @@ export class SupplierRelationalRepository implements SupplierRepository {
     return entities.map((entity) => SupplierMapper.toDomain(entity));
   }
 
+  async findByUserId(userId: string): Promise<NullableType<Supplier>> {
+    const qb = this.supplierRepository.createQueryBuilder('supplier');
+    qb.leftJoinAndSelect('supplier.user', 'user');
+    qb.where('user.id = :userId', { userId });
+    const entity = await qb.getOne();
+    return entity ? SupplierMapper.toDomain(entity) : null;
+  }
+
   async findById(id: Supplier['id']): Promise<NullableType<Supplier>> {
     const entity = await this.supplierRepository.findOne({
       where: { id },

@@ -9,6 +9,7 @@ import {
   UseGuards,
   Query,
   SerializeOptions,
+  Req,
 } from '@nestjs/common';
 import { StaffsService } from './staffs.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
@@ -79,6 +80,20 @@ export class StaffsController {
       }),
       { page, limit },
     );
+  }
+
+  @Get('mine')
+  @Roles(RoleEnum.staff)
+  @SerializeOptions({
+    groups: ['me'],
+  })
+  @ApiOkResponse({
+    type: Staff,
+  })
+  async findMine(@Req() req: any) {
+    const userId = req?.user?.id as string | undefined;
+    const staff = await this.staffsService.findByUserId(String(userId ?? ''));
+    return staff;
   }
 
   @Get(':id')

@@ -48,6 +48,14 @@ export class DeliveryStaffRelationalRepository
     return entity ? DeliveryStaffMapper.toDomain(entity) : null;
   }
 
+  async findByUserId(userId: string): Promise<NullableType<DeliveryStaff>> {
+    const qb = this.deliveryStaffRepository.createQueryBuilder('deliveryStaff');
+    qb.leftJoinAndSelect('deliveryStaff.user', 'user');
+    qb.where('user.id = :userId', { userId });
+    const entity = await qb.getOne();
+    return entity ? DeliveryStaffMapper.toDomain(entity) : null;
+  }
+
   async findByIds(ids: DeliveryStaff['id'][]): Promise<DeliveryStaff[]> {
     const entities = await this.deliveryStaffRepository.find({
       where: { id: In(ids) },

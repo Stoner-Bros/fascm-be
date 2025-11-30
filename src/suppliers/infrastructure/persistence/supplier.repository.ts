@@ -16,6 +16,8 @@ export abstract class SupplierRepository {
 
   abstract findById(id: Supplier['id']): Promise<NullableType<Supplier>>;
 
+  abstract findByUserId(userId: string): Promise<NullableType<Supplier>>;
+
   abstract findByIds(ids: Supplier['id'][]): Promise<Supplier[]>;
 
   abstract update(

@@ -83,6 +83,10 @@ export class StaffsService {
     });
   }
 
+  async findByUserId(userId: string): Promise<Staff | null> {
+    return this.staffRepository.findByUserId(userId);
+  }
+
   findAllWithPagination({
     paginationOptions,
   }: {

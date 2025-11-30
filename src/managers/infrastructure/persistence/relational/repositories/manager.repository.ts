@@ -36,6 +36,14 @@ export class ManagerRelationalRepository implements ManagerRepository {
     return entities.map((entity) => ManagerMapper.toDomain(entity));
   }
 
+  async findByUserId(userId: string): Promise<NullableType<Manager>> {
+    const qb = this.managerRepository.createQueryBuilder('manager');
+    qb.leftJoinAndSelect('manager.user', 'user');
+    qb.where('user.id = :userId', { userId });
+    const entity = await qb.getOne();
+    return entity ? ManagerMapper.toDomain(entity) : null;
+  }
+
   async findById(id: Manager['id']): Promise<NullableType<Manager>> {
     const entity = await this.managerRepository.findOne({
       where: { id },

@@ -124,6 +124,10 @@ export class DeliveryStaffsService {
     return this.deliveryStaffRepository.findById(id);
   }
 
+  findByUserId(userId: string) {
+    return this.deliveryStaffRepository.findByUserId(userId);
+  }
+
   findByIds(ids: DeliveryStaff['id'][]) {
     return this.deliveryStaffRepository.findByIds(ids);
   }

@@ -81,6 +81,10 @@ export class ManagersService {
     });
   }
 
+  async findByUserId(userId: string) {
+    return this.managerRepository.findByUserId(userId);
+  }
+
   findAllWithPagination({
     paginationOptions,
   }: {
