@@ -21,6 +21,7 @@ import { CreateHarvestScheduleDto } from './dto/create-harvest-schedule.dto';
 import { UpdateHarvestScheduleDto } from './dto/update-harvest-schedule.dto';
 import { HarvestScheduleStatusEnum } from './enum/harvest-schedule-status.enum';
 import { HarvestScheduleRepository } from './infrastructure/persistence/harvest-schedule.repository';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class HarvestSchedulesService {
@@ -37,6 +38,7 @@ export class HarvestSchedulesService {
     @Inject(forwardRef(() => HarvestDetailRepository))
     private readonly harvestDetailRepository: HarvestDetailRepository,
     private readonly inboundBatchService: InboundBatchesService,
+    private readonly notificationsGateway: NotificationsGateway,
   ) {}
 
   async create(createHarvestScheduleDto: CreateHarvestScheduleDto) {
@@ -166,6 +168,7 @@ export class HarvestSchedulesService {
     // Define allowed status transitions
     const allowedTransitions: Record<string, HarvestScheduleStatusEnum[]> = {
       pending: [
+        HarvestScheduleStatusEnum.APPROVED,
         HarvestScheduleStatusEnum.PREPARING,
         HarvestScheduleStatusEnum.REJECTED,
         HarvestScheduleStatusEnum.CANCELED,
@@ -224,6 +227,36 @@ export class HarvestSchedulesService {
         // Update delivery to completed
         await this.deliverDelivery(id);
         break;
+    }
+
+    if (status === HarvestScheduleStatusEnum.APPROVED) {
+      const supplierId = harvestSchedule?.supplierId?.id;
+      if (supplierId) {
+        this.notificationsGateway.notifySupplier(supplierId, {
+          type: 'harvest-approved',
+          title: 'Lịch thu hoạch đã được duyệt',
+          message: `Lịch thu hoạch ${harvestSchedule.id} đã được duyệt`,
+          data: { harvestScheduleId: harvestSchedule.id },
+          timestamp: new Date().toISOString(),
+        });
+      }
+
+      const ticket =
+        await this.harvestTicketRepository.findByHarvestScheduleId(id);
+      if (ticket) {
+        const details =
+          await this.harvestDetailRepository.findByHarvestTicketId(ticket.id);
+        if (Array.isArray(details) && details.length > 0) {
+          for (const d of details) {
+            await this.inboundBatchService.create({
+              quantity: d.quantity ?? undefined,
+              unit: d.unit ?? undefined,
+              product: d.product?.id ? { id: d.product.id } : undefined,
+              harvestDetail: d.id ? { id: d.id } : undefined,
+            });
+          }
+        }
+      }
     }
 
     return this.harvestScheduleRepository.update(id, {

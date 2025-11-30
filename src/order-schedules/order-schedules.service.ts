@@ -18,6 +18,7 @@ import { CreateOrderScheduleDto } from './dto/create-order-schedule.dto';
 import { UpdateOrderScheduleDto } from './dto/update-order-schedule.dto';
 import { OrderScheduleStatusEnum } from './enum/order-schedule-status.enum';
 import { OrderScheduleRepository } from './infrastructure/persistence/order-schedule.repository';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class OrderSchedulesService {
@@ -29,6 +30,7 @@ export class OrderSchedulesService {
 
     // Dependencies here
     private readonly orderScheduleRepository: OrderScheduleRepository,
+    private readonly notificationsGateway: NotificationsGateway,
   ) {}
 
   async create(createOrderScheduleDto: CreateOrderScheduleDto) {
@@ -124,6 +126,30 @@ export class OrderSchedulesService {
     });
   }
 
+  async approve(id: OrderSchedule['id']) {
+    const schedule = await this.orderScheduleRepository.findById(id);
+    if (!schedule) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { id: 'notExists' },
+      });
+    }
+    const updated = await this.orderScheduleRepository.update(id, {
+      status: OrderScheduleStatusEnum.APPROVED,
+    });
+    const consigneeId = updated?.consignee?.id;
+    if (consigneeId) {
+      this.notificationsGateway.notifyConsignee(consigneeId, {
+        type: 'order-approved',
+        title: 'Đơn hàng đã được duyệt',
+        message: `Đơn hàng ${updated.id} đã được duyệt`,
+        data: { orderScheduleId: updated.id },
+        timestamp: new Date().toISOString(),
+      });
+    }
+    return updated;
+  }
+
   remove(id: OrderSchedule['id']) {
     return this.orderScheduleRepository.remove(id);
   }
@@ -145,6 +171,7 @@ export class OrderSchedulesService {
     // Define allowed status transitions
     const allowedTransitions: Record<string, OrderScheduleStatusEnum[]> = {
       pending: [
+        OrderScheduleStatusEnum.APPROVED,
         OrderScheduleStatusEnum.PREPARING,
         OrderScheduleStatusEnum.REJECTED,
         OrderScheduleStatusEnum.CANCELED,

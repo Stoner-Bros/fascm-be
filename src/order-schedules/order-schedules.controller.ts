@@ -118,6 +118,19 @@ export class OrderSchedulesController {
     return this.orderSchedulesService.update(id, updateOrderScheduleDto);
   }
 
+  @Patch(':id/approve')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: OrderSchedule,
+  })
+  approve(@Param('id') id: string) {
+    return this.orderSchedulesService.approve(id);
+  }
+
   @Delete(':id')
   @ApiParam({
     name: 'id',
