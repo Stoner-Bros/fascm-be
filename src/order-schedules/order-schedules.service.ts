@@ -130,7 +130,7 @@ export class OrderSchedulesService {
     });
   }
 
-  async approve(id: OrderSchedule['id']) {
+  async approveNotification(id: OrderSchedule['id']) {
     const schedule = await this.orderScheduleRepository.findById(id);
     if (!schedule) {
       throw new UnprocessableEntityException({
@@ -176,13 +176,12 @@ export class OrderSchedulesService {
     const allowedTransitions: Record<string, OrderScheduleStatusEnum[]> = {
       pending: [
         OrderScheduleStatusEnum.APPROVED,
-        OrderScheduleStatusEnum.PREPARING,
         OrderScheduleStatusEnum.REJECTED,
         OrderScheduleStatusEnum.CANCELED,
       ],
       rejected: [],
       canceled: [],
-      preparing: [
+      approved: [
         OrderScheduleStatusEnum.DELIVERING,
         OrderScheduleStatusEnum.CANCELED,
       ],
@@ -220,9 +219,10 @@ export class OrderSchedulesService {
         await this.cancelOrderDeliveryIfExists(id);
         break;
 
-      case OrderScheduleStatusEnum.PREPARING:
+      case OrderScheduleStatusEnum.APPROVED:
         // Create or update delivery to scheduled
         await this.prepareOrderDeliveryIfExists(id);
+        await this.approveNotification(id);
         break;
 
       case OrderScheduleStatusEnum.DELIVERING:

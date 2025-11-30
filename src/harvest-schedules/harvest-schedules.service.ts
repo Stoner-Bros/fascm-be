@@ -73,8 +73,6 @@ export class HarvestSchedulesService {
 
       status: HarvestScheduleStatusEnum.PENDING,
 
-      harvestDate: createHarvestScheduleDto.harvestDate,
-
       supplierId,
     });
   }
@@ -142,8 +140,6 @@ export class HarvestSchedulesService {
 
       status: HarvestScheduleStatusEnum.PENDING,
 
-      harvestDate: updateHarvestScheduleDto.harvestDate,
-
       supplierId,
     });
   }
@@ -173,13 +169,12 @@ export class HarvestSchedulesService {
     const allowedTransitions: Record<string, HarvestScheduleStatusEnum[]> = {
       pending: [
         HarvestScheduleStatusEnum.APPROVED,
-        HarvestScheduleStatusEnum.PREPARING,
         HarvestScheduleStatusEnum.REJECTED,
         HarvestScheduleStatusEnum.CANCELED,
       ],
       rejected: [],
       canceled: [],
-      preparing: [
+      approved: [
         HarvestScheduleStatusEnum.DELIVERING,
         HarvestScheduleStatusEnum.CANCELED,
       ],
@@ -217,7 +212,7 @@ export class HarvestSchedulesService {
         await this.cancelHarvestDeliveryIfExists(id);
         break;
 
-      case HarvestScheduleStatusEnum.PREPARING:
+      case HarvestScheduleStatusEnum.APPROVED:
         // Create or update delivery to scheduled
         await this.prepareHarvestDeliveryIfExists(id);
         break;
@@ -230,6 +225,28 @@ export class HarvestSchedulesService {
       case HarvestScheduleStatusEnum.DELIVERED:
         // Update delivery to completed
         await this.deliverDelivery(id);
+        break;
+
+      case HarvestScheduleStatusEnum.COMPLETED:
+        // Update delivery to completed
+        const harvestTicket =
+          await this.harvestTicketRepository.findByHarvestScheduleId(id);
+        const harvestDetails =
+          await this.harvestDetailRepository.findByHarvestTicketId(
+            harvestTicket.id,
+          );
+
+        if (harvestDetails.length > 0) {
+          // Each harvest detail will create an inbound batch
+          for (const detail of harvestDetails) {
+            await this.inboundBatchService.create({
+              quantity: detail.quantity,
+              unit: detail.unit,
+              product: detail.product,
+              harvestDetail: detail,
+            });
+          }
+        }
         break;
     }
 
