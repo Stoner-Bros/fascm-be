@@ -132,6 +132,7 @@ export class HarvestSchedulesController {
     return this.harvestSchedulesService.updateStatus(
       id,
       updateHarvestScheduleStatusDto.status,
+      updateHarvestScheduleStatusDto.reason,
     );
   }
 }

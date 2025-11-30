@@ -68,6 +68,8 @@ export class HarvestSchedulesService {
 
       status: HarvestScheduleStatusEnum.PENDING,
 
+      harvestDate: createHarvestScheduleDto.harvestDate,
+
       supplierId,
     });
   }
@@ -136,6 +138,8 @@ export class HarvestSchedulesService {
       status: HarvestScheduleStatusEnum.PENDING,
 
       supplierId,
+
+      harvestDate: updateHarvestScheduleDto.harvestDate,
     });
   }
 
@@ -184,6 +188,7 @@ export class HarvestSchedulesService {
   async updateStatus(
     id: HarvestSchedule['id'],
     status: HarvestSchedule['status'],
+    reason?: string,
   ) {
     const harvestSchedule = await this.harvestScheduleRepository.findById(id);
 
@@ -237,12 +242,37 @@ export class HarvestSchedulesService {
       });
     }
 
+    // Validate that reason is provided when rejecting
+    if (status === HarvestScheduleStatusEnum.REJECTED && !reason) {
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        errors: {
+          reason: 'reasonRequiredForRejection',
+        },
+      });
+    }
+
     if (status === HarvestScheduleStatusEnum.APPROVED) {
       await this.approveNotification(id);
     }
 
+    // Send notification for rejection
+    if (status === HarvestScheduleStatusEnum.REJECTED) {
+      const supplierId = harvestSchedule?.supplierId?.id;
+      if (supplierId) {
+        this.notificationsGateway.notifySupplier(supplierId, {
+          type: 'harvest-rejected',
+          title: 'Lịch thu hoạch đã bị từ chối',
+          message: `Lịch thu hoạch ${harvestSchedule.id} đã bị từ chối. Lý do: ${reason}`,
+          data: { harvestScheduleId: harvestSchedule.id, reason },
+          timestamp: new Date().toISOString(),
+        });
+      }
+    }
+
     return this.harvestScheduleRepository.update(id, {
       status,
+      reason: status === HarvestScheduleStatusEnum.REJECTED ? reason : null,
     });
   }
 }

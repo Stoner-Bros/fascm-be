@@ -58,6 +58,13 @@ export class OrderScheduleEntity extends EntityRelationalHelper {
     const next = last ? Number((last.id ?? '').split('_')[1] ?? 0) + 1 : 1;
     this.id = `ORDSCH_${String(next).padStart(4, '0')}`;
   }
+
+  @Column({
+    nullable: true,
+    type: String,
+  })
+  reason?: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

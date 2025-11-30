@@ -159,7 +159,11 @@ export class OrderSchedulesService {
     return this.orderScheduleRepository.remove(id);
   }
 
-  async updateStatus(id: OrderSchedule['id'], status: OrderSchedule['status']) {
+  async updateStatus(
+    id: OrderSchedule['id'],
+    status: OrderSchedule['status'],
+    reason?: string,
+  ) {
     const orderSchedule = await this.orderScheduleRepository.findById(id);
 
     if (!orderSchedule) {
@@ -212,12 +216,37 @@ export class OrderSchedulesService {
       });
     }
 
+    // Validate that reason is provided when rejecting
+    if (status === OrderScheduleStatusEnum.REJECTED && !reason) {
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        errors: {
+          reason: 'reasonRequiredForRejection',
+        },
+      });
+    }
+
     if (status === OrderScheduleStatusEnum.APPROVED) {
       await this.approveNotification(id);
     }
 
+    // Send notification for rejection
+    if (status === OrderScheduleStatusEnum.REJECTED) {
+      const consigneeId = orderSchedule?.consignee?.id;
+      if (consigneeId) {
+        this.notificationsGateway.notifyConsignee(consigneeId, {
+          type: 'order-rejected',
+          title: 'Đơn hàng đã bị từ chối',
+          message: `Đơn hàng ${orderSchedule.id} đã bị từ chối. Lý do: ${reason}`,
+          data: { orderScheduleId: orderSchedule.id, reason },
+          timestamp: new Date().toISOString(),
+        });
+      }
+    }
+
     return this.orderScheduleRepository.update(id, {
       status,
+      reason: status === OrderScheduleStatusEnum.REJECTED ? reason : null,
     });
   }
 }

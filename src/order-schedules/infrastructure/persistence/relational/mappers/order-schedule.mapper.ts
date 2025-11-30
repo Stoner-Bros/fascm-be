@@ -22,6 +22,7 @@ export class OrderScheduleMapper {
     }
 
     domainEntity.id = raw.id;
+    domainEntity.reason = raw.reason;
     domainEntity.createdAt = raw.createdAt;
     domainEntity.updatedAt = raw.updatedAt;
 
@@ -49,6 +50,7 @@ export class OrderScheduleMapper {
     if (domainEntity.id) {
       persistenceEntity.id = domainEntity.id;
     }
+    persistenceEntity.reason = domainEntity.reason;
     persistenceEntity.createdAt = domainEntity.createdAt;
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 

@@ -148,6 +148,7 @@ export class OrderSchedulesController {
     return this.orderSchedulesService.updateStatus(
       id,
       updateOrderScheduleStatusDto.status,
+      updateOrderScheduleStatusDto.reason,
     );
   }
 }

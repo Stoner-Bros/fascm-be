@@ -38,6 +38,12 @@ export class OrderSchedule {
   })
   id: string;
 
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  reason?: string | null;
+
   @ApiProperty()
   createdAt: Date;
 
