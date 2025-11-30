@@ -1,20 +1,16 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
-import { OrderSchedulesService } from './order-schedules.service';
-import { ConsigneesService } from '../consignees/consignees.service';
-import { CreateOrderScheduleDto } from './dto/create-order-schedule.dto';
-import { UpdateOrderScheduleDto } from './dto/update-order-schedule.dto';
-import { UpdateOrderScheduleStatusDto } from './dto/update-order-schedule-status.dto';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -22,14 +18,18 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { OrderSchedule } from './domain/order-schedule';
-import { AuthGuard } from '@nestjs/passport';
+import { ConsigneesService } from '../consignees/consignees.service';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
+import { OrderSchedule } from './domain/order-schedule';
+import { CreateOrderScheduleDto } from './dto/create-order-schedule.dto';
 import { FindAllOrderSchedulesDto } from './dto/find-all-order-schedules.dto';
+import { UpdateOrderScheduleStatusDto } from './dto/update-order-schedule-status.dto';
+import { UpdateOrderScheduleDto } from './dto/update-order-schedule.dto';
+import { OrderSchedulesService } from './order-schedules.service';
 
 @ApiTags('Orderschedules')
 @ApiBearerAuth()
@@ -77,6 +77,8 @@ export class OrderSchedulesController {
     if (limit > 50) {
       limit = 50;
     }
+    const status = query?.status;
+    const sort = query?.sort === 'asc' ? 'ASC' : 'DESC';
 
     return infinityPagination(
       await this.orderSchedulesService.findAllWithPagination({
@@ -84,6 +86,8 @@ export class OrderSchedulesController {
           page,
           limit,
         },
+        filters: { status },
+        sort,
       }),
       { page, limit },
     );

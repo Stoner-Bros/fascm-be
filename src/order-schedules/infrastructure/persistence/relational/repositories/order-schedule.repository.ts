@@ -27,14 +27,27 @@ export class OrderScheduleRelationalRepository
 
   async findAllWithPagination({
     paginationOptions,
+    filters,
+    sort,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: {
+      status?: OrderSchedule['status'];
+    };
+    sort?: 'ASC' | 'DESC';
   }): Promise<OrderSchedule[]> {
+    const where: any = {};
+
+    if (filters?.status) {
+      where.status = filters.status;
+    }
+
     const entities = await this.orderScheduleRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
+      where: Object.keys(where).length > 0 ? where : undefined,
       order: {
-        id: 'ASC',
+        id: sort ?? 'DESC',
       },
     });
 

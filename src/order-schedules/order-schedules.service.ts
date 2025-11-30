@@ -64,14 +64,22 @@ export class OrderSchedulesService {
 
   findAllWithPagination({
     paginationOptions,
+    filters,
+    sort,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: {
+      status?: OrderSchedule['status'];
+    };
+    sort?: 'ASC' | 'DESC';
   }) {
     return this.orderScheduleRepository.findAllWithPagination({
       paginationOptions: {
         page: paginationOptions.page,
         limit: paginationOptions.limit,
       },
+      filters,
+      sort,
     });
   }
 

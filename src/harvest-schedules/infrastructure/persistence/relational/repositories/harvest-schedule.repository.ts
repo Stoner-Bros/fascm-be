@@ -41,7 +41,7 @@ export class HarvestScheduleRelationalRepository
       qb.andWhere('hs.status = :status', { status: filters.status });
     }
 
-    qb.orderBy('hs.createdAt', sort ?? 'DESC');
+    qb.orderBy('hs.id', sort ?? 'DESC');
     qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
     qb.take(paginationOptions.limit);
 

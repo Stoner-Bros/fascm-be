@@ -10,8 +10,14 @@ export abstract class OrderScheduleRepository {
 
   abstract findAllWithPagination({
     paginationOptions,
+    filters,
+    sort,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: {
+      status?: OrderSchedule['status'];
+    };
+    sort?: 'ASC' | 'DESC';
   }): Promise<OrderSchedule[]>;
 
   abstract findById(
