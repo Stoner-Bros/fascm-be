@@ -13,7 +13,7 @@ export class OrderScheduleMapper {
 
     domainEntity.status = raw.status;
 
-    domainEntity.orderDate = raw.orderDate;
+    domainEntity.deliveryDate = raw.deliveryDate;
 
     if (raw.consignee) {
       domainEntity.consignee = ConsigneeMapper.toDomain(raw.consignee);
@@ -36,7 +36,7 @@ export class OrderScheduleMapper {
 
     persistenceEntity.status = domainEntity.status;
 
-    persistenceEntity.orderDate = domainEntity.orderDate;
+    persistenceEntity.deliveryDate = domainEntity.deliveryDate;
 
     if (domainEntity.consignee) {
       persistenceEntity.consignee = ConsigneeMapper.toPersistence(

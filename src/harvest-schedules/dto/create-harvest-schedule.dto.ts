@@ -1,11 +1,13 @@
 import { SupplierDto } from '../../suppliers/dto/supplier.dto';
 
 import {
+  Transform,
   // decorators here
   Type,
 } from 'class-transformer';
 
 import {
+  IsDate,
   IsNotEmptyObject,
   IsOptional,
   IsString,
@@ -34,6 +36,15 @@ export class CreateHarvestScheduleDto {
   @IsOptional()
   @IsString()
   description?: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => Date,
+  })
+  @IsOptional()
+  @Transform(({ value }) => new Date(value))
+  @IsDate()
+  harvestDate?: Date | null;
 
   @ApiProperty({
     required: false,

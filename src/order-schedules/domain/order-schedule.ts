@@ -25,7 +25,7 @@ export class OrderSchedule {
     type: () => Date,
     nullable: true,
   })
-  orderDate?: Date | null;
+  deliveryDate?: Date | null;
 
   @ApiProperty({
     type: () => Consignee,

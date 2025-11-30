@@ -39,7 +39,7 @@ export class OrderScheduleEntity extends EntityRelationalHelper {
     nullable: true,
     type: Date,
   })
-  orderDate?: Date | null;
+  deliveryDate?: Date | null;
 
   @ManyToOne(() => ConsigneeEntity, { eager: true, nullable: true })
   consignee?: ConsigneeEntity | null;
