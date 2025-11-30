@@ -161,7 +161,9 @@ export class HarvestSchedulesService {
         timestamp: new Date().toISOString(),
       });
     }
+  }
 
+  async createInboundBatchForHarvestSchedule(id: HarvestSchedule['id']) {
     const ticket =
       await this.harvestTicketRepository.findByHarvestScheduleId(id);
     if (ticket) {
@@ -254,6 +256,10 @@ export class HarvestSchedulesService {
 
     if (status === HarvestScheduleStatusEnum.APPROVED) {
       await this.approveNotification(id);
+    }
+
+    if (status === HarvestScheduleStatusEnum.COMPLETED) {
+      await this.createInboundBatchForHarvestSchedule(id);
     }
 
     // Send notification for rejection
