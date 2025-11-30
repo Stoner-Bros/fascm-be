@@ -22,6 +22,8 @@ import { DeliveryRepository } from './infrastructure/persistence/delivery.reposi
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { Delivery } from './domain/delivery';
 import { DeliveryStatusEnum } from './enum/delivery-status.enum';
+import { HarvestScheduleStatusEnum } from 'src/harvest-schedules/enum/harvest-schedule-status.enum';
+import { OrderScheduleStatusEnum } from 'src/order-schedules/enum/order-schedule-status.enum';
 
 @Injectable()
 export class DeliveriesService {
@@ -358,6 +360,64 @@ export class DeliveriesService {
           status: `invalidTransitionFrom${currentStatus}To${status}`,
         },
       });
+    }
+
+    if (delivery.harvestSchedule) {
+      switch (status) {
+        case DeliveryStatusEnum.SCHEDULED:
+          await this.harvestScheduleService.updateStatus(
+            delivery.harvestSchedule.id,
+            HarvestScheduleStatusEnum.PREPARING,
+          );
+          break;
+        case DeliveryStatusEnum.DELIVERING:
+          await this.harvestScheduleService.updateStatus(
+            delivery.harvestSchedule.id,
+            HarvestScheduleStatusEnum.DELIVERING,
+          );
+          break;
+        case DeliveryStatusEnum.COMPLETED:
+          await this.harvestScheduleService.updateStatus(
+            delivery.harvestSchedule.id,
+            HarvestScheduleStatusEnum.DELIVERED,
+          );
+          break;
+        case DeliveryStatusEnum.CANCELLED:
+          await this.harvestScheduleService.updateStatus(
+            delivery.harvestSchedule.id,
+            HarvestScheduleStatusEnum.CANCELED,
+          );
+          break;
+      }
+    }
+
+    if (delivery.orderSchedule) {
+      switch (status) {
+        case DeliveryStatusEnum.SCHEDULED:
+          await this.orderScheduleService.updateStatus(
+            delivery.orderSchedule.id,
+            OrderScheduleStatusEnum.PREPARING,
+          );
+          break;
+        case DeliveryStatusEnum.DELIVERING:
+          await this.orderScheduleService.updateStatus(
+            delivery.orderSchedule.id,
+            OrderScheduleStatusEnum.DELIVERING,
+          );
+          break;
+        case DeliveryStatusEnum.COMPLETED:
+          await this.orderScheduleService.updateStatus(
+            delivery.orderSchedule.id,
+            OrderScheduleStatusEnum.DELIVERED,
+          );
+          break;
+        case DeliveryStatusEnum.CANCELLED:
+          await this.orderScheduleService.updateStatus(
+            delivery.orderSchedule.id,
+            OrderScheduleStatusEnum.CANCELED,
+          );
+          break;
+      }
     }
 
     return this.deliveryRepository.update(id, {

@@ -10,26 +10,21 @@ import {
   UnprocessableEntityException,
   forwardRef,
 } from '@nestjs/common';
-import { DeliveriesService } from '../deliveries/deliveries.service';
-import { DeliveryStatusEnum } from '../deliveries/enum/delivery-status.enum';
 import { HarvestDetailRepository } from 'src/harvest-details/infrastructure/persistence/harvest-detail.repository';
 import { HarvestTicketRepository } from 'src/harvest-tickets/infrastructure/persistence/harvest-ticket.repository';
 import { InboundBatchesService } from 'src/inbound-batches/inbound-batches.service';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { HarvestSchedule } from './domain/harvest-schedule';
 import { CreateHarvestScheduleDto } from './dto/create-harvest-schedule.dto';
 import { UpdateHarvestScheduleDto } from './dto/update-harvest-schedule.dto';
 import { HarvestScheduleStatusEnum } from './enum/harvest-schedule-status.enum';
 import { HarvestScheduleRepository } from './infrastructure/persistence/harvest-schedule.repository';
-import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class HarvestSchedulesService {
   constructor(
     private readonly supplierService: SuppliersService,
-
-    @Inject(forwardRef(() => DeliveriesService))
-    private readonly deliveriesService: DeliveriesService,
 
     // Dependencies here
     private readonly harvestScheduleRepository: HarvestScheduleRepository,
@@ -144,6 +139,44 @@ export class HarvestSchedulesService {
     });
   }
 
+  async approveNotification(id: HarvestSchedule['id']) {
+    const harvestSchedule = await this.harvestScheduleRepository.findById(id);
+    if (!harvestSchedule) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { id: 'notExists' },
+      });
+    }
+    const supplierId = harvestSchedule?.supplierId?.id;
+    if (supplierId) {
+      this.notificationsGateway.notifySupplier(supplierId, {
+        type: 'harvest-approved',
+        title: 'Lịch thu hoạch đã được duyệt',
+        message: `Lịch thu hoạch ${harvestSchedule.id} đã được duyệt`,
+        data: { harvestScheduleId: harvestSchedule.id },
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    const ticket =
+      await this.harvestTicketRepository.findByHarvestScheduleId(id);
+    if (ticket) {
+      const details = await this.harvestDetailRepository.findByHarvestTicketId(
+        ticket.id,
+      );
+      if (Array.isArray(details) && details.length > 0) {
+        for (const d of details) {
+          await this.inboundBatchService.create({
+            quantity: d.quantity ?? undefined,
+            unit: d.unit ?? undefined,
+            product: d.product?.id ? { id: d.product.id } : undefined,
+            harvestDetail: d.id ? { id: d.id } : undefined,
+          });
+        }
+      }
+    }
+  }
+
   remove(id: HarvestSchedule['id']) {
     return this.harvestScheduleRepository.remove(id);
   }
@@ -204,176 +237,12 @@ export class HarvestSchedulesService {
       });
     }
 
-    // Handle status-specific actions
-    switch (status) {
-      case HarvestScheduleStatusEnum.REJECTED:
-      case HarvestScheduleStatusEnum.CANCELED:
-        // Cancel delivery if exists
-        await this.cancelHarvestDeliveryIfExists(id);
-        break;
-
-      case HarvestScheduleStatusEnum.APPROVED:
-        // Create or update delivery to scheduled
-        await this.prepareHarvestDeliveryIfExists(id);
-        break;
-
-      case HarvestScheduleStatusEnum.DELIVERING:
-        // Update delivery to delivering
-        await this.deliverHarvestDelivery(id);
-        break;
-
-      case HarvestScheduleStatusEnum.DELIVERED:
-        // Update delivery to completed
-        await this.deliverDelivery(id);
-        break;
-
-      case HarvestScheduleStatusEnum.COMPLETED:
-        // Update delivery to completed
-        const harvestTicket =
-          await this.harvestTicketRepository.findByHarvestScheduleId(id);
-        const harvestDetails =
-          await this.harvestDetailRepository.findByHarvestTicketId(
-            harvestTicket.id,
-          );
-
-        if (harvestDetails.length > 0) {
-          // Each harvest detail will create an inbound batch
-          for (const detail of harvestDetails) {
-            await this.inboundBatchService.create({
-              quantity: detail.quantity,
-              unit: detail.unit,
-              product: detail.product,
-              harvestDetail: detail,
-            });
-          }
-        }
-        break;
-    }
-
     if (status === HarvestScheduleStatusEnum.APPROVED) {
-      const supplierId = harvestSchedule?.supplierId?.id;
-      if (supplierId) {
-        this.notificationsGateway.notifySupplier(supplierId, {
-          type: 'harvest-approved',
-          title: 'Lịch thu hoạch đã được duyệt',
-          message: `Lịch thu hoạch ${harvestSchedule.id} đã được duyệt`,
-          data: { harvestScheduleId: harvestSchedule.id },
-          timestamp: new Date().toISOString(),
-        });
-      }
-
-      const ticket =
-        await this.harvestTicketRepository.findByHarvestScheduleId(id);
-      if (ticket) {
-        const details =
-          await this.harvestDetailRepository.findByHarvestTicketId(ticket.id);
-        if (Array.isArray(details) && details.length > 0) {
-          for (const d of details) {
-            await this.inboundBatchService.create({
-              quantity: d.quantity ?? undefined,
-              unit: d.unit ?? undefined,
-              product: d.product?.id ? { id: d.product.id } : undefined,
-              harvestDetail: d.id ? { id: d.id } : undefined,
-            });
-          }
-        }
-      }
+      await this.approveNotification(id);
     }
 
     return this.harvestScheduleRepository.update(id, {
       status,
     });
-  }
-
-  /**
-   * Cancel delivery if it exists (for rejected/canceled harvests)
-   */
-  private async cancelHarvestDeliveryIfExists(
-    harvestScheduleId: HarvestSchedule['id'],
-  ) {
-    const delivery =
-      await this.deliveriesService.findByHarvestScheduleId(harvestScheduleId);
-
-    // If no delivery exists, it's okay (harvest might be rejected before delivery creation)
-    if (!delivery) {
-      return;
-    }
-
-    // Only cancel if not already completed or cancelled
-    if (
-      delivery.status !== DeliveryStatusEnum.COMPLETED &&
-      delivery.status !== DeliveryStatusEnum.CANCELLED
-    ) {
-      await this.deliveriesService.updateStatus(
-        delivery.id,
-        DeliveryStatusEnum.CANCELLED,
-      );
-    }
-  }
-
-  /**
-   * Prepare delivery - create or update to scheduled status
-   */
-  private async prepareHarvestDeliveryIfExists(
-    harvestScheduleId: HarvestSchedule['id'],
-  ) {
-    const delivery =
-      await this.deliveriesService.findByHarvestScheduleId(harvestScheduleId);
-
-    // If no delivery exists, it's okay (delivery will be created separately)
-    if (!delivery) {
-      return;
-    }
-
-    await this.deliveriesService.updateStatus(
-      delivery.id,
-      DeliveryStatusEnum.SCHEDULED,
-    );
-  }
-
-  /**
-   * Update delivery to delivering status
-   */
-  private async deliverHarvestDelivery(
-    harvestScheduleId: HarvestSchedule['id'],
-  ) {
-    const delivery =
-      await this.deliveriesService.findByHarvestScheduleId(harvestScheduleId);
-
-    if (!delivery) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          delivery: 'deliveryNotFoundForHarvest',
-        },
-      });
-    }
-
-    await this.deliveriesService.updateStatus(
-      delivery.id,
-      DeliveryStatusEnum.DELIVERING,
-    );
-  }
-
-  /**
-   * Mark delivery as delivered
-   */
-  private async deliverDelivery(harvestScheduleId: HarvestSchedule['id']) {
-    const delivery =
-      await this.deliveriesService.findByHarvestScheduleId(harvestScheduleId);
-
-    if (!delivery) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          delivery: 'deliveryNotFoundForHarvest',
-        },
-      });
-    }
-
-    await this.deliveriesService.updateStatus(
-      delivery.id,
-      DeliveryStatusEnum.COMPLETED,
-    );
   }
 }

@@ -4,29 +4,22 @@ import { Consignee } from '../consignees/domain/consignee';
 import {
   BadRequestException,
   HttpStatus,
-  Inject,
   // common
   Injectable,
   UnprocessableEntityException,
-  forwardRef,
 } from '@nestjs/common';
-import { DeliveriesService } from '../deliveries/deliveries.service';
-import { DeliveryStatusEnum } from '../deliveries/enum/delivery-status.enum';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { OrderSchedule } from './domain/order-schedule';
 import { CreateOrderScheduleDto } from './dto/create-order-schedule.dto';
 import { UpdateOrderScheduleDto } from './dto/update-order-schedule.dto';
 import { OrderScheduleStatusEnum } from './enum/order-schedule-status.enum';
 import { OrderScheduleRepository } from './infrastructure/persistence/order-schedule.repository';
-import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class OrderSchedulesService {
   constructor(
     private readonly consigneeService: ConsigneesService,
-
-    @Inject(forwardRef(() => DeliveriesService))
-    private readonly deliveriesService: DeliveriesService,
 
     // Dependencies here
     private readonly orderScheduleRepository: OrderScheduleRepository,
@@ -211,123 +204,12 @@ export class OrderSchedulesService {
       });
     }
 
-    // Handle status-specific actions
-    switch (status) {
-      case OrderScheduleStatusEnum.REJECTED:
-      case OrderScheduleStatusEnum.CANCELED:
-        // Cancel delivery if exists
-        await this.cancelOrderDeliveryIfExists(id);
-        break;
-
-      case OrderScheduleStatusEnum.APPROVED:
-        // Create or update delivery to scheduled
-        await this.prepareOrderDeliveryIfExists(id);
-        await this.approveNotification(id);
-        break;
-
-      case OrderScheduleStatusEnum.DELIVERING:
-        // Update delivery to delivering
-        await this.deliverOrderDelivery(id);
-        break;
-
-      case OrderScheduleStatusEnum.DELIVERED:
-        // Update delivery to completed
-        await this.deliverDelivery(id);
-        break;
+    if (status === OrderScheduleStatusEnum.APPROVED) {
+      await this.approveNotification(id);
     }
 
     return this.orderScheduleRepository.update(id, {
       status,
     });
-  }
-
-  /**
-   * Cancel delivery if it exists (for rejected/canceled orders)
-   */
-  private async cancelOrderDeliveryIfExists(
-    orderScheduleId: OrderSchedule['id'],
-  ) {
-    const delivery =
-      await this.deliveriesService.findByOrderScheduleId(orderScheduleId);
-
-    // If no delivery exists, it's okay (order might be rejected before delivery creation)
-    if (!delivery) {
-      return;
-    }
-
-    // Only cancel if not already completed or cancelled
-    if (
-      delivery.status !== DeliveryStatusEnum.COMPLETED &&
-      delivery.status !== DeliveryStatusEnum.CANCELLED
-    ) {
-      await this.deliveriesService.updateStatus(
-        delivery.id,
-        DeliveryStatusEnum.CANCELLED,
-      );
-    }
-  }
-
-  /**
-   * Prepare delivery - create or update to scheduled status
-   */
-  private async prepareOrderDeliveryIfExists(
-    orderScheduleId: OrderSchedule['id'],
-  ) {
-    const delivery =
-      await this.deliveriesService.findByOrderScheduleId(orderScheduleId);
-
-    // If no delivery exists, it's okay (delivery will be created separately)
-    if (!delivery) {
-      return;
-    }
-
-    await this.deliveriesService.updateStatus(
-      delivery.id,
-      DeliveryStatusEnum.SCHEDULED,
-    );
-  }
-
-  /**
-   * Update delivery to delivering status
-   */
-  private async deliverOrderDelivery(orderScheduleId: OrderSchedule['id']) {
-    const delivery =
-      await this.deliveriesService.findByOrderScheduleId(orderScheduleId);
-
-    if (!delivery) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          delivery: 'deliveryNotFoundForOrder',
-        },
-      });
-    }
-
-    await this.deliveriesService.updateStatus(
-      delivery.id,
-      DeliveryStatusEnum.DELIVERING,
-    );
-  }
-
-  /**
-   * Mark delivery as delivered
-   */
-  private async deliverDelivery(orderScheduleId: OrderSchedule['id']) {
-    const delivery =
-      await this.deliveriesService.findByOrderScheduleId(orderScheduleId);
-
-    if (!delivery) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          delivery: 'deliveryNotFoundForOrder',
-        },
-      });
-    }
-
-    await this.deliveriesService.updateStatus(
-      delivery.id,
-      DeliveryStatusEnum.COMPLETED,
-    );
   }
 }
