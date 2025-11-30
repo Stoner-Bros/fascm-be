@@ -6,4 +6,5 @@ export enum OrderScheduleStatusEnum {
   DELIVERED = 'delivered', //đã giao hàng
   COMPLETED = 'completed', //đã hoàn thành
   CANCELED = 'canceled', //đã hủy đơn
+  APPROVED = 'approved', //đã duyệt đơn
 }

@@ -1,4 +1,5 @@
 import { ConsigneesModule } from '../consignees/consignees.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import {
   // do not remove this comment
   Module,
@@ -12,6 +13,7 @@ import { DeliveriesModule } from '../deliveries/deliveries.module';
 @Module({
   imports: [
     ConsigneesModule,
+    NotificationsModule,
 
     forwardRef(() => DeliveriesModule),
 
