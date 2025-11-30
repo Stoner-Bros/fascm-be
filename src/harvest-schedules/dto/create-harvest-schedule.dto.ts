@@ -28,6 +28,14 @@ export class CreateHarvestScheduleDto {
   })
   @IsOptional()
   @IsString()
+  address?: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => String,
+  })
+  @IsOptional()
+  @IsString()
   description?: string | null;
 
   @ApiProperty({

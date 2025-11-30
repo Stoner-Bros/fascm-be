@@ -10,6 +10,7 @@ import {
   IsOptional,
   // decorators here
   ValidateNested,
+  IsString,
 } from 'class-validator';
 
 import {
@@ -18,6 +19,14 @@ import {
 } from '@nestjs/swagger';
 
 export class CreateOrderScheduleDto {
+  @ApiProperty({
+    required: false,
+    type: () => String,
+  })
+  @IsOptional()
+  @IsString()
+  address?: string | null;
+
   @ApiProperty({
     required: false,
     type: () => String,

@@ -7,6 +7,8 @@ import { OrderScheduleEntity } from '../entities/order-schedule.entity';
 export class OrderScheduleMapper {
   static toDomain(raw: OrderScheduleEntity): OrderSchedule {
     const domainEntity = new OrderSchedule();
+    domainEntity.address = raw.address;
+
     domainEntity.description = raw.description;
 
     domainEntity.status = raw.status;
@@ -28,6 +30,8 @@ export class OrderScheduleMapper {
 
   static toPersistence(domainEntity: OrderSchedule): OrderScheduleEntity {
     const persistenceEntity = new OrderScheduleEntity();
+    persistenceEntity.address = domainEntity.address;
+
     persistenceEntity.description = domainEntity.description;
 
     persistenceEntity.status = domainEntity.status;

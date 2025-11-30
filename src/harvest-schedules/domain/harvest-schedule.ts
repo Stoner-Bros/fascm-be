@@ -7,6 +7,12 @@ export class HarvestSchedule {
     type: () => String,
     nullable: true,
   })
+  address?: string | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
   description?: string | null;
 
   @ApiProperty({

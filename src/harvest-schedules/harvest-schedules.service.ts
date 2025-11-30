@@ -67,6 +67,8 @@ export class HarvestSchedulesService {
     return this.harvestScheduleRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
+      address: createHarvestScheduleDto.address,
+
       description: createHarvestScheduleDto.description,
 
       status: HarvestScheduleStatusEnum.PENDING,
@@ -134,6 +136,8 @@ export class HarvestSchedulesService {
     return this.harvestScheduleRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
+      address: updateHarvestScheduleDto.address,
+
       description: updateHarvestScheduleDto.description,
 
       status: HarvestScheduleStatusEnum.PENDING,

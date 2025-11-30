@@ -20,6 +20,12 @@ export class OrderScheduleEntity extends EntityRelationalHelper {
     nullable: true,
     type: String,
   })
+  address?: string | null;
+
+  @Column({
+    nullable: true,
+    type: String,
+  })
   description?: string | null;
 
   @Column({
