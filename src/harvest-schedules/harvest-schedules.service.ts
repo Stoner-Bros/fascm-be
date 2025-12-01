@@ -279,6 +279,7 @@ export class HarvestSchedulesService {
     return this.harvestScheduleRepository.update(id, {
       status,
       reason: status === HarvestScheduleStatusEnum.REJECTED ? reason : null,
+      updatedAt: new Date(),
     });
   }
 }

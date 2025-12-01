@@ -142,6 +142,19 @@ export class DeliveriesService {
       }
     }
 
+    if (createDeliveryDto.harvestSchedule) {
+      await this.harvestScheduleService.updateStatus(
+        createDeliveryDto.harvestSchedule.id,
+        HarvestScheduleStatusEnum.PREPARING,
+      );
+    }
+    if (createDeliveryDto.orderSchedule) {
+      await this.orderScheduleService.updateStatus(
+        createDeliveryDto.orderSchedule.id,
+        OrderScheduleStatusEnum.PREPARING,
+      );
+    }
+
     return this.deliveryRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
@@ -157,9 +170,7 @@ export class DeliveriesService {
 
       startAddress: createDeliveryDto.startAddress,
 
-      status: createDeliveryDto.status,
-
-      endTime: createDeliveryDto.endTime,
+      status: DeliveryStatusEnum.SCHEDULED,
 
       startTime: createDeliveryDto.startTime,
 
@@ -304,10 +315,6 @@ export class DeliveriesService {
 
       startAddress: updateDeliveryDto.startAddress,
 
-      status: updateDeliveryDto.status,
-
-      endTime: updateDeliveryDto.endTime,
-
       startTime: updateDeliveryDto.startTime,
 
       truck,
@@ -327,7 +334,7 @@ export class DeliveriesService {
 
     if (!delivery) {
       throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        status: HttpStatus.BAD_REQUEST,
         errors: {
           id: 'notExists',
         },
@@ -337,15 +344,12 @@ export class DeliveriesService {
     const currentStatus = delivery.status;
 
     const allowedTransitions: Record<string, DeliveryStatusEnum[]> = {
-      scheduled: [DeliveryStatusEnum.DELIVERING, DeliveryStatusEnum.CANCELLED],
-      delivering: [
-        DeliveryStatusEnum.COMPLETED,
-        DeliveryStatusEnum.CANCELLED,
-        DeliveryStatusEnum.DELAYED,
-      ],
+      scheduled: [DeliveryStatusEnum.DELIVERING, DeliveryStatusEnum.CANCELED],
+      delivering: [DeliveryStatusEnum.DELIVERED, DeliveryStatusEnum.CANCELED],
+      delivered: [DeliveryStatusEnum.RETURNING, DeliveryStatusEnum.CANCELED],
+      returning: [DeliveryStatusEnum.COMPLETED, DeliveryStatusEnum.CANCELED],
       completed: [],
-      cancelled: [],
-      delayed: [],
+      canceled: [],
     };
 
     if (
@@ -362,66 +366,60 @@ export class DeliveriesService {
       });
     }
 
-    if (delivery.harvestSchedule) {
-      switch (status) {
-        case DeliveryStatusEnum.SCHEDULED:
+    switch (status) {
+      case DeliveryStatusEnum.SCHEDULED:
+        if (delivery.harvestSchedule) {
           await this.harvestScheduleService.updateStatus(
             delivery.harvestSchedule.id,
             HarvestScheduleStatusEnum.PREPARING,
           );
-          break;
-        case DeliveryStatusEnum.DELIVERING:
-          await this.harvestScheduleService.updateStatus(
-            delivery.harvestSchedule.id,
-            HarvestScheduleStatusEnum.DELIVERING,
-          );
-          break;
-        case DeliveryStatusEnum.COMPLETED:
-          await this.harvestScheduleService.updateStatus(
-            delivery.harvestSchedule.id,
-            HarvestScheduleStatusEnum.DELIVERED,
-          );
-          break;
-        case DeliveryStatusEnum.CANCELLED:
-          await this.harvestScheduleService.updateStatus(
-            delivery.harvestSchedule.id,
-            HarvestScheduleStatusEnum.CANCELED,
-          );
-          break;
-      }
-    }
-
-    if (delivery.orderSchedule) {
-      switch (status) {
-        case DeliveryStatusEnum.SCHEDULED:
+        }
+        if (delivery.orderSchedule) {
           await this.orderScheduleService.updateStatus(
             delivery.orderSchedule.id,
             OrderScheduleStatusEnum.PREPARING,
           );
-          break;
-        case DeliveryStatusEnum.DELIVERING:
+        }
+        break;
+      case DeliveryStatusEnum.DELIVERING:
+        if (delivery.harvestSchedule) {
+          await this.harvestScheduleService.updateStatus(
+            delivery.harvestSchedule.id,
+            HarvestScheduleStatusEnum.DELIVERING,
+          );
+        }
+        if (delivery.orderSchedule) {
           await this.orderScheduleService.updateStatus(
             delivery.orderSchedule.id,
             OrderScheduleStatusEnum.DELIVERING,
           );
-          break;
-        case DeliveryStatusEnum.COMPLETED:
+        }
+        break;
+      case DeliveryStatusEnum.DELIVERED:
+        if (delivery.harvestSchedule) {
+          await this.harvestScheduleService.updateStatus(
+            delivery.harvestSchedule.id,
+            HarvestScheduleStatusEnum.DELIVERED,
+          );
+        }
+        if (delivery.orderSchedule) {
           await this.orderScheduleService.updateStatus(
             delivery.orderSchedule.id,
             OrderScheduleStatusEnum.DELIVERED,
           );
-          break;
-        case DeliveryStatusEnum.CANCELLED:
-          await this.orderScheduleService.updateStatus(
-            delivery.orderSchedule.id,
-            OrderScheduleStatusEnum.CANCELED,
-          );
-          break;
-      }
+        }
+        break;
     }
 
-    return this.deliveryRepository.update(id, {
+    const updateData: Partial<Delivery> = {
       status,
-    });
+      updatedAt: new Date(),
+    };
+
+    if (status === DeliveryStatusEnum.COMPLETED) {
+      updateData.endTime = new Date();
+    }
+
+    return this.deliveryRepository.update(id, updateData);
   }
 }

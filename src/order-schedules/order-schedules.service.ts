@@ -247,6 +247,7 @@ export class OrderSchedulesService {
     return this.orderScheduleRepository.update(id, {
       status,
       reason: status === OrderScheduleStatusEnum.REJECTED ? reason : null,
+      updatedAt: new Date(),
     });
   }
 }

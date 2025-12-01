@@ -5,29 +5,25 @@ import { HarvestScheduleDto } from '../../harvest-schedules/dto/harvest-schedule
 import { OrderScheduleDto } from '../../order-schedules/dto/order-schedule.dto';
 
 import {
+  Transform,
   // decorators here
   Type,
-  Transform,
 } from 'class-transformer';
 
 import {
-  // decorators here
-
-  ValidateNested,
-  IsNotEmptyObject,
-  IsOptional,
   IsDate,
-  IsEnum,
+  IsNotEmptyObject,
   IsNumber,
+  IsOptional,
   IsString,
+  // decorators here
+  ValidateNested,
 } from 'class-validator';
 
 import {
   // decorators here
   ApiProperty,
 } from '@nestjs/swagger';
-
-import { DeliveryStatusEnum } from '../enum/delivery-status.enum';
 
 export class CreateDeliveryDto {
   @ApiProperty({
@@ -77,23 +73,6 @@ export class CreateDeliveryDto {
   @IsOptional()
   @IsString()
   startAddress?: string | null;
-
-  @ApiProperty({
-    required: false,
-    enum: DeliveryStatusEnum,
-  })
-  @IsOptional()
-  @IsEnum(DeliveryStatusEnum)
-  status?: DeliveryStatusEnum | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => Date,
-  })
-  @IsOptional()
-  @Transform(({ value }) => new Date(value))
-  @IsDate()
-  endTime?: Date | null;
 
   @ApiProperty({
     required: false,

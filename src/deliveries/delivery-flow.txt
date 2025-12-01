@@ -1,0 +1,10 @@
+Action            Order/Harvest         Delivery
+Tạo đơn              PENDING
+Duyệt/từ chói     APPROVED/REJECTED
+Lên lịch            PREPARING           SCHEDULED
+Giao/Lấy            DELIVERING          DELIVERING
+DS xác nhận         DELIVERED           DELIVERED
+Về                                      RETURNING
+Về tới kho                              COMPLETED
+C/S xác nhận        COMPLETED
+Sự cố               CANCELED            CANCELED
