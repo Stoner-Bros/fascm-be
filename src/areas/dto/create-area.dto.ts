@@ -26,6 +26,14 @@ import {
 export class CreateAreaDto {
   @ApiProperty({
     required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  availableCapacity?: number | null;
+
+  @ApiProperty({
+    required: false,
     type: () => [IoTDeviceDto],
   })
   @IsOptional()
@@ -48,7 +56,7 @@ export class CreateAreaDto {
   })
   @IsOptional()
   @IsNumber()
-  volumne?: number | null;
+  capacity?: number | null;
 
   @ApiProperty({
     required: false,

@@ -6,6 +6,12 @@ export class AreaSetting {
     type: () => Number,
     nullable: true,
   })
+  minCapacity?: number | null;
+
+  @ApiProperty({
+    type: () => Number,
+    nullable: true,
+  })
   minHumidity?: number | null;
 
   @ApiProperty({

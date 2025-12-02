@@ -26,6 +26,14 @@ export class CreateAreaSettingDto {
   })
   @IsOptional()
   @IsNumber()
+  minCapacity?: number | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
   minHumidity?: number | null;
 
   @ApiProperty({
