@@ -19,4 +19,9 @@ export class FindAllDeliveriesDto {
   @IsString()
   @IsOptional()
   orderScheduleId?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  harvestScheduleId?: string;
 }

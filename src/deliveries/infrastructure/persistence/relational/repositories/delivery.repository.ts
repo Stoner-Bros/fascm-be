@@ -28,7 +28,7 @@ export class DeliveryRelationalRepository implements DeliveryRepository {
     filters,
   }: {
     paginationOptions: IPaginationOptions;
-    filters?: { orderScheduleId?: string };
+    filters?: { orderScheduleId?: string; harvestScheduleId?: string };
   }): Promise<Delivery[]> {
     const qb = this.deliveryRepository.createQueryBuilder('delivery');
     qb.leftJoinAndSelect('delivery.orderSchedule', 'orderSchedule');
@@ -40,8 +40,13 @@ export class DeliveryRelationalRepository implements DeliveryRepository {
         orderScheduleId: filters.orderScheduleId,
       });
     }
+    if (filters?.harvestScheduleId) {
+      qb.andWhere('harvestSchedule.id = :harvestScheduleId', {
+        harvestScheduleId: filters.harvestScheduleId,
+      });
+    }
 
-    qb.orderBy('delivery.id', 'ASC');
+    qb.orderBy('delivery.id', 'DESC');
     qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
     qb.take(paginationOptions.limit);
 

@@ -68,6 +68,7 @@ export class DeliveriesController {
         },
         filters: {
           orderScheduleId: query?.orderScheduleId,
+          harvestScheduleId: query?.harvestScheduleId,
         },
       }),
       { page, limit },

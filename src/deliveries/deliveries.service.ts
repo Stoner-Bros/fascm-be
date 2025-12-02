@@ -187,7 +187,7 @@ export class DeliveriesService {
     filters,
   }: {
     paginationOptions: IPaginationOptions;
-    filters?: { orderScheduleId?: string };
+    filters?: { orderScheduleId?: string; harvestScheduleId?: string };
   }) {
     return this.deliveryRepository.findAllWithPagination({
       paginationOptions: {

@@ -15,7 +15,7 @@ export abstract class DeliveryRepository {
     filters,
   }: {
     paginationOptions: IPaginationOptions;
-    filters?: { orderScheduleId?: string };
+    filters?: { orderScheduleId?: string; harvestScheduleId?: string };
   }): Promise<Delivery[]>;
 
   abstract findById(id: Delivery['id']): Promise<NullableType<Delivery>>;
