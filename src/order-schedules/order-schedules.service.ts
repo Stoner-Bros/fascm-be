@@ -187,6 +187,10 @@ export class OrderSchedulesService {
       rejected: [],
       canceled: [],
       approved: [
+        OrderScheduleStatusEnum.PREPARING,
+        OrderScheduleStatusEnum.CANCELED,
+      ],
+      preparing: [
         OrderScheduleStatusEnum.DELIVERING,
         OrderScheduleStatusEnum.CANCELED,
       ],
