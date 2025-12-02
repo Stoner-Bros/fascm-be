@@ -215,6 +215,10 @@ export class HarvestSchedulesService {
       rejected: [],
       canceled: [],
       approved: [
+        HarvestScheduleStatusEnum.PREPARING,
+        HarvestScheduleStatusEnum.CANCELED,
+      ],
+      preparing: [
         HarvestScheduleStatusEnum.DELIVERING,
         HarvestScheduleStatusEnum.CANCELED,
       ],
