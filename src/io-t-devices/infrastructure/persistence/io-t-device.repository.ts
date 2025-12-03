@@ -28,4 +28,8 @@ export abstract class IoTDeviceRepository {
   abstract findAreaWithDeviceId(
     deviceId: IoTDevice['id'],
   ): Promise<NullableType<string>>;
+
+  abstract findTruckWithDeviceId(
+    deviceId: IoTDevice['id'],
+  ): Promise<NullableType<string>>;
 }

@@ -90,4 +90,15 @@ export class IoTDeviceRelationalRepository implements IoTDeviceRepository {
 
     return entity && entity.area ? entity.area.id : null;
   }
+
+  async findTruckWithDeviceId(
+    deviceId: IoTDevice['id'],
+  ): Promise<NullableType<string>> {
+    const entity = await this.ioTDeviceRepository.findOne({
+      where: { id: deviceId },
+      relations: ['truck'],
+    });
+
+    return entity && entity.truck ? entity.truck.id : null;
+  }
 }
