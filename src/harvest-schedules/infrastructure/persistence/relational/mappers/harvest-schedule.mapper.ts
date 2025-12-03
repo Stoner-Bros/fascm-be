@@ -1,4 +1,5 @@
 import { HarvestSchedule } from '../../../../domain/harvest-schedule';
+import { ImageProofMapper } from '../../../../../image-proofs/infrastructure/persistence/relational/mappers/image-proof.mapper';
 
 import { SupplierMapper } from '../../../../../suppliers/infrastructure/persistence/relational/mappers/supplier.mapper';
 
@@ -7,6 +8,14 @@ import { HarvestScheduleEntity } from '../entities/harvest-schedule.entity';
 export class HarvestScheduleMapper {
   static toDomain(raw: HarvestScheduleEntity): HarvestSchedule {
     const domainEntity = new HarvestSchedule();
+    if (raw.imageProof) {
+      domainEntity.imageProof = raw.imageProof.map((item) =>
+        ImageProofMapper.toDomain(item),
+      );
+    } else if (raw.imageProof === null) {
+      domainEntity.imageProof = null;
+    }
+
     domainEntity.address = raw.address;
 
     domainEntity.description = raw.description;
@@ -31,6 +40,14 @@ export class HarvestScheduleMapper {
 
   static toPersistence(domainEntity: HarvestSchedule): HarvestScheduleEntity {
     const persistenceEntity = new HarvestScheduleEntity();
+    if (domainEntity.imageProof) {
+      persistenceEntity.imageProof = domainEntity.imageProof.map((item) =>
+        ImageProofMapper.toPersistence(item),
+      );
+    } else if (domainEntity.imageProof === null) {
+      persistenceEntity.imageProof = null;
+    }
+
     persistenceEntity.address = domainEntity.address;
 
     persistenceEntity.description = domainEntity.description;

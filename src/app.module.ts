@@ -81,6 +81,8 @@ import { TruckSettingsModule } from './truck-settings/truck-settings.module';
 import { TruckAlertsModule } from './truck-alerts/truck-alerts.module';
 import corsConfig from './config/cors.config';
 
+import { ImageProofsModule } from './image-proofs/image-proofs.module';
+
 @Module({
   imports: [
     HomeModule,
@@ -155,6 +157,7 @@ import corsConfig from './config/cors.config';
     SuppliersModule,
     TruckSettingsModule,
     TruckAlertsModule,
+    ImageProofsModule,
   ],
 })
 export class AppModule {}

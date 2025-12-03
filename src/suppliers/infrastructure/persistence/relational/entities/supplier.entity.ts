@@ -3,14 +3,15 @@ import { WarehouseEntity } from '../../../../../warehouses/infrastructure/persis
 import { UserEntity } from '../../../../../users/infrastructure/persistence/relational/entities/user.entity';
 
 import {
+  BeforeInsert,
+  Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-  Column,
   JoinColumn,
-  OneToOne,
   ManyToOne,
+  OneToOne,
+  PrimaryColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -67,8 +68,19 @@ export class SupplierEntity extends EntityRelationalHelper {
   })
   representativeName: string;
 
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({
+    type: String,
+  })
   id: string;
+  @BeforeInsert()
+  async generateId() {
+    if (this.id) return;
+    const last = await SupplierEntity.createQueryBuilder('s')
+      .orderBy('s.id', 'DESC')
+      .getOne();
+    const next = last ? Number((last.id ?? '').split('_')[1] ?? 0) + 1 : 1;
+    this.id = `SUP_${String(next).padStart(4, '0')}`;
+  }
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,8 +1,15 @@
+import { ImageProof } from '../../image-proofs/domain/image-proof';
 import { Consignee } from '../../consignees/domain/consignee';
 import { ApiProperty } from '@nestjs/swagger';
 import { OrderScheduleStatusEnum } from '../enum/order-schedule-status.enum';
 
 export class OrderSchedule {
+  @ApiProperty({
+    type: () => [ImageProof],
+    nullable: true,
+  })
+  imageProof?: ImageProof[] | null;
+
   @ApiProperty({
     type: () => String,
     nullable: true,
