@@ -79,6 +79,7 @@ import { DeliveriesModule } from './deliveries/deliveries.module';
 import { ExportTicketsModule } from './export-tickets/export-tickets.module';
 import { TruckSettingsModule } from './truck-settings/truck-settings.module';
 import { TruckAlertsModule } from './truck-alerts/truck-alerts.module';
+import corsConfig from './config/cors.config';
 
 @Module({
   imports: [
@@ -96,6 +97,7 @@ import { TruckAlertsModule } from './truck-alerts/truck-alerts.module';
         databaseConfig,
         authConfig,
         appConfig,
+        corsConfig,
         mailConfig,
         fileConfig,
         googleConfig,
