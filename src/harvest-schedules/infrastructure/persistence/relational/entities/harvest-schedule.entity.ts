@@ -1,3 +1,5 @@
+import { ImageProofEntity } from '../../../../../image-proofs/infrastructure/persistence/relational/entities/image-proof.entity';
+
 import { SupplierEntity } from '../../../../../suppliers/infrastructure/persistence/relational/entities/supplier.entity';
 
 import {
@@ -8,6 +10,7 @@ import {
   Column,
   PrimaryColumn,
   BeforeInsert,
+  OneToMany,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 import { HarvestScheduleStatusEnum } from '../../../../enum/harvest-schedule-status.enum';
@@ -16,6 +19,13 @@ import { HarvestScheduleStatusEnum } from '../../../../enum/harvest-schedule-sta
   name: 'harvest_schedule',
 })
 export class HarvestScheduleEntity extends EntityRelationalHelper {
+  @OneToMany(
+    () => ImageProofEntity,
+    (childEntity) => childEntity.harvestSchedule,
+    { eager: true, nullable: true },
+  )
+  imageProof?: ImageProofEntity[] | null;
+
   @Column({
     nullable: true,
     type: String,

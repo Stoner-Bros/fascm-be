@@ -1,3 +1,5 @@
+import { ImageProofsService } from '../image-proofs/image-proofs.service';
+
 import { ConsigneesService } from '../consignees/consignees.service';
 import { Consignee } from '../consignees/domain/consignee';
 
@@ -7,6 +9,8 @@ import {
   // common
   Injectable,
   UnprocessableEntityException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { IPaginationOptions } from '../utils/types/pagination-options';
@@ -15,11 +19,17 @@ import { CreateOrderScheduleDto } from './dto/create-order-schedule.dto';
 import { UpdateOrderScheduleDto } from './dto/update-order-schedule.dto';
 import { OrderScheduleStatusEnum } from './enum/order-schedule-status.enum';
 import { OrderScheduleRepository } from './infrastructure/persistence/order-schedule.repository';
+import { FilesCloudinaryService } from 'src/files/infrastructure/uploader/cloudinary/files.service';
 
 @Injectable()
 export class OrderSchedulesService {
   constructor(
+    @Inject(forwardRef(() => ImageProofsService))
+    private readonly imageProofService: ImageProofsService,
+
     private readonly consigneeService: ConsigneesService,
+
+    private readonly filesCloudinaryService: FilesCloudinaryService,
 
     // Dependencies here
     private readonly orderScheduleRepository: OrderScheduleRepository,
@@ -52,6 +62,7 @@ export class OrderSchedulesService {
     return this.orderScheduleRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
+
       address: createOrderScheduleDto.address,
 
       description: createOrderScheduleDto.description,
@@ -121,6 +132,7 @@ export class OrderSchedulesService {
     return this.orderScheduleRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
+
       address: updateOrderScheduleDto.address,
 
       description: updateOrderScheduleDto.description,
@@ -253,5 +265,25 @@ export class OrderSchedulesService {
       reason: status === OrderScheduleStatusEnum.REJECTED ? reason : null,
       updatedAt: new Date(),
     });
+  }
+
+  //upload img proof for order schedule
+  async uploadImgProof(
+    id: OrderSchedule['id'],
+    file: Express.Multer.File,
+  ): Promise<{ path: string }> {
+    const orderSchedule = await this.orderScheduleRepository.findById(id);
+    if (!orderSchedule) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { id: 'notExists' },
+      });
+    }
+    const uploadedFile = await this.filesCloudinaryService.uploadFile(file);
+    await this.imageProofService.create({
+      orderSchedule: orderSchedule,
+      photo: uploadedFile,
+    });
+    return { path: uploadedFile.path };
   }
 }

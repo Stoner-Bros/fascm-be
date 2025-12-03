@@ -1,3 +1,5 @@
+import { ImageProofEntity } from '../../../../../image-proofs/infrastructure/persistence/relational/entities/image-proof.entity';
+
 import { ConsigneeEntity } from '../../../../../consignees/infrastructure/persistence/relational/entities/consignee.entity';
 
 import {
@@ -8,6 +10,7 @@ import {
   Column,
   PrimaryColumn,
   BeforeInsert,
+  OneToMany,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 import { OrderScheduleStatusEnum } from '../../../../enum/order-schedule-status.enum';
@@ -16,6 +19,13 @@ import { OrderScheduleStatusEnum } from '../../../../enum/order-schedule-status.
   name: 'order_schedule',
 })
 export class OrderScheduleEntity extends EntityRelationalHelper {
+  @OneToMany(
+    () => ImageProofEntity,
+    (childEntity) => childEntity.orderSchedule,
+    { eager: true, nullable: true },
+  )
+  imageProof?: ImageProofEntity[] | null;
+
   @Column({
     nullable: true,
     type: String,

@@ -8,9 +8,9 @@ import {
 import {
   IsNotEmptyObject,
   IsOptional,
+  IsString,
   // decorators here
   ValidateNested,
-  IsString,
 } from 'class-validator';
 
 import {

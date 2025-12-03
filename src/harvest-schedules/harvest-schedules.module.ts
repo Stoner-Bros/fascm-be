@@ -1,3 +1,4 @@
+import { ImageProofsModule } from '../image-proofs/image-proofs.module';
 import { SuppliersModule } from '../suppliers/suppliers.module';
 import {
   forwardRef,
@@ -12,9 +13,12 @@ import { HarvestDetailsModule } from 'src/harvest-details/harvest-details.module
 import { InboundBatchesModule } from 'src/inbound-batches/inbound-batches.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { DeliveriesModule } from 'src/deliveries/deliveries.module';
+import { FilesCloudinaryModule } from 'src/files/infrastructure/uploader/cloudinary/files.module';
 
 @Module({
   imports: [
+    forwardRef(() => ImageProofsModule),
+    FilesCloudinaryModule,
     SuppliersModule,
 
     forwardRef(() => HarvestTicketsModule),

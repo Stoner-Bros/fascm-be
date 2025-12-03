@@ -1,3 +1,5 @@
+import { ImageProofsService } from '../image-proofs/image-proofs.service';
+
 import { Supplier } from '../suppliers/domain/supplier';
 import { SuppliersService } from '../suppliers/suppliers.service';
 
@@ -20,10 +22,16 @@ import { CreateHarvestScheduleDto } from './dto/create-harvest-schedule.dto';
 import { UpdateHarvestScheduleDto } from './dto/update-harvest-schedule.dto';
 import { HarvestScheduleStatusEnum } from './enum/harvest-schedule-status.enum';
 import { HarvestScheduleRepository } from './infrastructure/persistence/harvest-schedule.repository';
+import { FilesCloudinaryService } from 'src/files/infrastructure/uploader/cloudinary/files.service';
 
 @Injectable()
 export class HarvestSchedulesService {
   constructor(
+    @Inject(forwardRef(() => ImageProofsService))
+    private readonly imageProofService: ImageProofsService,
+
+    private readonly filesCloudinaryService: FilesCloudinaryService,
+
     private readonly supplierService: SuppliersService,
 
     // Dependencies here
@@ -62,6 +70,7 @@ export class HarvestSchedulesService {
     return this.harvestScheduleRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
+
       address: createHarvestScheduleDto.address,
 
       description: createHarvestScheduleDto.description,
@@ -131,6 +140,7 @@ export class HarvestSchedulesService {
     return this.harvestScheduleRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
+
       address: updateHarvestScheduleDto.address,
 
       description: updateHarvestScheduleDto.description,
@@ -285,5 +295,25 @@ export class HarvestSchedulesService {
       reason: status === HarvestScheduleStatusEnum.REJECTED ? reason : null,
       updatedAt: new Date(),
     });
+  }
+
+  //upload img proof for harvest schedule
+  async uploadImgProof(
+    id: HarvestSchedule['id'],
+    file: Express.Multer.File,
+  ): Promise<{ path: string }> {
+    const harvestSchedule = await this.harvestScheduleRepository.findById(id);
+    if (!harvestSchedule) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { id: 'notExists' },
+      });
+    }
+    const uploadedFile = await this.filesCloudinaryService.uploadFile(file);
+    await this.imageProofService.create({
+      harvestSchedule: harvestSchedule,
+      photo: uploadedFile,
+    });
+    return { path: uploadedFile.path };
   }
 }
