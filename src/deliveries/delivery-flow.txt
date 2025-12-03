@@ -1,10 +1,10 @@
-Action            Order/Harvest         Delivery
+Action            Order/Harvest         Delivery            Truck
 Tạo đơn              PENDING
 Duyệt/từ chói     APPROVED/REJECTED
-Lên lịch            PREPARING           SCHEDULED
+Lên lịch            PREPARING           SCHEDULED           IN_USE
 Giao/Lấy            DELIVERING          DELIVERING
 DS xác nhận         DELIVERED           DELIVERED
 Về                                      RETURNING
-Về tới kho                              COMPLETED
+Về tới kho                              COMPLETED           AVAILABLE
 C/S xác nhận        COMPLETED
 Sự cố               CANCELED            CANCELED

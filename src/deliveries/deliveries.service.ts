@@ -24,6 +24,7 @@ import { Delivery } from './domain/delivery';
 import { DeliveryStatusEnum } from './enum/delivery-status.enum';
 import { HarvestScheduleStatusEnum } from 'src/harvest-schedules/enum/harvest-schedule-status.enum';
 import { OrderScheduleStatusEnum } from 'src/order-schedules/enum/order-schedule-status.enum';
+import { TruckStatusEnum } from 'src/trucks/enum/truck-status.enum';
 
 @Injectable()
 export class DeliveriesService {
@@ -380,6 +381,12 @@ export class DeliveriesService {
             OrderScheduleStatusEnum.PREPARING,
           );
         }
+        if (delivery.truck) {
+          await this.truckService.updateStatus(
+            delivery.truck.id,
+            TruckStatusEnum.IN_USE,
+          );
+        }
         break;
       case DeliveryStatusEnum.DELIVERING:
         if (delivery.harvestSchedule) {
@@ -406,6 +413,22 @@ export class DeliveriesService {
           await this.orderScheduleService.updateStatus(
             delivery.orderSchedule.id,
             OrderScheduleStatusEnum.DELIVERED,
+          );
+        }
+        break;
+      case DeliveryStatusEnum.COMPLETED:
+        if (delivery.truck) {
+          await this.truckService.updateStatus(
+            delivery.truck.id,
+            TruckStatusEnum.AVAILABLE,
+          );
+        }
+        break;
+      case DeliveryStatusEnum.CANCELED:
+        if (delivery.truck) {
+          await this.truckService.updateStatus(
+            delivery.truck.id,
+            TruckStatusEnum.AVAILABLE,
           );
         }
         break;

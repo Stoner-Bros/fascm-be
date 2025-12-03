@@ -1,12 +1,13 @@
 import { IoTDevice } from '../../io-t-devices/domain/io-t-device';
 import { ApiProperty } from '@nestjs/swagger';
+import { TruckStatusEnum } from '../enum/truck-status.enum';
 
 export class Truck {
   @ApiProperty({
-    type: () => String,
+    type: () => TruckStatusEnum,
     nullable: true,
   })
-  status?: string | null;
+  status?: TruckStatusEnum | null;
 
   @ApiProperty({
     type: () => String,

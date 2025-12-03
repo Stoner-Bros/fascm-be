@@ -1,19 +1,21 @@
-import { IoTDevicesService } from '../io-t-devices/io-t-devices.service';
 import { IoTDevice } from '../io-t-devices/domain/io-t-device';
+import { IoTDevicesService } from '../io-t-devices/io-t-devices.service';
 
 import {
+  BadRequestException,
+  HttpStatus,
+  Inject,
   // common
   Injectable,
-  HttpStatus,
   UnprocessableEntityException,
-  Inject,
   forwardRef,
 } from '@nestjs/common';
-import { CreateTruckDto } from './dto/create-truck.dto';
-import { UpdateTruckDto } from './dto/update-truck.dto';
-import { TruckRepository } from './infrastructure/persistence/truck.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { Truck } from './domain/truck';
+import { CreateTruckDto } from './dto/create-truck.dto';
+import { UpdateTruckDto } from './dto/update-truck.dto';
+import { TruckStatusEnum } from './enum/truck-status.enum';
+import { TruckRepository } from './infrastructure/persistence/truck.repository';
 
 @Injectable()
 export class TrucksService {
@@ -51,7 +53,7 @@ export class TrucksService {
     return this.truckRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      status: createTruckDto.status,
+      status: TruckStatusEnum.AVAILABLE,
 
       currentLocation: createTruckDto.currentLocation,
 
@@ -118,8 +120,6 @@ export class TrucksService {
     return this.truckRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      status: updateTruckDto.status,
-
       currentLocation: updateTruckDto.currentLocation,
 
       model: updateTruckDto.model,
@@ -136,5 +136,52 @@ export class TrucksService {
 
   remove(id: Truck['id']) {
     return this.truckRepository.remove(id);
+  }
+
+  async updateStatus(id: Truck['id'], status: TruckStatusEnum) {
+    const truck = await this.truckRepository.findById(id);
+
+    if (!truck) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          id: 'notExists',
+        },
+      });
+    }
+
+    const currentStatus = truck.status;
+
+    // Define allowed status transitions
+    const allowedTransitions: Record<string, TruckStatusEnum[]> = {
+      available: [
+        TruckStatusEnum.UNAVAILABLE,
+        TruckStatusEnum.IN_USE,
+        TruckStatusEnum.MAINTENANCE,
+      ],
+      unavailable: [TruckStatusEnum.AVAILABLE],
+      inUse: [TruckStatusEnum.AVAILABLE, TruckStatusEnum.UNAVAILABLE],
+      maintenance: [TruckStatusEnum.AVAILABLE, TruckStatusEnum.UNAVAILABLE],
+    };
+
+    // Validate status transition
+    if (
+      allowedTransitions[currentStatus ?? ''] &&
+      !allowedTransitions[currentStatus ?? ''].includes(
+        status as TruckStatusEnum,
+      )
+    ) {
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        errors: {
+          status: `invalidTransitionFrom${currentStatus}To${status}`,
+        },
+      });
+    }
+
+    return this.truckRepository.update(id, {
+      status,
+      updatedAt: new Date(),
+    });
   }
 }
