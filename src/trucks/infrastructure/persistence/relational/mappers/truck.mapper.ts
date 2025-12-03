@@ -3,11 +3,12 @@ import { Truck } from '../../../../domain/truck';
 import { IoTDeviceMapper } from '../../../../../io-t-devices/infrastructure/persistence/relational/mappers/io-t-device.mapper';
 
 import { TruckEntity } from '../entities/truck.entity';
+import { TruckStatusEnum } from '../../../../enum/truck-status.enum';
 
 export class TruckMapper {
   static toDomain(raw: TruckEntity): Truck {
     const domainEntity = new Truck();
-    domainEntity.status = raw.status;
+    domainEntity.status = raw.status as TruckStatusEnum;
 
     domainEntity.currentLocation = raw.currentLocation;
 
@@ -36,7 +37,7 @@ export class TruckMapper {
 
   static toPersistence(domainEntity: Truck): TruckEntity {
     const persistenceEntity = new TruckEntity();
-    persistenceEntity.status = domainEntity.status;
+    persistenceEntity.status = domainEntity.status as TruckStatusEnum;
 
     persistenceEntity.currentLocation = domainEntity.currentLocation;
 

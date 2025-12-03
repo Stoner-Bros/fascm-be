@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TruckEntity } from '../../../../trucks/infrastructure/persistence/relational/entities/truck.entity';
+import { TruckStatusEnum } from '../../../../trucks/enum/truck-status.enum';
 
 @Injectable()
 export class TruckSeedService {
@@ -19,7 +20,7 @@ export class TruckSeedService {
           licensePlate: '30A-12345',
           model: 'Hyundai HD1000',
           capacity: 10000, // kg
-          status: 'active',
+          status: TruckStatusEnum.AVAILABLE,
           currentLocation: 'Kho trung tâm Hà Nội',
           licensePhoto: null,
         },
@@ -27,7 +28,7 @@ export class TruckSeedService {
           licensePlate: '29B-67890',
           model: 'Isuzu QKR77HE4',
           capacity: 7500,
-          status: 'active',
+          status: TruckStatusEnum.AVAILABLE,
           currentLocation: 'Kho trung tâm TP.HCM',
           licensePhoto: null,
         },
@@ -35,7 +36,7 @@ export class TruckSeedService {
           licensePlate: '43C-54321',
           model: 'Ford Transit',
           capacity: 3500,
-          status: 'active',
+          status: TruckStatusEnum.AVAILABLE,
           currentLocation: 'Kho miền Trung',
           licensePhoto: null,
         },
@@ -43,7 +44,7 @@ export class TruckSeedService {
           licensePlate: '30A-98765',
           model: 'Thaco Ollin 700E',
           capacity: 8500,
-          status: 'active',
+          status: TruckStatusEnum.AVAILABLE,
           currentLocation: 'Kho phân phối Đông Anh',
           licensePhoto: null,
         },
@@ -51,7 +52,7 @@ export class TruckSeedService {
           licensePlate: '29B-13579',
           model: 'Hyundai EX8',
           capacity: 8000,
-          status: 'active',
+          status: TruckStatusEnum.AVAILABLE,
           currentLocation: 'Kho lạnh chuyên dụng',
           licensePhoto: null,
         },
@@ -59,7 +60,7 @@ export class TruckSeedService {
           licensePlate: '51F-24680',
           model: 'Mitsubishi Canter',
           capacity: 5000,
-          status: 'maintenance',
+          status: TruckStatusEnum.MAINTENANCE,
           currentLocation: 'Garage bảo dưỡng Hà Nội',
           licensePhoto: null,
         },
@@ -67,7 +68,7 @@ export class TruckSeedService {
           licensePlate: '30A-11111',
           model: 'Suzuki Pro 750kg',
           capacity: 750,
-          status: 'active',
+          status: TruckStatusEnum.AVAILABLE,
           currentLocation: 'Kho trung tâm Hà Nội',
           licensePhoto: null,
         },
@@ -75,7 +76,7 @@ export class TruckSeedService {
           licensePlate: '29B-22222',
           model: 'Thaco Towner 800',
           capacity: 800,
-          status: 'active',
+          status: TruckStatusEnum.IN_USE,
           currentLocation: 'Kho trung tâm TP.HCM',
           licensePhoto: null,
         },
@@ -83,7 +84,7 @@ export class TruckSeedService {
           licensePlate: '43C-33333',
           model: 'Dongfeng DFM 1.9T',
           capacity: 1900,
-          status: 'inactive',
+          status: TruckStatusEnum.IN_USE,
           currentLocation: 'Kho miền Trung',
           licensePhoto: null,
         },
@@ -91,7 +92,7 @@ export class TruckSeedService {
           licensePlate: '30A-44444',
           model: 'Hino 300 XZU720L',
           capacity: 4500,
-          status: 'active',
+          status: TruckStatusEnum.IN_USE,
           currentLocation: 'Đang vận chuyển tuyến Hà Nội - Hải Phòng',
           licensePhoto: null,
         },

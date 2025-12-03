@@ -27,14 +27,6 @@ export class CreateTruckDto {
   })
   @IsOptional()
   @IsString()
-  status?: string | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => String,
-  })
-  @IsOptional()
-  @IsString()
   currentLocation?: string | null;
 
   @ApiProperty({

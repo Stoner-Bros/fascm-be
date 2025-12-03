@@ -10,6 +10,7 @@ import {
   BeforeInsert,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
+import { TruckStatusEnum } from '../../../../enum/truck-status.enum';
 
 @Entity({
   name: 'truck',
@@ -17,9 +18,10 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
 export class TruckEntity extends EntityRelationalHelper {
   @Column({
     nullable: true,
-    type: String,
+    type: 'enum',
+    enum: TruckStatusEnum,
   })
-  status?: string | null;
+  status?: TruckStatusEnum | null;
 
   @Column({
     nullable: true,

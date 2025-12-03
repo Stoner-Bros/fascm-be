@@ -27,6 +27,7 @@ import {
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
 import { FindAllTrucksDto } from './dto/find-all-trucks.dto';
+import { UpdateTruckStatusDto } from './dto/update-truck-status.dto';
 
 @ApiTags('Trucks')
 @ApiBearerAuth()
@@ -104,5 +105,21 @@ export class TrucksController {
   })
   remove(@Param('id') id: string) {
     return this.trucksService.remove(id);
+  }
+
+  @Patch(':id/status')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: Truck,
+  })
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateTruckStatusDto: UpdateTruckStatusDto,
+  ) {
+    return this.trucksService.updateStatus(id, updateTruckStatusDto.status);
   }
 }
