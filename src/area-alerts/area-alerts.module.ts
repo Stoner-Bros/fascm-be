@@ -2,6 +2,7 @@ import { AreasModule } from '../areas/areas.module';
 import {
   // do not remove this comment
   Module,
+  forwardRef,
 } from '@nestjs/common';
 import { AreaAlertsService } from './area-alerts.service';
 import { AreaAlertsController } from './area-alerts.controller';
@@ -9,7 +10,7 @@ import { RelationalAreaAlertPersistenceModule } from './infrastructure/persisten
 
 @Module({
   imports: [
-    AreasModule,
+    forwardRef(() => AreasModule),
 
     // do not remove this comment
     RelationalAreaAlertPersistenceModule,

@@ -77,6 +77,8 @@ import { TrucksModule } from './trucks/trucks.module';
 import { DeliveriesModule } from './deliveries/deliveries.module';
 
 import { ExportTicketsModule } from './export-tickets/export-tickets.module';
+import { TruckSettingsModule } from './truck-settings/truck-settings.module';
+import { TruckAlertsModule } from './truck-alerts/truck-alerts.module';
 
 @Module({
   imports: [
@@ -149,6 +151,8 @@ import { ExportTicketsModule } from './export-tickets/export-tickets.module';
     HarvestSchedulesModule,
     DeliveryStaffsModule,
     SuppliersModule,
+    TruckSettingsModule,
+    TruckAlertsModule,
   ],
 })
 export class AppModule {}

@@ -260,4 +260,16 @@ export class IoTDevicesService {
     const area = await this.areaService.findById(areaId);
     return area;
   }
+
+  async findTruckByDeviceId(deviceId: string): Promise<NullableType<Truck>> {
+    const truckId =
+      await this.ioTDeviceRepository.findTruckWithDeviceId(deviceId);
+
+    if (!truckId) {
+      return null;
+    }
+
+    const truck = await this.truckService.findById(truckId);
+    return truck;
+  }
 }

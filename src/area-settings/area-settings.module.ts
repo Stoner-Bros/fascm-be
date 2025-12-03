@@ -2,6 +2,7 @@ import { AreasModule } from '../areas/areas.module';
 import {
   // do not remove this comment
   Module,
+  forwardRef,
 } from '@nestjs/common';
 import { AreaSettingsService } from './area-settings.service';
 import { AreaSettingsController } from './area-settings.controller';
@@ -9,7 +10,7 @@ import { RelationalAreaSettingPersistenceModule } from './infrastructure/persist
 
 @Module({
   imports: [
-    AreasModule,
+    forwardRef(() => AreasModule),
 
     // do not remove this comment
     RelationalAreaSettingPersistenceModule,

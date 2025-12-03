@@ -4,6 +4,8 @@ import { IoTDevicesService } from './io-t-devices.service';
 import { IoTGateway } from './iot.gateway';
 import { AreaSettingsService } from 'src/area-settings/area-settings.service';
 import { AreaAlertsService } from 'src/area-alerts/area-alerts.service';
+import { TruckSettingsService } from 'src/truck-settings/truck-settings.service';
+import { TruckAlertsService } from 'src/truck-alerts/truck-alerts.service';
 
 @Injectable()
 export class MqttService implements OnModuleInit, OnModuleDestroy {
@@ -19,6 +21,8 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     private readonly ioTDevicesService: IoTDevicesService,
     private readonly areaSettingService: AreaSettingsService,
     private readonly areaAlertService: AreaAlertsService,
+    private readonly truckSettingService: TruckSettingsService,
+    private readonly truckAlertService: TruckAlertsService,
     private readonly iotGateway: IoTGateway,
   ) {}
 
@@ -113,54 +117,110 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       timestamp: new Date().toISOString(),
     });
 
-    // Find the area with iot devide id
+    // Check area alerts
     const area = await this.ioTDevicesService.findAreaByDeviceId(data.deviceId);
     if (area) {
-      const areaSetting = await this.areaSettingService.findByAreaId(area.id);
-      if (areaSetting) {
-        // Compare with area settings min.max temperature and humidity (if set) and create alert if out of range
+      await this.checkAreaAlert(area.id, data.temperature, data.humidity);
+    }
 
-        const existAlert = await this.areaAlertService.findActiveAlertByAreaId(
-          area.id,
-        );
+    // Check truck alerts
+    const truck = await this.ioTDevicesService.findTruckByDeviceId(
+      data.deviceId,
+    );
+    if (truck) {
+      await this.checkTruckAlert(truck.id, data.temperature, data.humidity);
+    }
+  }
 
-        if (
-          (areaSetting.minTemperature !== null &&
-            areaSetting.minTemperature !== undefined &&
-            data.temperature < areaSetting.minTemperature) ||
-          (areaSetting.maxTemperature !== null &&
-            areaSetting.maxTemperature !== undefined &&
-            data.temperature > areaSetting.maxTemperature) ||
-          (areaSetting.minHumidity !== null &&
-            areaSetting.minHumidity !== undefined &&
-            data.humidity < areaSetting.minHumidity) ||
-          (areaSetting.maxHumidity !== null &&
-            areaSetting.maxHumidity !== undefined &&
-            data.humidity > areaSetting.maxHumidity)
-        ) {
-          if (existAlert) {
-            // An active alert already exists for this area
-            existAlert.status = 'active';
-            existAlert.message = `Alert for temperature and humidity out of range. Current temperature: ${data.temperature}, humidity: ${data.humidity}`;
-            await this.areaAlertService.update(existAlert.id, existAlert);
-            return;
-          }
-          await this.areaAlertService.create({
-            area: {
-              id: area.id,
-            },
-            status: 'active',
-            message: `Alert for temperature and humidity out of range. Current temperature: ${data.temperature}, humidity: ${data.humidity}`,
-            alertType: 'sensor',
-          });
-        } else {
-          if (existAlert) {
-            // Resolve the existing alert
-            existAlert.status = 'resolved';
-            await this.areaAlertService.update(existAlert.id, existAlert);
-          }
-        }
+  private async checkAreaAlert(
+    areaId: string,
+    temperature: number,
+    humidity: number,
+  ) {
+    const areaSetting = await this.areaSettingService.findByAreaId(areaId);
+    if (!areaSetting) return;
+
+    const existAlert =
+      await this.areaAlertService.findActiveAlertByAreaId(areaId);
+    const isOutOfRange =
+      (areaSetting.minTemperature !== null &&
+        areaSetting.minTemperature !== undefined &&
+        temperature < areaSetting.minTemperature) ||
+      (areaSetting.maxTemperature !== null &&
+        areaSetting.maxTemperature !== undefined &&
+        temperature > areaSetting.maxTemperature) ||
+      (areaSetting.minHumidity !== null &&
+        areaSetting.minHumidity !== undefined &&
+        humidity < areaSetting.minHumidity) ||
+      (areaSetting.maxHumidity !== null &&
+        areaSetting.maxHumidity !== undefined &&
+        humidity > areaSetting.maxHumidity);
+
+    if (isOutOfRange) {
+      const message = `Alert for temperature and humidity out of range. Current temperature: ${temperature}, humidity: ${humidity}`;
+
+      if (existAlert) {
+        existAlert.status = 'active';
+        existAlert.message = message;
+        await this.areaAlertService.update(existAlert.id, existAlert);
+      } else {
+        await this.areaAlertService.create({
+          area: { id: areaId },
+          status: 'active',
+          message,
+          alertType: 'sensor',
+        });
       }
+    } else if (existAlert) {
+      existAlert.status = 'resolved';
+      existAlert.message = `Alert resolved. Current temperature: ${temperature}, humidity: ${humidity}`;
+      await this.areaAlertService.update(existAlert.id, existAlert);
+    }
+  }
+
+  private async checkTruckAlert(
+    truckId: string,
+    temperature: number,
+    humidity: number,
+  ) {
+    const truckSetting = await this.truckSettingService.findByTruckId(truckId);
+    if (!truckSetting) return;
+
+    const existAlert =
+      await this.truckAlertService.findActiveAlertByTruckId(truckId);
+    const isOutOfRange =
+      (truckSetting.minTemperature !== null &&
+        truckSetting.minTemperature !== undefined &&
+        temperature < truckSetting.minTemperature) ||
+      (truckSetting.maxTemperature !== null &&
+        truckSetting.maxTemperature !== undefined &&
+        temperature > truckSetting.maxTemperature) ||
+      (truckSetting.minHumidity !== null &&
+        truckSetting.minHumidity !== undefined &&
+        humidity < truckSetting.minHumidity) ||
+      (truckSetting.maxHumidity !== null &&
+        truckSetting.maxHumidity !== undefined &&
+        humidity > truckSetting.maxHumidity);
+
+    if (isOutOfRange) {
+      const message = `Alert for temperature and humidity out of range. Current temperature: ${temperature}, humidity: ${humidity}`;
+
+      if (existAlert) {
+        existAlert.status = 'active';
+        existAlert.message = message;
+        await this.truckAlertService.update(existAlert.id, existAlert);
+      } else {
+        await this.truckAlertService.create({
+          truck: { id: truckId },
+          status: 'active',
+          message,
+          alertType: 'sensor',
+        });
+      }
+    } else if (existAlert) {
+      existAlert.status = 'resolved';
+      existAlert.message = `Alert resolved. Current temperature: ${temperature}, humidity: ${humidity}`;
+      await this.truckAlertService.update(existAlert.id, existAlert);
     }
   }
 

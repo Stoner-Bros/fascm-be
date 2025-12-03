@@ -12,6 +12,8 @@ import { MqttService } from './mqtt.service';
 import { IoTGateway } from './iot.gateway';
 import { AreaSettingsModule } from 'src/area-settings/area-settings.module';
 import { AreaAlertsModule } from 'src/area-alerts/area-alerts.module';
+import { TruckSettingsModule } from 'src/truck-settings/truck-settings.module';
+import { TruckAlertsModule } from 'src/truck-alerts/truck-alerts.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { AreaAlertsModule } from 'src/area-alerts/area-alerts.module';
     forwardRef(() => AreasModule),
     AreaSettingsModule,
     AreaAlertsModule,
+    TruckSettingsModule,
+    TruckAlertsModule,
 
     // do not remove this comment
     RelationalIoTDevicePersistenceModule,
