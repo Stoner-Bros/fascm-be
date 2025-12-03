@@ -4,7 +4,7 @@ import { TruckStatusEnum } from '../enum/truck-status.enum';
 
 export class Truck {
   @ApiProperty({
-    type: () => TruckStatusEnum,
+    enum: TruckStatusEnum,
     nullable: true,
   })
   status?: TruckStatusEnum | null;
