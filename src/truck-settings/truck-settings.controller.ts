@@ -83,6 +83,19 @@ export class TruckSettingsController {
     return this.truckSettingsService.findById(id);
   }
 
+  @Get('truck/:truckId')
+  @ApiParam({
+    name: 'truckId',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: TruckSetting,
+  })
+  findByTruckId(@Param('truckId') truckId: string) {
+    return this.truckSettingsService.findByTruckId(truckId);
+  }
+
   @Patch(':id')
   @ApiParam({
     name: 'id',

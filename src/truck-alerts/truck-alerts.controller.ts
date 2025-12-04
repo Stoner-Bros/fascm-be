@@ -83,6 +83,19 @@ export class TruckAlertsController {
     return this.truckAlertsService.findById(id);
   }
 
+  @Get('active/truck/:truckId')
+  @ApiParam({
+    name: 'truckId',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: TruckAlert,
+  })
+  findActiveByTruckId(@Param('truckId') truckId: string) {
+    return this.truckAlertsService.findActiveAlertByTruckId(truckId);
+  }
+
   @Patch(':id')
   @ApiParam({
     name: 'id',

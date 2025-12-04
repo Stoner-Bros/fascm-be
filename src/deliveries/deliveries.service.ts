@@ -144,16 +144,20 @@ export class DeliveriesService {
     }
 
     if (createDeliveryDto.harvestSchedule) {
-      await this.harvestScheduleService.updateStatus(
-        createDeliveryDto.harvestSchedule.id,
-        HarvestScheduleStatusEnum.PREPARING,
-      );
+      if (harvestSchedule?.status !== HarvestScheduleStatusEnum.PREPARING) {
+        await this.harvestScheduleService.updateStatus(
+          createDeliveryDto.harvestSchedule.id,
+          HarvestScheduleStatusEnum.PREPARING,
+        );
+      }
     }
     if (createDeliveryDto.orderSchedule) {
-      await this.orderScheduleService.updateStatus(
-        createDeliveryDto.orderSchedule.id,
-        OrderScheduleStatusEnum.PREPARING,
-      );
+      if (orderSchedule?.status !== OrderScheduleStatusEnum.PREPARING) {
+        await this.orderScheduleService.updateStatus(
+          createDeliveryDto.orderSchedule.id,
+          OrderScheduleStatusEnum.PREPARING,
+        );
+      }
     }
 
     return this.deliveryRepository.create({
@@ -370,66 +374,102 @@ export class DeliveriesService {
     switch (status) {
       case DeliveryStatusEnum.SCHEDULED:
         if (delivery.harvestSchedule) {
-          await this.harvestScheduleService.updateStatus(
-            delivery.harvestSchedule.id,
-            HarvestScheduleStatusEnum.PREPARING,
-          );
+          if (
+            delivery.harvestSchedule.status !==
+            HarvestScheduleStatusEnum.PREPARING
+          ) {
+            await this.harvestScheduleService.updateStatus(
+              delivery.harvestSchedule.id,
+              HarvestScheduleStatusEnum.PREPARING,
+            );
+          }
         }
         if (delivery.orderSchedule) {
-          await this.orderScheduleService.updateStatus(
-            delivery.orderSchedule.id,
-            OrderScheduleStatusEnum.PREPARING,
-          );
+          if (
+            delivery.orderSchedule.status !== OrderScheduleStatusEnum.PREPARING
+          ) {
+            await this.orderScheduleService.updateStatus(
+              delivery.orderSchedule.id,
+              OrderScheduleStatusEnum.PREPARING,
+            );
+          }
         }
         if (delivery.truck) {
-          await this.truckService.updateStatus(
-            delivery.truck.id,
-            TruckStatusEnum.IN_USE,
-          );
+          const cur = delivery.truck.status as TruckStatusEnum | undefined;
+          if (cur !== TruckStatusEnum.IN_USE) {
+            await this.truckService.updateStatus(
+              delivery.truck.id,
+              TruckStatusEnum.IN_USE,
+            );
+          }
         }
         break;
       case DeliveryStatusEnum.DELIVERING:
         if (delivery.harvestSchedule) {
-          await this.harvestScheduleService.updateStatus(
-            delivery.harvestSchedule.id,
-            HarvestScheduleStatusEnum.DELIVERING,
-          );
+          if (
+            delivery.harvestSchedule.status !==
+            HarvestScheduleStatusEnum.DELIVERING
+          ) {
+            await this.harvestScheduleService.updateStatus(
+              delivery.harvestSchedule.id,
+              HarvestScheduleStatusEnum.DELIVERING,
+            );
+          }
         }
         if (delivery.orderSchedule) {
-          await this.orderScheduleService.updateStatus(
-            delivery.orderSchedule.id,
-            OrderScheduleStatusEnum.DELIVERING,
-          );
+          if (
+            delivery.orderSchedule.status !== OrderScheduleStatusEnum.DELIVERING
+          ) {
+            await this.orderScheduleService.updateStatus(
+              delivery.orderSchedule.id,
+              OrderScheduleStatusEnum.DELIVERING,
+            );
+          }
         }
         break;
       case DeliveryStatusEnum.DELIVERED:
         if (delivery.harvestSchedule) {
-          await this.harvestScheduleService.updateStatus(
-            delivery.harvestSchedule.id,
-            HarvestScheduleStatusEnum.DELIVERED,
-          );
+          if (
+            delivery.harvestSchedule.status !==
+            HarvestScheduleStatusEnum.DELIVERED
+          ) {
+            await this.harvestScheduleService.updateStatus(
+              delivery.harvestSchedule.id,
+              HarvestScheduleStatusEnum.DELIVERED,
+            );
+          }
         }
         if (delivery.orderSchedule) {
-          await this.orderScheduleService.updateStatus(
-            delivery.orderSchedule.id,
-            OrderScheduleStatusEnum.DELIVERED,
-          );
+          if (
+            delivery.orderSchedule.status !== OrderScheduleStatusEnum.DELIVERED
+          ) {
+            await this.orderScheduleService.updateStatus(
+              delivery.orderSchedule.id,
+              OrderScheduleStatusEnum.DELIVERED,
+            );
+          }
         }
         break;
       case DeliveryStatusEnum.COMPLETED:
         if (delivery.truck) {
-          await this.truckService.updateStatus(
-            delivery.truck.id,
-            TruckStatusEnum.AVAILABLE,
-          );
+          const cur = delivery.truck.status as TruckStatusEnum | undefined;
+          if (cur !== TruckStatusEnum.AVAILABLE) {
+            await this.truckService.updateStatus(
+              delivery.truck.id,
+              TruckStatusEnum.AVAILABLE,
+            );
+          }
         }
         break;
       case DeliveryStatusEnum.CANCELED:
         if (delivery.truck) {
-          await this.truckService.updateStatus(
-            delivery.truck.id,
-            TruckStatusEnum.AVAILABLE,
-          );
+          const cur = delivery.truck.status as TruckStatusEnum | undefined;
+          if (cur !== TruckStatusEnum.AVAILABLE) {
+            await this.truckService.updateStatus(
+              delivery.truck.id,
+              TruckStatusEnum.AVAILABLE,
+            );
+          }
         }
         break;
     }
