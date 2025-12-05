@@ -2,6 +2,7 @@ import { DeepPartial } from '../../../utils/types/deep-partial.type';
 import { NullableType } from '../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../utils/types/pagination-options';
 import { IoTDevice } from '../../domain/io-t-device';
+import { IoTDeviceResponse } from '../../dto/io-t-device-response.dto';
 
 export abstract class IoTDeviceRepository {
   abstract create(
@@ -12,9 +13,11 @@ export abstract class IoTDeviceRepository {
     paginationOptions,
   }: {
     paginationOptions: IPaginationOptions;
-  }): Promise<IoTDevice[]>;
+  }): Promise<IoTDeviceResponse[]>;
 
-  abstract findById(id: IoTDevice['id']): Promise<NullableType<IoTDevice>>;
+  abstract findById(
+    id: IoTDevice['id'],
+  ): Promise<NullableType<IoTDeviceResponse>>;
 
   abstract findByIds(ids: IoTDevice['id'][]): Promise<IoTDevice[]>;
 

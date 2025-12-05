@@ -4,6 +4,7 @@ import { TruckMapper } from '../../../../../trucks/infrastructure/persistence/re
 import { AreaMapper } from '../../../../../areas/infrastructure/persistence/relational/mappers/area.mapper';
 
 import { IoTDeviceEntity } from '../entities/io-t-device.entity';
+import { IoTDeviceResponse } from '../../../../dto/io-t-device-response.dto';
 
 export class IoTDeviceMapper {
   static toDomain(raw: IoTDeviceEntity): IoTDevice {
@@ -56,5 +57,30 @@ export class IoTDeviceMapper {
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 
     return persistenceEntity;
+  }
+
+  static toResponse(raw: IoTDeviceEntity): IoTDeviceResponse {
+    const responseEntity = new IoTDeviceResponse();
+    if (raw.truck) {
+      responseEntity.truckId = raw.truck.id;
+    }
+
+    if (raw.area) {
+      responseEntity.areaId = raw.area.id;
+    }
+
+    responseEntity.status = raw.status;
+
+    responseEntity.data = raw.data;
+
+    responseEntity.lastDataTime = raw.lastDataTime;
+
+    responseEntity.type = raw.type;
+
+    responseEntity.id = raw.id;
+    responseEntity.createdAt = raw.createdAt;
+    responseEntity.updatedAt = raw.updatedAt;
+
+    return responseEntity;
   }
 }

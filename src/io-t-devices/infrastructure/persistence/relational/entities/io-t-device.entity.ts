@@ -18,13 +18,13 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
 })
 export class IoTDeviceEntity extends EntityRelationalHelper {
   @ManyToOne(() => TruckEntity, (parentEntity) => parentEntity.iotDevice, {
-    eager: false,
+    eager: true,
     nullable: true,
   })
   truck: TruckEntity | null;
 
   @ManyToOne(() => AreaEntity, (parentEntity) => parentEntity.iotDevice, {
-    eager: false,
+    eager: true,
     nullable: true,
   })
   area: AreaEntity | null;

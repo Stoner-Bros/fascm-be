@@ -27,6 +27,7 @@ import {
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
 import { FindAllIoTDevicesDto } from './dto/find-all-io-t-devices.dto';
+import { IoTDeviceResponse } from './dto/io-t-device-response.dto';
 
 @ApiTags('Iotdevices')
 @ApiBearerAuth()
@@ -52,7 +53,7 @@ export class IoTDevicesController {
   })
   async findAll(
     @Query() query: FindAllIoTDevicesDto,
-  ): Promise<InfinityPaginationResponseDto<IoTDevice>> {
+  ): Promise<InfinityPaginationResponseDto<IoTDeviceResponse>> {
     const page = query?.page ?? 1;
     let limit = query?.limit ?? 10;
     if (limit > 50) {
@@ -77,7 +78,7 @@ export class IoTDevicesController {
     required: true,
   })
   @ApiOkResponse({
-    type: IoTDevice,
+    type: IoTDeviceResponse,
   })
   findById(@Param('id') id: string) {
     return this.ioTDevicesService.findById(id);

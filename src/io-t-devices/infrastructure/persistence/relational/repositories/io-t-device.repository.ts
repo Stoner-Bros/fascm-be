@@ -7,6 +7,7 @@ import { IoTDevice } from '../../../../domain/io-t-device';
 import { IoTDeviceRepository } from '../../io-t-device.repository';
 import { IoTDeviceMapper } from '../mappers/io-t-device.mapper';
 import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
+import { IoTDeviceResponse } from '../../../../dto/io-t-device-response.dto';
 
 @Injectable()
 export class IoTDeviceRelationalRepository implements IoTDeviceRepository {
@@ -27,21 +28,23 @@ export class IoTDeviceRelationalRepository implements IoTDeviceRepository {
     paginationOptions,
   }: {
     paginationOptions: IPaginationOptions;
-  }): Promise<IoTDevice[]> {
+  }): Promise<IoTDeviceResponse[]> {
     const entities = await this.ioTDeviceRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
     });
 
-    return entities.map((entity) => IoTDeviceMapper.toDomain(entity));
+    return entities.map((entity) => IoTDeviceMapper.toResponse(entity));
   }
 
-  async findById(id: IoTDevice['id']): Promise<NullableType<IoTDevice>> {
+  async findById(
+    id: IoTDevice['id'],
+  ): Promise<NullableType<IoTDeviceResponse>> {
     const entity = await this.ioTDeviceRepository.findOne({
       where: { id },
     });
 
-    return entity ? IoTDeviceMapper.toDomain(entity) : null;
+    return entity ? IoTDeviceMapper.toResponse(entity) : null;
   }
 
   async findByIds(ids: IoTDevice['id'][]): Promise<IoTDevice[]> {
