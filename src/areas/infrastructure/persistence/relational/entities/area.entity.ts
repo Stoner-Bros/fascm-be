@@ -24,7 +24,7 @@ export class AreaEntity extends EntityRelationalHelper {
   availableCapacity?: number | null;
 
   @OneToMany(() => IoTDeviceEntity, (childEntity) => childEntity.area, {
-    eager: true,
+    eager: false,
     nullable: true,
   })
   iotDevice?: IoTDeviceEntity[] | null;

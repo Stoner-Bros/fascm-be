@@ -110,8 +110,8 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     const device = await this.ioTDevicesService.findById(data.deviceId);
     this.iotGateway.broadcastUpdate({
       deviceId: data.deviceId,
-      areaId: device?.area?.id ?? null,
-      truckId: device?.truck?.id ?? null,
+      areaId: device?.id ?? null,
+      truckId: device?.id ?? null,
       temperature: data.temperature,
       humidity: data.humidity,
       timestamp: new Date().toISOString(),
