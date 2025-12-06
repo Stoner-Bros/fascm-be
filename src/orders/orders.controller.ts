@@ -9,6 +9,8 @@ import {
   UseGuards,
   Query,
   Req,
+  UnprocessableEntityException,
+  HttpStatus,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -28,6 +30,8 @@ import {
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
 import { FindAllOrdersDto } from './dto/find-all-orders.dto';
+import { OrderDetailsService } from '../order-details/order-details.service';
+import { OrderWithDetailsResponseDto } from './dto/order-with-details-response.dto';
 
 @ApiTags('Orders')
 @ApiBearerAuth()
@@ -37,7 +41,10 @@ import { FindAllOrdersDto } from './dto/find-all-orders.dto';
   version: '1',
 })
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly orderDetailsService: OrderDetailsService,
+  ) {}
 
   @Post()
   @ApiCreatedResponse({
@@ -109,6 +116,32 @@ export class OrdersController {
   })
   findById(@Param('id') id: string) {
     return this.ordersService.findById(id);
+  }
+
+  @Get(':id/full-info')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: OrderWithDetailsResponseDto,
+  })
+  async findByIdWithDetails(
+    @Param('id') id: string,
+  ): Promise<OrderWithDetailsResponseDto> {
+    const order = await this.ordersService.findById(id);
+    if (!order) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { id: 'notExists' },
+      });
+    }
+    const orderDetails = await this.orderDetailsService.findAllWithPagination({
+      paginationOptions: { page: 1, limit: 100 },
+      filters: { orderId: id },
+    });
+    return { order, orderDetails };
   }
 
   @Patch(':id')

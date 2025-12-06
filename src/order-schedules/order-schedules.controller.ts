@@ -113,6 +113,19 @@ export class OrderSchedulesController {
     return this.orderSchedulesService.findById(id);
   }
 
+  @Get(':id/full-info')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: OrderSchedule,
+  })
+  findFullInfoById(@Param('id') id: string) {
+    return this.orderSchedulesService.findFullInfoById(id);
+  }
+
   @Patch(':id')
   @ApiParam({
     name: 'id',

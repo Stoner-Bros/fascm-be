@@ -9,6 +9,8 @@ import {
   Injectable,
   HttpStatus,
   UnprocessableEntityException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -21,6 +23,7 @@ export class OrdersService {
   constructor(
     private readonly paymentService: PaymentsService,
 
+    @Inject(forwardRef(() => OrderSchedulesService))
     private readonly orderScheduleService: OrderSchedulesService,
 
     // Dependencies here
@@ -204,5 +207,16 @@ export class OrdersService {
 
   remove(id: Order['id']) {
     return this.orderRepository.remove(id);
+  }
+
+  async findOrderByOSId(id: OrderSchedule['id']) {
+    const order = await this.orderRepository.findByOSId(id);
+    if (!order) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { id: 'notExists' },
+      });
+    }
+    return order;
   }
 }

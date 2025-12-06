@@ -1,4 +1,5 @@
 import { ProductsModule } from '../products/products.module';
+import { forwardRef } from '@nestjs/common';
 import { OrdersModule } from '../orders/orders.module';
 import {
   // do not remove this comment
@@ -12,7 +13,7 @@ import { RelationalOrderDetailPersistenceModule } from './infrastructure/persist
   imports: [
     ProductsModule,
 
-    OrdersModule,
+    forwardRef(() => OrdersModule),
 
     // do not remove this comment
     RelationalOrderDetailPersistenceModule,

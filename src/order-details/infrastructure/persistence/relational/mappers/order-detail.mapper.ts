@@ -5,6 +5,7 @@ import { ProductMapper } from '../../../../../products/infrastructure/persistenc
 import { OrderMapper } from '../../../../../orders/infrastructure/persistence/relational/mappers/order.mapper';
 
 import { OrderDetailEntity } from '../entities/order-detail.entity';
+import { OrderDetailResponseDto } from 'src/order-details/dto/order-detail-response.dto';
 
 export class OrderDetailMapper {
   static toDomain(raw: OrderDetailEntity): OrderDetail {
@@ -29,6 +30,31 @@ export class OrderDetailMapper {
       domainEntity.order = OrderMapper.toDomain(raw.order);
     } else if (raw.order === null) {
       domainEntity.order = null;
+    }
+
+    domainEntity.id = raw.id;
+    domainEntity.createdAt = raw.createdAt;
+    domainEntity.updatedAt = raw.updatedAt;
+
+    return domainEntity;
+  }
+
+  static toResponseDto(raw: OrderDetailEntity): OrderDetailResponseDto {
+    const domainEntity = new OrderDetailResponseDto();
+    domainEntity.taxRate = raw.taxRate;
+
+    domainEntity.amount = raw.amount;
+
+    domainEntity.unitPrice = raw.unitPrice;
+
+    domainEntity.quantity = raw.quantity;
+
+    domainEntity.unit = raw.unit;
+
+    if (raw.product) {
+      domainEntity.product = ProductMapper.toDomain(raw.product);
+    } else if (raw.product === null) {
+      domainEntity.product = null;
     }
 
     domainEntity.id = raw.id;

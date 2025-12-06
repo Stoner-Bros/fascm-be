@@ -37,6 +37,14 @@ export class OrderRelationalRepository implements OrderRepository {
     return entities.map((entity) => OrderMapper.toDomain(entity));
   }
 
+  async findByOSId(id: string): Promise<NullableType<Order>> {
+    const entity = await this.orderRepository.findOne({
+      where: { orderSchedule: { id } },
+    });
+
+    return entity ? OrderMapper.toDomain(entity) : null;
+  }
+
   async findMyOrdersWithPagination({
     paginationOptions,
     filters,

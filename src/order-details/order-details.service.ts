@@ -107,6 +107,10 @@ export class OrderDetailsService {
     return this.orderDetailRepository.findById(id);
   }
 
+  findByOrderId(orderId: Order['id']) {
+    return this.orderDetailRepository.findByOrderId(orderId);
+  }
+
   findByIds(ids: OrderDetail['id'][]) {
     return this.orderDetailRepository.findByIds(ids);
   }

@@ -20,12 +20,20 @@ import { UpdateOrderScheduleDto } from './dto/update-order-schedule.dto';
 import { OrderScheduleStatusEnum } from './enum/order-schedule-status.enum';
 import { OrderScheduleRepository } from './infrastructure/persistence/order-schedule.repository';
 import { FilesCloudinaryService } from 'src/files/infrastructure/uploader/cloudinary/files.service';
+import { OrdersService } from 'src/orders/orders.service';
+import { OrderDetailsService } from 'src/order-details/order-details.service';
 
 @Injectable()
 export class OrderSchedulesService {
   constructor(
     @Inject(forwardRef(() => ImageProofsService))
     private readonly imageProofService: ImageProofsService,
+
+    @Inject(forwardRef(() => OrdersService))
+    private readonly orderService: OrdersService,
+
+    @Inject(forwardRef(() => OrderDetailsService))
+    private readonly orderDetailService: OrderDetailsService,
 
     private readonly consigneeService: ConsigneesService,
 
@@ -165,6 +173,37 @@ export class OrderSchedulesService {
       });
     }
     return updated;
+  }
+
+  async findFullInfoById(id: OrderSchedule['id']) {
+    const os = await this.orderScheduleRepository.findById(id);
+    if (!os) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { id: 'notExists' },
+      });
+    }
+
+    const order = await this.orderService.findOrderByOSId(id);
+    if (!order) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { id: 'notExists' },
+      });
+    }
+
+    const orderDetail = await this.orderDetailService.findByOrderId(order.id);
+    if (!orderDetail) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { id: 'notExists' },
+      });
+    }
+
+    return {
+      ...os,
+      orderDetail,
+    };
   }
 
   remove(id: OrderSchedule['id']) {

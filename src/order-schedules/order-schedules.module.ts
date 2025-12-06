@@ -11,10 +11,14 @@ import { OrderSchedulesController } from './order-schedules.controller';
 import { RelationalOrderSchedulePersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { DeliveriesModule } from '../deliveries/deliveries.module';
 import { FilesCloudinaryModule } from 'src/files/infrastructure/uploader/cloudinary/files.module';
+import { OrdersModule } from 'src/orders/orders.module';
+import { OrderDetailsModule } from 'src/order-details/order-details.module';
 
 @Module({
   imports: [
     forwardRef(() => ImageProofsModule),
+    forwardRef(() => OrdersModule),
+    forwardRef(() => OrderDetailsModule),
     FilesCloudinaryModule,
     ConsigneesModule,
     NotificationsModule,

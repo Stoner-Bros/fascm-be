@@ -7,6 +7,8 @@ import { OrderDetail } from '../../../../domain/order-detail';
 import { OrderDetailRepository } from '../../order-detail.repository';
 import { OrderDetailMapper } from '../mappers/order-detail.mapper';
 import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
+import { Order } from '../../../../../orders/domain/order';
+import { OrderDetailResponseDto } from 'src/order-details/dto/order-detail-response.dto';
 
 @Injectable()
 export class OrderDetailRelationalRepository implements OrderDetailRepository {
@@ -21,6 +23,16 @@ export class OrderDetailRelationalRepository implements OrderDetailRepository {
       this.orderDetailRepository.create(persistenceModel),
     );
     return OrderDetailMapper.toDomain(newEntity);
+  }
+
+  async findByOrderId(
+    orderId: Order['id'],
+  ): Promise<NullableType<OrderDetailResponseDto[]>> {
+    const entities = await this.orderDetailRepository.find({
+      where: { order: { id: orderId } },
+    });
+
+    return entities.map((entity) => OrderDetailMapper.toResponseDto(entity));
   }
 
   async findAllWithPagination({
