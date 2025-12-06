@@ -17,6 +17,26 @@ type IotUpdatePayload = {
   timestamp?: string;
 };
 
+type AreaAlertPayload = {
+  id: string;
+  areaId: string;
+  status: string;
+  message?: string | null;
+  alertType?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+type TruckAlertPayload = {
+  id: string;
+  truckId: string;
+  status: string;
+  message?: string | null;
+  alertType?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 @WebSocketGateway({ namespace: '/iot', cors: true })
 export class IoTGateway {
   @WebSocketServer()
@@ -58,6 +78,26 @@ export class IoTGateway {
     client.emit('iot:subscribed', { room });
   }
 
+  @SubscribeMessage('alert:subscribeArea')
+  async handleSubscribeAreaAlert(
+    @MessageBody() payload: { areaId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const room = `alert:area:${payload.areaId}`;
+    await client.join(room);
+    client.emit('alert:subscribed', { room });
+  }
+
+  @SubscribeMessage('alert:subscribeTruck')
+  async handleSubscribeTruckAlert(
+    @MessageBody() payload: { truckId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const room = `alert:truck:${payload.truckId}`;
+    await client.join(room);
+    client.emit('alert:subscribed', { room });
+  }
+
   broadcastUpdate(payload: IotUpdatePayload) {
     this.lastByDevice.set(payload.deviceId, payload);
     const deviceRoom = `iot:device:${payload.deviceId}`;
@@ -71,5 +111,17 @@ export class IoTGateway {
       this.server.to(truckRoom).emit('iot:update', payload);
     }
     this.server.emit('iot:update', payload);
+  }
+
+  broadcastAreaAlert(payload: AreaAlertPayload) {
+    const room = `alert:area:${payload.areaId}`;
+    this.server.to(room).emit('area-alert', payload);
+    this.server.emit('area-alert', payload);
+  }
+
+  broadcastTruckAlert(payload: TruckAlertPayload) {
+    const room = `alert:truck:${payload.truckId}`;
+    this.server.to(room).emit('truck-alert', payload);
+    this.server.emit('truck-alert', payload);
   }
 }

@@ -107,26 +107,25 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       data.humidity,
     );
 
-    const device = await this.ioTDevicesService.findById(data.deviceId);
+    const area = await this.ioTDevicesService.findAreaByDeviceId(data.deviceId);
+    const truck = await this.ioTDevicesService.findTruckByDeviceId(
+      data.deviceId,
+    );
     this.iotGateway.broadcastUpdate({
       deviceId: data.deviceId,
-      areaId: device?.id ?? null,
-      truckId: device?.id ?? null,
+      areaId: area?.id ?? null,
+      truckId: truck?.id ?? null,
       temperature: data.temperature,
       humidity: data.humidity,
       timestamp: new Date().toISOString(),
     });
 
     // Check area alerts
-    const area = await this.ioTDevicesService.findAreaByDeviceId(data.deviceId);
     if (area) {
       await this.checkAreaAlert(area.id, data.temperature, data.humidity);
     }
 
     // Check truck alerts
-    const truck = await this.ioTDevicesService.findTruckByDeviceId(
-      data.deviceId,
-    );
     if (truck) {
       await this.checkTruckAlert(truck.id, data.temperature, data.humidity);
     }
@@ -162,19 +161,52 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       if (existAlert) {
         existAlert.status = 'active';
         existAlert.message = message;
-        await this.areaAlertService.update(existAlert.id, existAlert);
+        const updated = await this.areaAlertService.update(
+          existAlert.id,
+          existAlert,
+        );
+        this.iotGateway.broadcastAreaAlert({
+          id: String(updated?.id ?? existAlert.id),
+          areaId,
+          status: 'active',
+          message,
+          alertType: updated?.alertType ?? existAlert.alertType ?? 'sensor',
+          createdAt: (updated?.createdAt ?? existAlert.createdAt) as any,
+          updatedAt: new Date().toISOString(),
+        });
       } else {
-        await this.areaAlertService.create({
+        const created = await this.areaAlertService.create({
           area: { id: areaId },
           status: 'active',
           message,
           alertType: 'sensor',
         });
+        this.iotGateway.broadcastAreaAlert({
+          id: String((created as any)?.id ?? Date.now()),
+          areaId,
+          status: 'active',
+          message,
+          alertType: 'sensor',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
       }
     } else if (existAlert) {
       existAlert.status = 'resolved';
       existAlert.message = `Alert resolved. Current temperature: ${temperature}, humidity: ${humidity}`;
-      await this.areaAlertService.update(existAlert.id, existAlert);
+      const updated = await this.areaAlertService.update(
+        existAlert.id,
+        existAlert,
+      );
+      this.iotGateway.broadcastAreaAlert({
+        id: String(updated?.id ?? existAlert.id),
+        areaId,
+        status: 'resolved',
+        message: updated?.message ?? existAlert.message,
+        alertType: updated?.alertType ?? existAlert.alertType ?? 'sensor',
+        createdAt: (updated?.createdAt ?? existAlert.createdAt) as any,
+        updatedAt: new Date().toISOString(),
+      });
     }
   }
 
@@ -209,18 +241,45 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
         existAlert.status = 'active';
         existAlert.message = message;
         await this.truckAlertService.update(existAlert.id, existAlert);
+        this.iotGateway.broadcastTruckAlert({
+          id: String(existAlert.id),
+          truckId,
+          status: 'active',
+          message,
+          alertType: existAlert.alertType ?? 'sensor',
+          createdAt: existAlert.createdAt as any,
+          updatedAt: new Date().toISOString(),
+        });
       } else {
-        await this.truckAlertService.create({
+        const created = await this.truckAlertService.create({
           truck: { id: truckId },
           status: 'active',
           message,
           alertType: 'sensor',
+        });
+        this.iotGateway.broadcastTruckAlert({
+          id: String((created as any)?.id ?? Date.now()),
+          truckId,
+          status: 'active',
+          message,
+          alertType: 'sensor',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         });
       }
     } else if (existAlert) {
       existAlert.status = 'resolved';
       existAlert.message = `Alert resolved. Current temperature: ${temperature}, humidity: ${humidity}`;
       await this.truckAlertService.update(existAlert.id, existAlert);
+      this.iotGateway.broadcastTruckAlert({
+        id: String(existAlert.id),
+        truckId,
+        status: 'resolved',
+        message: existAlert.message,
+        alertType: existAlert.alertType ?? 'sensor',
+        createdAt: existAlert.createdAt as any,
+        updatedAt: new Date().toISOString(),
+      });
     }
   }
 

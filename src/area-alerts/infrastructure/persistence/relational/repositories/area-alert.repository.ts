@@ -84,7 +84,7 @@ export class AreaAlertRelationalRepository implements AreaAlertRepository {
     areaId: string,
   ): Promise<NullableType<AreaAlert>> {
     const entity = await this.areaAlertRepository.findOne({
-      where: { area: { id: areaId } },
+      where: { area: { id: areaId }, status: 'active' },
     });
 
     return entity ? AreaAlertMapper.toDomain(entity) : null;

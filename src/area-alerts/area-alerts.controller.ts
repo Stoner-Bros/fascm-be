@@ -83,6 +83,19 @@ export class AreaAlertsController {
     return this.areaAlertsService.findById(id);
   }
 
+  @Get('active/area/:areaId')
+  @ApiParam({
+    name: 'areaId',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: AreaAlert,
+  })
+  findActiveByAreaId(@Param('areaId') areaId: string) {
+    return this.areaAlertsService.findActiveAlertByAreaId(areaId);
+  }
+
   @Patch(':id')
   @ApiParam({
     name: 'id',

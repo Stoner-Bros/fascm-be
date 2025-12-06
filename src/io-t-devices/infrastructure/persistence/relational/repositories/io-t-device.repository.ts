@@ -32,6 +32,7 @@ export class IoTDeviceRelationalRepository implements IoTDeviceRepository {
     const entities = await this.ioTDeviceRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
+      relations: ['truck', 'area'],
     });
 
     return entities.map((entity) => IoTDeviceMapper.toResponse(entity));
@@ -42,6 +43,7 @@ export class IoTDeviceRelationalRepository implements IoTDeviceRepository {
   ): Promise<NullableType<IoTDeviceResponse>> {
     const entity = await this.ioTDeviceRepository.findOne({
       where: { id },
+      relations: ['truck', 'area'],
     });
 
     return entity ? IoTDeviceMapper.toResponse(entity) : null;

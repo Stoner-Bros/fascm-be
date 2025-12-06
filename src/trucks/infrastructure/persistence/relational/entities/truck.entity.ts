@@ -54,7 +54,7 @@ export class TruckEntity extends EntityRelationalHelper {
   capacity?: number | null;
 
   @OneToMany(() => IoTDeviceEntity, (childEntity) => childEntity.truck, {
-    eager: false,
+    eager: true,
     nullable: true,
   })
   iotDevice?: IoTDeviceEntity[] | null;
