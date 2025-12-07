@@ -38,7 +38,7 @@ export class CreateImportTicketDto {
   @IsOptional()
   @Transform(({ value }) => new Date(value))
   @IsDate()
-  importDate?: Date | null;
+  expiredAt?: Date | null;
 
   @ApiProperty({
     required: false,

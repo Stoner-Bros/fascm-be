@@ -1,6 +1,6 @@
-import { Product } from '../../products/domain/product';
-import { HarvestDetail } from '../../harvest-details/domain/harvest-detail';
 import { ApiProperty } from '@nestjs/swagger';
+import { HarvestInvoiceDetail } from 'src/harvest-invoice-details/domain/harvest-invoice-detail';
+import { ImportTicket } from 'src/import-tickets/domain/import-ticket';
 
 export class InboundBatch {
   @ApiProperty({
@@ -22,16 +22,16 @@ export class InboundBatch {
   batchCode?: string | null;
 
   @ApiProperty({
-    type: () => Product,
+    type: () => ImportTicket,
     nullable: true,
   })
-  product?: Product | null;
+  importTicket?: ImportTicket | null;
 
   @ApiProperty({
-    type: () => HarvestDetail,
+    type: () => HarvestInvoiceDetail,
     nullable: true,
   })
-  harvestDetail?: HarvestDetail | null;
+  harvestInvoiceDetail?: HarvestInvoiceDetail | null;
 
   @ApiProperty({
     type: String,

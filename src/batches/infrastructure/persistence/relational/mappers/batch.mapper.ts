@@ -1,5 +1,4 @@
 import { Batch } from '../../../../domain/batch';
-import { OrderDetailMapper } from '../../../../../order-details/infrastructure/persistence/relational/mappers/order-detail.mapper';
 
 import { AreaMapper } from '../../../../../areas/infrastructure/persistence/relational/mappers/area.mapper';
 
@@ -7,15 +6,16 @@ import { ProductMapper } from '../../../../../products/infrastructure/persistenc
 
 import { ImportTicketMapper } from '../../../../../import-tickets/infrastructure/persistence/relational/mappers/import-ticket.mapper';
 
+import { ExportTicketMapper } from 'src/export-tickets/infrastructure/persistence/relational/mappers/export-ticket.mapper';
 import { BatchEntity } from '../entities/batch.entity';
 
 export class BatchMapper {
   static toDomain(raw: BatchEntity): Batch {
     const domainEntity = new Batch();
-    if (raw.orderDetail) {
-      domainEntity.orderDetail = OrderDetailMapper.toDomain(raw.orderDetail);
-    } else if (raw.orderDetail === null) {
-      domainEntity.orderDetail = null;
+    if (raw.exportTicket) {
+      domainEntity.exportTicket = ExportTicketMapper.toDomain(raw.exportTicket);
+    } else if (raw.exportTicket === null) {
+      domainEntity.exportTicket = null;
     }
 
     domainEntity.volume = raw.volume;
@@ -53,12 +53,12 @@ export class BatchMapper {
 
   static toPersistence(domainEntity: Batch): BatchEntity {
     const persistenceEntity = new BatchEntity();
-    if (domainEntity.orderDetail) {
-      persistenceEntity.orderDetail = OrderDetailMapper.toPersistence(
-        domainEntity.orderDetail,
+    if (domainEntity.exportTicket) {
+      persistenceEntity.exportTicket = ExportTicketMapper.toPersistence(
+        domainEntity.exportTicket,
       );
-    } else if (domainEntity.orderDetail === null) {
-      persistenceEntity.orderDetail = null;
+    } else if (domainEntity.exportTicket === null) {
+      persistenceEntity.exportTicket = null;
     }
 
     persistenceEntity.volume = domainEntity.volume;

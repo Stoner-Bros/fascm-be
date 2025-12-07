@@ -185,8 +185,8 @@ export class HarvestSchedulesService {
           await this.inboundBatchService.create({
             quantity: d.quantity ?? undefined,
             unit: d.unit ?? undefined,
-            product: d.product?.id ? { id: d.product.id } : undefined,
-            harvestDetail: d.id ? { id: d.id } : undefined,
+            // product: d.product?.id ? { id: d.product.id } : undefined,
+            // harvestDetail: d.id ? { id: d.id } : undefined,
           });
         }
       }

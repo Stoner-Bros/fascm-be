@@ -1,26 +1,25 @@
 import { ProductDto } from '../../products/dto/product.dto';
 
-import { HarvestDetailDto } from '../../harvest-details/dto/harvest-detail.dto';
-
 import {
   // decorators here
   Type,
 } from 'class-transformer';
 
 import {
-  // decorators here
-
-  ValidateNested,
   IsNotEmptyObject,
+  IsNumber,
   IsOptional,
   IsString,
-  IsNumber,
+  // decorators here
+  ValidateNested,
 } from 'class-validator';
 
 import {
   // decorators here
   ApiProperty,
 } from '@nestjs/swagger';
+import { HarvestInvoiceDetailDto } from 'src/harvest-invoice-details/dto/harvest-invoice-detail.dto';
+import { ImportTicket } from 'src/import-tickets/domain/import-ticket';
 
 export class CreateInboundBatchDto {
   @ApiProperty({
@@ -53,19 +52,19 @@ export class CreateInboundBatchDto {
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => ProductDto)
+  @Type(() => ImportTicket)
   @IsNotEmptyObject()
-  product?: ProductDto | null;
+  importTicket?: ImportTicket | null;
 
   @ApiProperty({
     required: false,
-    type: () => HarvestDetailDto,
+    type: () => HarvestInvoiceDetailDto,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => HarvestDetailDto)
+  @Type(() => HarvestInvoiceDetailDto)
   @IsNotEmptyObject()
-  harvestDetail?: HarvestDetailDto | null;
+  harvestInvoiceDetail?: HarvestInvoiceDetailDto | null;
 
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

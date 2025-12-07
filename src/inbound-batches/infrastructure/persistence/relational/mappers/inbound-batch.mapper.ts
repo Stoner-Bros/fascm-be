@@ -2,8 +2,7 @@ import { InboundBatch } from '../../../../domain/inbound-batch';
 
 import { ProductMapper } from '../../../../../products/infrastructure/persistence/relational/mappers/product.mapper';
 
-import { HarvestDetailMapper } from '../../../../../harvest-details/infrastructure/persistence/relational/mappers/harvest-detail.mapper';
-
+import { HarvestInvoiceDetailMapper } from 'src/harvest-invoice-details/infrastructure/persistence/relational/mappers/harvest-invoice-detail.mapper';
 import { InboundBatchEntity } from '../entities/inbound-batch.entity';
 
 export class InboundBatchMapper {
@@ -15,18 +14,18 @@ export class InboundBatchMapper {
 
     domainEntity.batchCode = raw.batchCode;
 
-    if (raw.product) {
-      domainEntity.product = ProductMapper.toDomain(raw.product);
-    } else if (raw.product === null) {
-      domainEntity.product = null;
+    if (raw.importTicket) {
+      domainEntity.importTicket = ProductMapper.toDomain(raw.importTicket);
+    } else if (raw.importTicket === null) {
+      domainEntity.importTicket = null;
     }
 
-    if (raw.harvestDetail) {
-      domainEntity.harvestDetail = HarvestDetailMapper.toDomain(
-        raw.harvestDetail,
+    if (raw.harvestInvoiceDetail) {
+      domainEntity.harvestInvoiceDetail = HarvestInvoiceDetailMapper.toDomain(
+        raw.harvestInvoiceDetail,
       );
-    } else if (raw.harvestDetail === null) {
-      domainEntity.harvestDetail = null;
+    } else if (raw.harvestInvoiceDetail === null) {
+      domainEntity.harvestInvoiceDetail = null;
     }
 
     domainEntity.id = raw.id;
@@ -44,20 +43,21 @@ export class InboundBatchMapper {
 
     persistenceEntity.batchCode = domainEntity.batchCode;
 
-    if (domainEntity.product) {
-      persistenceEntity.product = ProductMapper.toPersistence(
-        domainEntity.product,
+    if (domainEntity.importTicket) {
+      persistenceEntity.importTicket = ProductMapper.toPersistence(
+        domainEntity.importTicket,
       );
-    } else if (domainEntity.product === null) {
-      persistenceEntity.product = null;
+    } else if (domainEntity.importTicket === null) {
+      persistenceEntity.importTicket = null;
     }
 
-    if (domainEntity.harvestDetail) {
-      persistenceEntity.harvestDetail = HarvestDetailMapper.toPersistence(
-        domainEntity.harvestDetail,
-      );
-    } else if (domainEntity.harvestDetail === null) {
-      persistenceEntity.harvestDetail = null;
+    if (domainEntity.harvestInvoiceDetail) {
+      persistenceEntity.harvestInvoiceDetail =
+        HarvestInvoiceDetailMapper.toPersistence(
+          domainEntity.harvestInvoiceDetail,
+        );
+    } else if (domainEntity.harvestInvoiceDetail === null) {
+      persistenceEntity.harvestInvoiceDetail = null;
     }
 
     if (domainEntity.id) {

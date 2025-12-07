@@ -1,14 +1,10 @@
-import { OrderDetailEntity } from '../../../../../order-details/infrastructure/persistence/relational/entities/order-detail.entity';
-
 import {
+  BeforeInsert,
+  Column,
   CreateDateColumn,
   Entity,
-  UpdateDateColumn,
-  JoinColumn,
-  OneToOne,
-  Column,
   PrimaryColumn,
-  BeforeInsert,
+  UpdateDateColumn,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -18,19 +14,21 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
 export class ExportTicketEntity extends EntityRelationalHelper {
   @Column({
     nullable: true,
+    type: String,
+  })
+  unit?: string | null;
+
+  @Column({
+    nullable: true,
     type: Number,
   })
-  numberOfBatch?: number | null;
+  quantity?: number | null;
 
   @Column({
     nullable: true,
     type: Date,
   })
-  ExportDate?: Date | null;
-
-  @OneToOne(() => OrderDetailEntity, { eager: true, nullable: true })
-  @JoinColumn()
-  orderDetail?: OrderDetailEntity | null;
+  exportDate?: Date | null;
 
   @PrimaryColumn({
     type: String,

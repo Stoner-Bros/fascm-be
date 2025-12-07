@@ -1,32 +1,26 @@
 import {
   Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
   Delete,
-  UseGuards,
+  Get,
+  Param,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ExportTicketsService } from './export-tickets.service';
-import { CreateExportTicketDto } from './dto/create-export-ticket.dto';
-import { UpdateExportTicketDto } from './dto/update-export-ticket.dto';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
-  ApiCreatedResponse,
   ApiOkResponse,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { ExportTicket } from './domain/export-ticket';
-import { AuthGuard } from '@nestjs/passport';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
+import { ExportTicket } from './domain/export-ticket';
 import { FindAllExportTicketsDto } from './dto/find-all-export-tickets.dto';
+import { ExportTicketsService } from './export-tickets.service';
 
 @ApiTags('Exporttickets')
 @ApiBearerAuth()
@@ -38,21 +32,21 @@ import { FindAllExportTicketsDto } from './dto/find-all-export-tickets.dto';
 export class ExportTicketsController {
   constructor(private readonly exportTicketsService: ExportTicketsService) {}
 
-  @Post()
-  @ApiCreatedResponse({
-    type: ExportTicket,
-  })
-  create(@Body() createExportTicketDto: CreateExportTicketDto) {
-    return this.exportTicketsService.create(createExportTicketDto);
-  }
+  // @Post()
+  // @ApiCreatedResponse({
+  //   type: ExportTicket,
+  // })
+  // create(@Body() createExportTicketDto: CreateExportTicketDto) {
+  //   return this.exportTicketsService.create(createExportTicketDto);
+  // }
 
-  @Post('many')
-  @ApiCreatedResponse({
-    type: [ExportTicket],
-  })
-  createBulk(@Body() createExportTicketDtos: CreateExportTicketDto[]) {
-    return this.exportTicketsService.createBulk(createExportTicketDtos);
-  }
+  // @Post('many')
+  // @ApiCreatedResponse({
+  //   type: [ExportTicket],
+  // })
+  // createBulk(@Body() createExportTicketDtos: CreateExportTicketDto[]) {
+  //   return this.exportTicketsService.createBulk(createExportTicketDtos);
+  // }
 
   @Get()
   @ApiOkResponse({
@@ -91,21 +85,21 @@ export class ExportTicketsController {
     return this.exportTicketsService.findById(id);
   }
 
-  @Patch(':id')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-  })
-  @ApiOkResponse({
-    type: ExportTicket,
-  })
-  update(
-    @Param('id') id: string,
-    @Body() updateExportTicketDto: UpdateExportTicketDto,
-  ) {
-    return this.exportTicketsService.update(id, updateExportTicketDto);
-  }
+  // @Patch(':id')
+  // @ApiParam({
+  //   name: 'id',
+  //   type: String,
+  //   required: true,
+  // })
+  // @ApiOkResponse({
+  //   type: ExportTicket,
+  // })
+  // update(
+  //   @Param('id') id: string,
+  //   @Body() updateExportTicketDto: UpdateExportTicketDto,
+  // ) {
+  //   return this.exportTicketsService.update(id, updateExportTicketDto);
+  // }
 
   @Delete(':id')
   @ApiParam({

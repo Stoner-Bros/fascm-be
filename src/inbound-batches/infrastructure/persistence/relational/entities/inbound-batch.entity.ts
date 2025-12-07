@@ -1,17 +1,14 @@
-import { ProductEntity } from '../../../../../products/infrastructure/persistence/relational/entities/product.entity';
-
-import { HarvestDetailEntity } from '../../../../../harvest-details/infrastructure/persistence/relational/entities/harvest-detail.entity';
-
+import { HarvestInvoiceDetailEntity } from 'src/harvest-invoice-details/infrastructure/persistence/relational/entities/harvest-invoice-detail.entity';
+import { ImportTicketEntity } from 'src/import-tickets/infrastructure/persistence/relational/entities/import-ticket.entity';
 import {
+  BeforeInsert,
+  Column,
   CreateDateColumn,
   Entity,
-  UpdateDateColumn,
   JoinColumn,
   OneToOne,
-  ManyToOne,
-  Column,
   PrimaryColumn,
-  BeforeInsert,
+  UpdateDateColumn,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -37,12 +34,13 @@ export class InboundBatchEntity extends EntityRelationalHelper {
   })
   batchCode?: string | null;
 
-  @ManyToOne(() => ProductEntity, { eager: true, nullable: true })
-  product?: ProductEntity | null;
-
-  @OneToOne(() => HarvestDetailEntity, { eager: true, nullable: true })
+  @OneToOne(() => ImportTicketEntity, { eager: true, nullable: true })
   @JoinColumn()
-  harvestDetail?: HarvestDetailEntity | null;
+  importTicket?: ImportTicketEntity | null;
+
+  @OneToOne(() => HarvestInvoiceDetailEntity, { eager: true, nullable: true })
+  @JoinColumn()
+  harvestInvoiceDetail?: HarvestInvoiceDetailEntity | null;
 
   @PrimaryColumn({
     type: String,

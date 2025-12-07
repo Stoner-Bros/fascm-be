@@ -1,17 +1,14 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ImportTicketsService } from './import-tickets.service';
-import { CreateImportTicketDto } from './dto/create-import-ticket.dto';
-import { UpdateImportTicketDto } from './dto/update-import-ticket.dto';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -19,14 +16,15 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { ImportTicket } from './domain/import-ticket';
-import { AuthGuard } from '@nestjs/passport';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
+import { ImportTicket } from './domain/import-ticket';
+import { CreateImportTicketDto } from './dto/create-import-ticket.dto';
 import { FindAllImportTicketsDto } from './dto/find-all-import-tickets.dto';
+import { ImportTicketsService } from './import-tickets.service';
 
 @ApiTags('Importtickets')
 @ApiBearerAuth()
@@ -83,21 +81,21 @@ export class ImportTicketsController {
     return this.importTicketsService.findById(id);
   }
 
-  @Patch(':id')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-  })
-  @ApiOkResponse({
-    type: ImportTicket,
-  })
-  update(
-    @Param('id') id: string,
-    @Body() updateImportTicketDto: UpdateImportTicketDto,
-  ) {
-    return this.importTicketsService.update(id, updateImportTicketDto);
-  }
+  // @Patch(':id')
+  // @ApiParam({
+  //   name: 'id',
+  //   type: String,
+  //   required: true,
+  // })
+  // @ApiOkResponse({
+  //   type: ImportTicket,
+  // })
+  // update(
+  //   @Param('id') id: string,
+  //   @Body() updateImportTicketDto: UpdateImportTicketDto,
+  // ) {
+  //   return this.importTicketsService.update(id, updateImportTicketDto);
+  // }
 
   @Delete(':id')
   @ApiParam({

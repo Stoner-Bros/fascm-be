@@ -1,16 +1,10 @@
-import { OrderDetail } from '../../order-details/domain/order-detail';
-import { Area } from '../../areas/domain/area';
-import { Product } from '../../products/domain/product';
-import { ImportTicket } from '../../import-tickets/domain/import-ticket';
 import { ApiProperty } from '@nestjs/swagger';
+import { ExportTicket } from 'src/export-tickets/domain/export-ticket';
+import { Area } from '../../areas/domain/area';
+import { ImportTicket } from '../../import-tickets/domain/import-ticket';
+import { Product } from '../../products/domain/product';
 
 export class Batch {
-  @ApiProperty({
-    type: () => OrderDetail,
-    nullable: true,
-  })
-  orderDetail?: OrderDetail | null;
-
   @ApiProperty({
     type: () => Number,
     nullable: true,
@@ -52,6 +46,12 @@ export class Batch {
     nullable: true,
   })
   importTicket?: ImportTicket | null;
+
+  @ApiProperty({
+    type: () => ExportTicket,
+    nullable: true,
+  })
+  exportTicket?: ExportTicket | null;
 
   @ApiProperty({
     type: String,

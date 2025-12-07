@@ -87,10 +87,25 @@ import { NotificationsModule } from './notifications/notifications.module';
 
 import { PricesModule } from './prices/prices.module';
 
+import { HarvestPhasesModule } from './harvest-phases/harvest-phases.module';
+
+import { HarvestInvoicesModule } from './harvest-invoices/harvest-invoices.module';
+
+import { HarvestInvoiceDetailsModule } from './harvest-invoice-details/harvest-invoice-details.module';
+
+import { OrderPhasesModule } from './order-phases/order-phases.module';
+
+import { OrderInvoicesModule } from './order-invoices/order-invoices.module';
+
+import { OrderInvoiceDetailsModule } from './order-invoice-details/order-invoice-details.module';
+
 @Module({
   imports: [
-    PricesModule,
-    NotificationsModule,
+    OrderInvoiceDetailsModule,
+    OrderInvoicesModule,
+    OrderPhasesModule,
+    HarvestInvoiceDetailsModule,
+    HarvestInvoicesModule,
     HomeModule,
     MailerModule,
     MailModule,
@@ -164,6 +179,9 @@ import { PricesModule } from './prices/prices.module';
     TruckSettingsModule,
     TruckAlertsModule,
     ImageProofsModule,
+    HarvestPhasesModule,
+    PricesModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

@@ -1,5 +1,3 @@
-import { OrderDetailDto } from '../../order-details/dto/order-detail.dto';
-
 import { AreaDto } from '../../areas/dto/area.dto';
 
 import { ProductDto } from '../../products/dto/product.dto';
@@ -12,31 +10,21 @@ import {
 } from 'class-transformer';
 
 import {
-  // decorators here
-
-  ValidateNested,
   IsNotEmptyObject,
+  IsNumber,
   IsOptional,
   IsString,
-  IsNumber,
+  // decorators here
+  ValidateNested,
 } from 'class-validator';
 
 import {
   // decorators here
   ApiProperty,
 } from '@nestjs/swagger';
+import { ExportTicketDto } from 'src/export-tickets/dto/export-ticket.dto';
 
 export class CreateBatchDto {
-  @ApiProperty({
-    required: false,
-    type: () => OrderDetailDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => OrderDetailDto)
-  @IsNotEmptyObject()
-  orderDetail?: OrderDetailDto | null;
-
   @ApiProperty({
     required: false,
     type: () => Number,
@@ -98,6 +86,16 @@ export class CreateBatchDto {
   @Type(() => ImportTicketDto)
   @IsNotEmptyObject()
   importTicket?: ImportTicketDto | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => ExportTicketDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ExportTicketDto)
+  @IsNotEmptyObject()
+  exportTicket?: ExportTicketDto | null;
 
   // Don't forget to use the class-validator decorators in the DTO properties.
 }
