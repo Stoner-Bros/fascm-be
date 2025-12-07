@@ -61,8 +61,7 @@ export class OrderRelationalRepository implements OrderRepository {
       qb.andWhere('user.id = :userId', { userId: filters.consigneeUserId });
     }
 
-    qb.orderBy('order.orderDate', 'DESC');
-    qb.addOrderBy('order.createdAt', 'DESC');
+    qb.orderBy('order.createdAt', 'DESC');
 
     qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
     qb.take(paginationOptions.limit);

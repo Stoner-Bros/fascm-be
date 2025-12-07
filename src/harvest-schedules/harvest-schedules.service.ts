@@ -1,16 +1,12 @@
-import { ImageProofsService } from '../image-proofs/image-proofs.service';
-
 import { Supplier } from '../suppliers/domain/supplier';
 import { SuppliersService } from '../suppliers/suppliers.service';
 
 import {
   BadRequestException,
   HttpStatus,
-  Inject,
   // common
   Injectable,
   UnprocessableEntityException,
-  forwardRef,
 } from '@nestjs/common';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { IPaginationOptions } from '../utils/types/pagination-options';
@@ -23,7 +19,6 @@ import { HarvestScheduleRepository } from './infrastructure/persistence/harvest-
 @Injectable()
 export class HarvestSchedulesService {
   constructor(
-    @Inject(forwardRef(() => ImageProofsService))
     private readonly supplierService: SuppliersService,
 
     // Dependencies here

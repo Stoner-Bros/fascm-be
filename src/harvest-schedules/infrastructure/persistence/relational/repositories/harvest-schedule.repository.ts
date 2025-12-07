@@ -36,7 +36,7 @@ export class HarvestScheduleRelationalRepository
     sort?: 'ASC' | 'DESC';
   }): Promise<HarvestSchedule[]> {
     const qb = this.harvestScheduleRepository.createQueryBuilder('hs');
-    qb.leftJoinAndSelect('hs.supplierId', 'supplier');
+    qb.leftJoinAndSelect('hs.supplier', 'supplier');
     if (filters?.status) {
       qb.andWhere('hs.status = :status', { status: filters.status });
     }
