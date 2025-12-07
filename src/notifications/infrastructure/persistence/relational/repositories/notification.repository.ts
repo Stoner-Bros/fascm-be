@@ -27,12 +27,15 @@ export class NotificationRelationalRepository
 
   async findAllWithPagination({
     paginationOptions,
+    userId,
   }: {
     paginationOptions: IPaginationOptions;
+    userId?: number;
   }): Promise<Notification[]> {
     const entities = await this.notificationRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
+      where: userId ? { user: { id: Number(userId) } } : {},
     });
 
     return entities.map((entity) => NotificationMapper.toDomain(entity));

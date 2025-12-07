@@ -10,8 +10,10 @@ export abstract class NotificationRepository {
 
   abstract findAllWithPagination({
     paginationOptions,
+    userId,
   }: {
     paginationOptions: IPaginationOptions;
+    userId?: number;
   }): Promise<Notification[]>;
 
   abstract findById(

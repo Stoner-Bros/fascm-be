@@ -7,6 +7,11 @@ import { NotificationsService } from './notifications.service';
 import { NotificationsController } from './notifications.controller';
 import { RelationalNotificationPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { NotificationsGateway } from './notifications.gateway';
+import { SuppliersModule } from '../suppliers/suppliers.module';
+import { ConsigneesModule } from '../consignees/consignees.module';
+import { ManagersModule } from '../managers/managers.module';
+import { StaffsModule } from '../staffs/staffs.module';
+import { DeliveryStaffsModule } from '../delivery-staffs/delivery-staffs.module';
 
 @Module({
   imports: [
@@ -14,6 +19,11 @@ import { NotificationsGateway } from './notifications.gateway';
 
     // do not remove this comment
     RelationalNotificationPersistenceModule,
+    SuppliersModule,
+    ConsigneesModule,
+    ManagersModule,
+    StaffsModule,
+    DeliveryStaffsModule,
   ],
   controllers: [NotificationsController],
   providers: [NotificationsService, NotificationsGateway],

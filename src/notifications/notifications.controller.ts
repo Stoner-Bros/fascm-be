@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -52,6 +53,7 @@ export class NotificationsController {
   })
   async findAll(
     @Query() query: FindAllNotificationsDto,
+    @Req() req: any,
   ): Promise<InfinityPaginationResponseDto<Notification>> {
     const page = query?.page ?? 1;
     let limit = query?.limit ?? 10;
@@ -65,6 +67,7 @@ export class NotificationsController {
           page,
           limit,
         },
+        userId: Number(req?.user?.id ?? ''),
       }),
       { page, limit },
     );
