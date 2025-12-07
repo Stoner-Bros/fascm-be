@@ -1,24 +1,23 @@
-import { OrderDetail } from '../../order-details/domain/order-detail';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ExportTicket {
   @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  unit?: string | null;
+
+  @ApiProperty({
     type: () => Number,
     nullable: true,
   })
-  numberOfBatch?: number | null;
+  quantity?: number | null;
 
   @ApiProperty({
     type: () => Date,
     nullable: true,
   })
-  ExportDate?: Date | null;
-
-  @ApiProperty({
-    type: () => OrderDetail,
-    nullable: true,
-  })
-  orderDetail?: OrderDetail | null;
+  exportDate?: Date | null;
 
   @ApiProperty({
     type: String,

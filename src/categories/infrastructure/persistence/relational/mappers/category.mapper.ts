@@ -5,9 +5,7 @@ import { CategoryEntity } from '../entities/category.entity';
 export class CategoryMapper {
   static toDomain(raw: CategoryEntity): Category {
     const domainEntity = new Category();
-    domainEntity.englishName = raw.englishName;
-
-    domainEntity.vietnameseName = raw.vietnameseName;
+    domainEntity.name = raw.name;
 
     domainEntity.id = raw.id;
     domainEntity.createdAt = raw.createdAt;
@@ -18,9 +16,7 @@ export class CategoryMapper {
 
   static toPersistence(domainEntity: Category): CategoryEntity {
     const persistenceEntity = new CategoryEntity();
-    persistenceEntity.englishName = domainEntity.englishName;
-
-    persistenceEntity.vietnameseName = domainEntity.vietnameseName;
+    persistenceEntity.name = domainEntity.name;
 
     if (domainEntity.id) {
       persistenceEntity.id = domainEntity.id;

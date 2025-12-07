@@ -1,25 +1,24 @@
 import { TrucksService } from '../trucks/trucks.service';
-import { Truck } from '../trucks/domain/truck';
 
-import { WarehousesService } from '../warehouses/warehouses.service';
 import { Warehouse } from '../warehouses/domain/warehouse';
+import { WarehousesService } from '../warehouses/warehouses.service';
 
-import { UsersService } from '../users/users.service';
 import { User } from '../users/domain/user';
+import { UsersService } from '../users/users.service';
 
 import {
+  HttpStatus,
   // common
   Injectable,
-  HttpStatus,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { AuthService } from 'src/auth/auth.service';
+import { RoleEnum } from 'src/roles/roles.enum';
+import { IPaginationOptions } from '../utils/types/pagination-options';
+import { DeliveryStaff } from './domain/delivery-staff';
 import { CreateDeliveryStaffDto } from './dto/create-delivery-staff.dto';
 import { UpdateDeliveryStaffDto } from './dto/update-delivery-staff.dto';
 import { DeliveryStaffRepository } from './infrastructure/persistence/delivery-staff.repository';
-import { IPaginationOptions } from '../utils/types/pagination-options';
-import { DeliveryStaff } from './domain/delivery-staff';
-import { AuthService } from 'src/auth/auth.service';
-import { RoleEnum } from 'src/roles/roles.enum';
 
 @Injectable()
 export class DeliveryStaffsService {
@@ -35,27 +34,6 @@ export class DeliveryStaffsService {
   ) {}
 
   async create(createDeliveryStaffDto: CreateDeliveryStaffDto) {
-    // Do not remove comment below.
-    // <creating-property />
-    let truck: Truck | null | undefined = undefined;
-
-    if (createDeliveryStaffDto.truck) {
-      const truckObject = await this.truckService.findById(
-        createDeliveryStaffDto.truck.id,
-      );
-      if (!truckObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            truck: 'notExists',
-          },
-        });
-      }
-      truck = truckObject;
-    } else if (createDeliveryStaffDto.truck === null) {
-      truck = null;
-    }
-
     let warehouse: Warehouse | null | undefined = undefined;
 
     if (createDeliveryStaffDto.warehouse) {
@@ -93,8 +71,6 @@ export class DeliveryStaffsService {
     return this.deliveryStaffRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      truck,
-
       warehouse,
 
       licenseExpiredAt: createDeliveryStaffDto.licenseExpiredAt,
@@ -137,27 +113,6 @@ export class DeliveryStaffsService {
 
     updateDeliveryStaffDto: UpdateDeliveryStaffDto,
   ) {
-    // Do not remove comment below.
-    // <updating-property />
-    let truck: Truck | null | undefined = undefined;
-
-    if (updateDeliveryStaffDto.truck) {
-      const truckObject = await this.truckService.findById(
-        updateDeliveryStaffDto.truck.id,
-      );
-      if (!truckObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            truck: 'notExists',
-          },
-        });
-      }
-      truck = truckObject;
-    } else if (updateDeliveryStaffDto.truck === null) {
-      truck = null;
-    }
-
     let warehouse: Warehouse | null | undefined = undefined;
 
     if (updateDeliveryStaffDto.warehouse) {
@@ -197,8 +152,6 @@ export class DeliveryStaffsService {
     return this.deliveryStaffRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      truck,
-
       warehouse,
 
       licenseExpiredAt: updateDeliveryStaffDto.licenseExpiredAt,

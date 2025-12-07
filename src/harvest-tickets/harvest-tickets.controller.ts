@@ -1,19 +1,15 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
-  Res,
+  UseGuards,
 } from '@nestjs/common';
-import { Response } from 'express';
-import { HarvestTicketsService } from './harvest-tickets.service';
-import { CreateHarvestTicketDto } from './dto/create-harvest-ticket.dto';
-import { UpdateHarvestTicketDto } from './dto/update-harvest-ticket.dto';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -21,15 +17,17 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { HarvestTicket } from './domain/harvest-ticket';
-import { HarvestTicketResponse } from './dto/harvest-ticket-response.dto';
-import { AuthGuard } from '@nestjs/passport';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
+import { HarvestTicket } from './domain/harvest-ticket';
+import { CreateHarvestTicketDto } from './dto/create-harvest-ticket.dto';
 import { FindAllHarvestTicketsDto } from './dto/find-all-harvest-tickets.dto';
+import { HarvestTicketResponse } from './dto/harvest-ticket-response.dto';
+import { UpdateHarvestTicketDto } from './dto/update-harvest-ticket.dto';
+import { HarvestTicketsService } from './harvest-tickets.service';
 
 @ApiTags('Harvesttickets')
 @ApiBearerAuth()
@@ -102,39 +100,39 @@ export class HarvestTicketsController {
     return this.harvestTicketsService.update(id, updateHarvestTicketDto);
   }
 
-  @Patch(':id/recalculate')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-  })
-  @ApiOkResponse({
-    type: HarvestTicket,
-  })
-  recalculate(@Param('id') id: string) {
-    return this.harvestTicketsService.recalculateTicketTotals(id);
-  }
+  // @Patch(':id/recalculate')
+  // @ApiParam({
+  //   name: 'id',
+  //   type: String,
+  //   required: true,
+  // })
+  // @ApiOkResponse({
+  //   type: HarvestTicket,
+  // })
+  // recalculate(@Param('id') id: string) {
+  //   return this.harvestTicketsService.recalculateTicketTotals(id);
+  // }
 
-  @Get(':id/invoice')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-  })
-  async downloadInvoice(
-    @Param('id') id: string,
-    @Res() res: Response,
-  ): Promise<void> {
-    const pdfBuffer = await this.harvestTicketsService.generateInvoicePdf(id);
+  // @Get(':id/invoice')
+  // @ApiParam({
+  //   name: 'id',
+  //   type: String,
+  //   required: true,
+  // })
+  // async downloadInvoice(
+  //   @Param('id') id: string,
+  //   @Res() res: Response,
+  // ): Promise<void> {
+  //   const pdfBuffer = await this.harvestTicketsService.generateInvoicePdf(id);
 
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="harvest-invoice-${id}.pdf"`,
-      'Content-Length': pdfBuffer.length.toString(),
-    });
+  //   res.set({
+  //     'Content-Type': 'application/pdf',
+  //     'Content-Disposition': `attachment; filename="harvest-invoice-${id}.pdf"`,
+  //     'Content-Length': pdfBuffer.length.toString(),
+  //   });
 
-    res.end(pdfBuffer);
-  }
+  //   res.end(pdfBuffer);
+  // }
 
   @Delete(':id')
   @ApiParam({

@@ -1,3 +1,6 @@
+import { PricesService } from '../prices/prices.service';
+import { Price } from '../prices/domain/price';
+
 import { CategoriesService } from '../categories/categories.service';
 import { Category } from '../categories/domain/category';
 
@@ -6,6 +9,8 @@ import {
   Injectable,
   HttpStatus,
   UnprocessableEntityException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -16,6 +21,9 @@ import { Product } from './domain/product';
 @Injectable()
 export class ProductsService {
   constructor(
+    @Inject(forwardRef(() => PricesService))
+    private readonly priceService: PricesService,
+
     private readonly categoryService: CategoriesService,
 
     // Dependencies here
@@ -25,14 +33,32 @@ export class ProductsService {
   async create(createProductDto: CreateProductDto) {
     // Do not remove comment below.
     // <creating-property />
+    let price: Price[] | null | undefined = undefined;
 
-    let categoryId: Category | null | undefined = undefined;
-
-    if (createProductDto.categoryId) {
-      const categoryIdObject = await this.categoryService.findById(
-        createProductDto.categoryId.id,
+    if (createProductDto.price) {
+      const priceObjects = await this.priceService.findByIds(
+        createProductDto.price.map((entity) => entity.id),
       );
-      if (!categoryIdObject) {
+      if (priceObjects.length !== createProductDto.price.length) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            price: 'notExists',
+          },
+        });
+      }
+      price = priceObjects;
+    } else if (createProductDto.price === null) {
+      price = null;
+    }
+
+    let category: Category | null | undefined = undefined;
+
+    if (createProductDto.category) {
+      const categoryObject = await this.categoryService.findById(
+        createProductDto.category.id,
+      );
+      if (!categoryObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
@@ -40,29 +66,20 @@ export class ProductsService {
           },
         });
       }
-      categoryId = categoryIdObject;
-    } else if (createProductDto.categoryId === null) {
-      categoryId = null;
+      category = categoryObject;
+    } else if (createProductDto.category === null) {
+      category = null;
     }
 
     return this.productRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      pricePerKg: createProductDto.pricePerKg,
+      price,
 
       image: createProductDto.image,
 
-      categoryId,
-
+      category,
       status: 'Active',
-
-      minStorageHumidity: createProductDto.minStorageHumidity,
-
-      maxStorageHumidity: createProductDto.maxStorageHumidity,
-
-      minStorageTemperature: createProductDto.minStorageTemperature,
-
-      maxStorageTemperature: createProductDto.maxStorageTemperature,
 
       description: createProductDto.description,
 
@@ -101,14 +118,32 @@ export class ProductsService {
   ) {
     // Do not remove comment below.
     // <updating-property />
+    let price: Price[] | null | undefined = undefined;
 
-    let categoryId: Category | null | undefined = undefined;
-
-    if (updateProductDto.categoryId) {
-      const categoryIdObject = await this.categoryService.findById(
-        updateProductDto.categoryId.id,
+    if (updateProductDto.price) {
+      const priceObjects = await this.priceService.findByIds(
+        updateProductDto.price.map((entity) => entity.id),
       );
-      if (!categoryIdObject) {
+      if (priceObjects.length !== updateProductDto.price.length) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            price: 'notExists',
+          },
+        });
+      }
+      price = priceObjects;
+    } else if (updateProductDto.price === null) {
+      price = null;
+    }
+
+    let category: Category | null | undefined = undefined;
+
+    if (updateProductDto.category) {
+      const categoryObject = await this.categoryService.findById(
+        updateProductDto.category.id,
+      );
+      if (!categoryObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
@@ -116,28 +151,19 @@ export class ProductsService {
           },
         });
       }
-      categoryId = categoryIdObject;
-    } else if (updateProductDto.categoryId === null) {
-      categoryId = null;
+      category = categoryObject;
+    } else if (updateProductDto.category === null) {
+      category = null;
     }
 
     return this.productRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      pricePerKg: updateProductDto.pricePerKg,
+      price,
 
       image: updateProductDto.image,
 
-      categoryId,
-
-      minStorageHumidity: updateProductDto.minStorageHumidity,
-
-      maxStorageHumidity: updateProductDto.maxStorageHumidity,
-
-      minStorageTemperature: updateProductDto.minStorageTemperature,
-
-      maxStorageTemperature: updateProductDto.maxStorageTemperature,
-
+      category,
       description: updateProductDto.description,
 
       name: updateProductDto.name,

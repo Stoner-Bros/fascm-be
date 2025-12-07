@@ -1,15 +1,8 @@
-import { ImageProof } from '../../image-proofs/domain/image-proof';
-import { Supplier } from '../../suppliers/domain/supplier';
 import { ApiProperty } from '@nestjs/swagger';
+import { Supplier } from '../../suppliers/domain/supplier';
 import { HarvestScheduleStatusEnum } from '../enum/harvest-schedule-status.enum';
 
 export class HarvestSchedule {
-  @ApiProperty({
-    type: () => [ImageProof],
-    nullable: true,
-  })
-  imageProof?: ImageProof[] | null;
-
   @ApiProperty({
     type: () => String,
     nullable: true,
@@ -38,7 +31,7 @@ export class HarvestSchedule {
     type: () => Supplier,
     nullable: true,
   })
-  supplierId?: Supplier | null;
+  supplier?: Supplier | null;
 
   @ApiProperty({
     type: String,

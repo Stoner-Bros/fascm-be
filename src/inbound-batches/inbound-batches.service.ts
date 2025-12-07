@@ -1,27 +1,27 @@
-import { ProductsService } from '../products/products.service';
 import { Product } from '../products/domain/product';
 
-import { HarvestDetailsService } from '../harvest-details/harvest-details.service';
-import { HarvestDetail } from '../harvest-details/domain/harvest-detail';
-
 import {
+  HttpStatus,
   // common
   Injectable,
-  HttpStatus,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { HarvestInvoiceDetail } from 'src/harvest-invoice-details/domain/harvest-invoice-detail';
+import { HarvestInvoiceDetailsService } from 'src/harvest-invoice-details/harvest-invoice-details.service';
+import { ImportTicket } from 'src/import-tickets/domain/import-ticket';
+import { ImportTicketsService } from 'src/import-tickets/import-tickets.service';
+import { IPaginationOptions } from '../utils/types/pagination-options';
+import { InboundBatch } from './domain/inbound-batch';
 import { CreateInboundBatchDto } from './dto/create-inbound-batch.dto';
 import { UpdateInboundBatchDto } from './dto/update-inbound-batch.dto';
 import { InboundBatchRepository } from './infrastructure/persistence/inbound-batch.repository';
-import { IPaginationOptions } from '../utils/types/pagination-options';
-import { InboundBatch } from './domain/inbound-batch';
 
 @Injectable()
 export class InboundBatchesService {
   constructor(
-    private readonly productService: ProductsService,
+    private readonly importTicketService: ImportTicketsService,
 
-    private readonly harvestDetailService: HarvestDetailsService,
+    private readonly harvestInvoiceDetailService: HarvestInvoiceDetailsService,
 
     // Dependencies here
     private readonly inboundBatchRepository: InboundBatchRepository,
@@ -31,42 +31,44 @@ export class InboundBatchesService {
     // Do not remove comment below.
     // <creating-property />
 
-    let product: Product | null | undefined = undefined;
+    let importTicket: ImportTicket | null | undefined = undefined;
 
-    if (createInboundBatchDto.product) {
-      const productObject = await this.productService.findById(
-        createInboundBatchDto.product.id,
+    if (createInboundBatchDto.importTicket) {
+      const importTicketObject = await this.importTicketService.findById(
+        createInboundBatchDto.importTicket.id,
       );
-      if (!productObject) {
+      if (!importTicketObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            product: 'notExists',
+            importTicket: 'notExists',
           },
         });
       }
-      product = productObject;
-    } else if (createInboundBatchDto.product === null) {
-      product = null;
+      importTicket = importTicketObject;
+    } else if (createInboundBatchDto.importTicket === null) {
+      importTicket = null;
     }
 
-    let harvestDetail: HarvestDetail | null | undefined = undefined;
+    let harvestInvoiceDetail: HarvestInvoiceDetail | null | undefined =
+      undefined;
 
-    if (createInboundBatchDto.harvestDetail) {
-      const harvestDetailObject = await this.harvestDetailService.findById(
-        createInboundBatchDto.harvestDetail.id,
-      );
-      if (!harvestDetailObject) {
+    if (createInboundBatchDto.harvestInvoiceDetail) {
+      const harvestInvoiceDetailObject =
+        await this.harvestInvoiceDetailService.findById(
+          createInboundBatchDto.harvestInvoiceDetail.id,
+        );
+      if (!harvestInvoiceDetailObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            harvestDetail: 'notExists',
+            harvestInvoiceDetail: 'notExists',
           },
         });
       }
-      harvestDetail = harvestDetailObject;
-    } else if (createInboundBatchDto.harvestDetail === null) {
-      harvestDetail = null;
+      harvestInvoiceDetail = harvestInvoiceDetailObject;
+    } else if (createInboundBatchDto.harvestInvoiceDetail === null) {
+      harvestInvoiceDetail = null;
     }
 
     return this.inboundBatchRepository.create({
@@ -78,9 +80,9 @@ export class InboundBatchesService {
 
       batchCode: createInboundBatchDto.batchCode,
 
-      product,
+      importTicket,
 
-      harvestDetail,
+      harvestInvoiceDetail,
     });
   }
 
@@ -113,42 +115,43 @@ export class InboundBatchesService {
     // Do not remove comment below.
     // <updating-property />
 
-    let product: Product | null | undefined = undefined;
+    let importTicket: ImportTicket | null | undefined = undefined;
 
-    if (updateInboundBatchDto.product) {
-      const productObject = await this.productService.findById(
-        updateInboundBatchDto.product.id,
+    if (updateInboundBatchDto.importTicket) {
+      const importTicketObject = await this.importTicketService.findById(
+        updateInboundBatchDto.importTicket.id,
       );
-      if (!productObject) {
+      if (!importTicketObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            product: 'notExists',
+            importTicket: 'notExists',
           },
         });
       }
-      product = productObject;
-    } else if (updateInboundBatchDto.product === null) {
-      product = null;
+      importTicket = importTicketObject;
+    } else if (updateInboundBatchDto.importTicket === null) {
+      importTicket = null;
     }
 
-    let harvestDetail: HarvestDetail | null | undefined = undefined;
-
-    if (updateInboundBatchDto.harvestDetail) {
-      const harvestDetailObject = await this.harvestDetailService.findById(
-        updateInboundBatchDto.harvestDetail.id,
-      );
-      if (!harvestDetailObject) {
+    let harvestInvoiceDetail: HarvestInvoiceDetail | null | undefined =
+      undefined;
+    if (updateInboundBatchDto.harvestInvoiceDetail) {
+      const harvestInvoiceDetailObject =
+        await this.harvestInvoiceDetailService.findById(
+          updateInboundBatchDto.harvestInvoiceDetail.id,
+        );
+      if (!harvestInvoiceDetailObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            harvestDetail: 'notExists',
+            harvestInvoiceDetail: 'notExists',
           },
         });
       }
-      harvestDetail = harvestDetailObject;
-    } else if (updateInboundBatchDto.harvestDetail === null) {
-      harvestDetail = null;
+      harvestInvoiceDetail = harvestInvoiceDetailObject;
+    } else if (updateInboundBatchDto.harvestInvoiceDetail === null) {
+      harvestInvoiceDetail = null;
     }
 
     return this.inboundBatchRepository.update(id, {
@@ -160,13 +163,24 @@ export class InboundBatchesService {
 
       batchCode: updateInboundBatchDto.batchCode,
 
-      product,
+      importTicket,
 
-      harvestDetail,
+      harvestInvoiceDetail,
     });
   }
 
   remove(id: InboundBatch['id']) {
     return this.inboundBatchRepository.remove(id);
+  }
+
+  async getProductOfInboundBatch(
+    inboundBatch: InboundBatch,
+  ): Promise<Product | null> {
+    if (!inboundBatch || !inboundBatch.importTicket) {
+      return null;
+    }
+    return await this.inboundBatchRepository.getProductOfInboundBatch(
+      inboundBatch,
+    );
   }
 }

@@ -1,18 +1,17 @@
-import { OrderDetailEntity } from '../../../../../order-details/infrastructure/persistence/relational/entities/order-detail.entity';
-
 import { AreaEntity } from '../../../../../areas/infrastructure/persistence/relational/entities/area.entity';
 
 import { ProductEntity } from '../../../../../products/infrastructure/persistence/relational/entities/product.entity';
 
 import { ImportTicketEntity } from '../../../../../import-tickets/infrastructure/persistence/relational/entities/import-ticket.entity';
 
+import { ExportTicketEntity } from 'src/export-tickets/infrastructure/persistence/relational/entities/export-ticket.entity';
 import {
+  Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  ManyToOne,
-  Column,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -20,9 +19,6 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
   name: 'batch',
 })
 export class BatchEntity extends EntityRelationalHelper {
-  @ManyToOne(() => OrderDetailEntity, { eager: true, nullable: true })
-  orderDetail?: OrderDetailEntity | null;
-
   @Column({
     nullable: true,
     type: Number,
@@ -55,6 +51,9 @@ export class BatchEntity extends EntityRelationalHelper {
 
   @ManyToOne(() => ImportTicketEntity, { eager: true, nullable: true })
   importTicket?: ImportTicketEntity | null;
+
+  @ManyToOne(() => ExportTicketEntity, { eager: true, nullable: true })
+  exportTicket?: ExportTicketEntity | null;
 
   @PrimaryGeneratedColumn('uuid')
   id: string;

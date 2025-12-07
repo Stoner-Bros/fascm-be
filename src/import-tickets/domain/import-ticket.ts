@@ -1,12 +1,17 @@
-import { InboundBatch } from '../../inbound-batches/domain/inbound-batch';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ImportTicket {
   @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  unit?: string | null;
+
+  @ApiProperty({
     type: () => Number,
     nullable: true,
   })
-  numberOfBatch?: number | null;
+  quantity?: number | null;
 
   @ApiProperty({
     type: () => Number,
@@ -21,10 +26,10 @@ export class ImportTicket {
   importDate?: Date | null;
 
   @ApiProperty({
-    type: () => InboundBatch,
+    type: () => Date,
     nullable: true,
   })
-  inboundBatch?: InboundBatch | null;
+  expiredAt?: Date | null;
 
   @ApiProperty({
     type: String,

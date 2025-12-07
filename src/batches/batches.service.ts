@@ -1,33 +1,33 @@
-import { OrderDetailsService } from '../order-details/order-details.service';
-import { OrderDetail } from '../order-details/domain/order-detail';
-
 import { AreasService } from '../areas/areas.service';
 import { Area } from '../areas/domain/area';
 
-import { ProductsService } from '../products/products.service';
 import { Product } from '../products/domain/product';
+import { ProductsService } from '../products/products.service';
 
-import { ImportTicketsService } from '../import-tickets/import-tickets.service';
 import { ImportTicket } from '../import-tickets/domain/import-ticket';
+import { ImportTicketsService } from '../import-tickets/import-tickets.service';
 
 import {
+  forwardRef,
+  HttpStatus,
+  Inject,
   // common
   Injectable,
-  HttpStatus,
   UnprocessableEntityException,
-  forwardRef,
-  Inject,
 } from '@nestjs/common';
+import { ExportTicket } from 'src/export-tickets/domain/export-ticket';
+import { ExportTicketsService } from 'src/export-tickets/export-tickets.service';
+import { IPaginationOptions } from '../utils/types/pagination-options';
+import { Batch } from './domain/batch';
 import { CreateBatchDto } from './dto/create-batch.dto';
 import { UpdateBatchDto } from './dto/update-batch.dto';
 import { BatchRepository } from './infrastructure/persistence/batch.repository';
-import { IPaginationOptions } from '../utils/types/pagination-options';
-import { Batch } from './domain/batch';
 
 @Injectable()
 export class BatchesService {
   constructor(
-    private readonly orderDetailService: OrderDetailsService,
+    @Inject(forwardRef(() => ExportTicketsService))
+    private readonly exportTicketService: ExportTicketsService,
 
     private readonly areaService: AreasService,
 
@@ -43,23 +43,23 @@ export class BatchesService {
   async create(createBatchDto: CreateBatchDto) {
     // Do not remove comment below.
     // <creating-property />
-    let orderDetail: OrderDetail | null | undefined = undefined;
+    let exportTicket: ExportTicket | null | undefined = undefined;
 
-    if (createBatchDto.orderDetail) {
-      const orderDetailObject = await this.orderDetailService.findById(
-        createBatchDto.orderDetail.id,
+    if (createBatchDto.exportTicket) {
+      const exportTicketObject = await this.exportTicketService.findById(
+        createBatchDto.exportTicket.id,
       );
-      if (!orderDetailObject) {
+      if (!exportTicketObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            orderDetail: 'notExists',
+            exportTicket: 'notExists',
           },
         });
       }
-      orderDetail = orderDetailObject;
-    } else if (createBatchDto.orderDetail === null) {
-      orderDetail = null;
+      exportTicket = exportTicketObject;
+    } else if (createBatchDto.exportTicket === null) {
+      exportTicket = null;
     }
 
     let area: Area | null | undefined = undefined;
@@ -122,7 +122,7 @@ export class BatchesService {
     return this.batchRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      orderDetail,
+      exportTicket,
 
       volume: createBatchDto.volume,
 
@@ -168,23 +168,23 @@ export class BatchesService {
   ) {
     // Do not remove comment below.
     // <updating-property />
-    let orderDetail: OrderDetail | null | undefined = undefined;
+    let exportTicket: ExportTicket | null | undefined = undefined;
 
-    if (updateBatchDto.orderDetail) {
-      const orderDetailObject = await this.orderDetailService.findById(
-        updateBatchDto.orderDetail.id,
+    if (updateBatchDto.exportTicket) {
+      const exportTicketObject = await this.exportTicketService.findById(
+        updateBatchDto.exportTicket.id,
       );
-      if (!orderDetailObject) {
+      if (!exportTicketObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            orderDetail: 'notExists',
+            exportTicket: 'notExists',
           },
         });
       }
-      orderDetail = orderDetailObject;
-    } else if (updateBatchDto.orderDetail === null) {
-      orderDetail = null;
+      exportTicket = exportTicketObject;
+    } else if (updateBatchDto.exportTicket === null) {
+      exportTicket = null;
     }
 
     let area: Area | null | undefined = undefined;
@@ -247,7 +247,7 @@ export class BatchesService {
     return this.batchRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      orderDetail,
+      exportTicket,
 
       volume: updateBatchDto.volume,
 

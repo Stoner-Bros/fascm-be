@@ -4,10 +4,22 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class Area {
   @ApiProperty({
-    type: () => Number,
     nullable: true,
+    type: () => String,
   })
-  availableCapacity?: number | null;
+  unit?: string | null;
+
+  @ApiProperty({
+    nullable: true,
+    type: () => Number,
+  })
+  quantity?: number | null;
+
+  @ApiProperty({
+    nullable: true,
+    type: () => String,
+  })
+  status?: string | null;
 
   @ApiProperty({
     type: () => [IoTDevice],
@@ -20,12 +32,6 @@ export class Area {
     nullable: true,
   })
   description?: string | null;
-
-  @ApiProperty({
-    type: () => Number,
-    nullable: true,
-  })
-  capacity?: number | null;
 
   @ApiProperty({
     type: () => String,

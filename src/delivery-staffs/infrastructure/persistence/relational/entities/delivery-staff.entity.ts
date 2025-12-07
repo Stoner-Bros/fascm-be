@@ -1,18 +1,16 @@
-import { TruckEntity } from '../../../../../trucks/infrastructure/persistence/relational/entities/truck.entity';
-
 import { WarehouseEntity } from '../../../../../warehouses/infrastructure/persistence/relational/entities/warehouse.entity';
 
 import { UserEntity } from '../../../../../users/infrastructure/persistence/relational/entities/user.entity';
 
 import {
+  Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  JoinColumn,
-  OneToOne,
-  Column,
-  ManyToOne,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -20,9 +18,6 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
   name: 'delivery_staff',
 })
 export class DeliveryStaffEntity extends EntityRelationalHelper {
-  @ManyToOne(() => TruckEntity, { eager: true, nullable: true })
-  truck?: TruckEntity | null;
-
   @ManyToOne(() => WarehouseEntity, { eager: true, nullable: true })
   warehouse?: WarehouseEntity | null;
 

@@ -2,10 +2,9 @@ import { Delivery } from '../../../../domain/delivery';
 
 import { TruckMapper } from '../../../../../trucks/infrastructure/persistence/relational/mappers/truck.mapper';
 
-import { HarvestScheduleMapper } from '../../../../../harvest-schedules/infrastructure/persistence/relational/mappers/harvest-schedule.mapper';
-
-import { OrderScheduleMapper } from '../../../../../order-schedules/infrastructure/persistence/relational/mappers/order-schedule.mapper';
-
+import { DeliveryStaffMapper } from 'src/delivery-staffs/infrastructure/persistence/relational/mappers/delivery-staff.mapper';
+import { HarvestPhaseMapper } from 'src/harvest-phases/infrastructure/persistence/relational/mappers/harvest-phase.mapper';
+import { OrderPhaseMapper } from 'src/order-phases/infrastructure/persistence/relational/mappers/order-phase.mapper';
 import { DeliveryEntity } from '../entities/delivery.entity';
 
 export class DeliveryMapper {
@@ -35,20 +34,24 @@ export class DeliveryMapper {
       domainEntity.truck = null;
     }
 
-    if (raw.harvestSchedule) {
-      domainEntity.harvestSchedule = HarvestScheduleMapper.toDomain(
-        raw.harvestSchedule,
+    if (raw.deliveryStaff) {
+      domainEntity.deliveryStaff = DeliveryStaffMapper.toDomain(
+        raw.deliveryStaff,
       );
-    } else if (raw.harvestSchedule === null) {
-      domainEntity.harvestSchedule = null;
+    } else if (raw.deliveryStaff === null) {
+      domainEntity.deliveryStaff = null;
     }
 
-    if (raw.orderSchedule) {
-      domainEntity.orderSchedule = OrderScheduleMapper.toDomain(
-        raw.orderSchedule,
-      );
-    } else if (raw.orderSchedule === null) {
-      domainEntity.orderSchedule = null;
+    if (raw.harvestPhase) {
+      domainEntity.harvestPhase = HarvestPhaseMapper.toDomain(raw.harvestPhase);
+    } else if (raw.harvestPhase === null) {
+      domainEntity.harvestPhase = null;
+    }
+
+    if (raw.orderPhase) {
+      domainEntity.orderPhase = OrderPhaseMapper.toDomain(raw.orderPhase);
+    } else if (raw.orderPhase === null) {
+      domainEntity.orderPhase = null;
     }
 
     domainEntity.id = raw.id;
@@ -84,20 +87,28 @@ export class DeliveryMapper {
       persistenceEntity.truck = null;
     }
 
-    if (domainEntity.harvestSchedule) {
-      persistenceEntity.harvestSchedule = HarvestScheduleMapper.toPersistence(
-        domainEntity.harvestSchedule,
+    if (domainEntity.deliveryStaff) {
+      persistenceEntity.deliveryStaff = DeliveryStaffMapper.toPersistence(
+        domainEntity.deliveryStaff,
       );
-    } else if (domainEntity.harvestSchedule === null) {
-      persistenceEntity.harvestSchedule = null;
+    } else if (domainEntity.deliveryStaff === null) {
+      persistenceEntity.deliveryStaff = null;
     }
 
-    if (domainEntity.orderSchedule) {
-      persistenceEntity.orderSchedule = OrderScheduleMapper.toPersistence(
-        domainEntity.orderSchedule,
+    if (domainEntity.harvestPhase) {
+      persistenceEntity.harvestPhase = HarvestPhaseMapper.toPersistence(
+        domainEntity.harvestPhase,
       );
-    } else if (domainEntity.orderSchedule === null) {
-      persistenceEntity.orderSchedule = null;
+    } else if (domainEntity.harvestPhase === null) {
+      persistenceEntity.harvestPhase = null;
+    }
+
+    if (domainEntity.orderPhase) {
+      persistenceEntity.orderPhase = OrderPhaseMapper.toPersistence(
+        domainEntity.orderPhase,
+      );
+    } else if (domainEntity.orderPhase === null) {
+      persistenceEntity.orderPhase = null;
     }
 
     if (domainEntity.id) {

@@ -7,6 +7,7 @@ import { InboundBatch } from '../../../../domain/inbound-batch';
 import { InboundBatchRepository } from '../../inbound-batch.repository';
 import { InboundBatchMapper } from '../mappers/inbound-batch.mapper';
 import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
+import { Product } from 'src/products/domain/product';
 
 @Injectable()
 export class InboundBatchRelationalRepository
@@ -80,5 +81,24 @@ export class InboundBatchRelationalRepository
 
   async remove(id: InboundBatch['id']): Promise<void> {
     await this.inboundBatchRepository.delete(id);
+  }
+
+  async getProductOfInboundBatch(
+    inboundBatch: InboundBatch,
+  ): Promise<NullableType<Product>> {
+    const entity = await this.inboundBatchRepository.findOne({
+      where: { id: inboundBatch.id },
+      relations: ['harvestInvoiceDetail', 'harvestInvoiceDetail.product'],
+    });
+
+    if (
+      !entity ||
+      !entity.harvestInvoiceDetail ||
+      !entity.harvestInvoiceDetail.product
+    ) {
+      return null;
+    }
+
+    return entity.harvestInvoiceDetail.product;
   }
 }

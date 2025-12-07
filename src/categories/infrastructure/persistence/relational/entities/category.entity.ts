@@ -16,13 +16,7 @@ export class CategoryEntity extends EntityRelationalHelper {
     nullable: true,
     type: String,
   })
-  englishName?: string | null;
-
-  @Column({
-    nullable: true,
-    type: String,
-  })
-  vietnameseName?: string | null;
+  name?: string | null;
 
   @PrimaryColumn({
     type: String,

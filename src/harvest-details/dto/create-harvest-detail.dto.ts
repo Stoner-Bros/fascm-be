@@ -8,13 +8,12 @@ import {
 } from 'class-transformer';
 
 import {
-  // decorators here
-
-  ValidateNested,
   IsNotEmptyObject,
+  IsNumber,
   IsOptional,
   IsString,
-  IsNumber,
+  // decorators here
+  ValidateNested,
 } from 'class-validator';
 
 import {
@@ -23,14 +22,6 @@ import {
 } from '@nestjs/swagger';
 
 export class CreateHarvestDetailDto {
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  taxRate?: number | null;
-
   @ApiProperty({
     required: false,
     type: () => Number,

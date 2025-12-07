@@ -47,7 +47,7 @@ export class AreaSettingsService {
     return this.areaSettingRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      minCapacity: createAreaSettingDto.minCapacity,
+      minStock: createAreaSettingDto.minStock,
 
       minHumidity: createAreaSettingDto.minHumidity,
       maxHumidity: createAreaSettingDto.maxHumidity,
@@ -108,7 +108,7 @@ export class AreaSettingsService {
     return this.areaSettingRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      minCapacity: updateAreaSettingDto.minCapacity,
+      minStock: updateAreaSettingDto.minStock,
 
       minHumidity: updateAreaSettingDto.minHumidity,
       maxHumidity: updateAreaSettingDto.maxHumidity,

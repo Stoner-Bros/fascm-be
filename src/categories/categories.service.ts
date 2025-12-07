@@ -22,9 +22,7 @@ export class CategoriesService {
     return this.categoryRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      englishName: createCategoryDto.englishName,
-
-      vietnameseName: createCategoryDto.vietnameseName,
+      name: createCategoryDto.name,
     });
   }
 
@@ -60,9 +58,7 @@ export class CategoriesService {
     return this.categoryRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      englishName: updateCategoryDto.englishName,
-
-      vietnameseName: updateCategoryDto.vietnameseName,
+      name: updateCategoryDto.name,
     });
   }
 

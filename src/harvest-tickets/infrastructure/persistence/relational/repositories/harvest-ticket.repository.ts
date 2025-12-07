@@ -74,17 +74,7 @@ export class HarvestTicketRelationalRepository
     // Directly update the fields from payload
     if (payload.quantity !== undefined) entity.quantity = payload.quantity;
     if (payload.unit !== undefined) entity.unit = payload.unit;
-    if (payload.totalPayment !== undefined)
-      entity.totalPayment = payload.totalPayment;
-    if (payload.vatAmount !== undefined) entity.vatAmount = payload.vatAmount;
-    if (payload.totalAmount !== undefined)
-      entity.totalAmount = payload.totalAmount;
-    if (payload.taxRate !== undefined) entity.taxRate = payload.taxRate;
-    if (payload.date !== undefined) entity.date = payload.date;
-    if (payload.accountNumber !== undefined)
-      entity.accountNumber = payload.accountNumber;
-    if (payload.paymentMethod !== undefined)
-      entity.paymentMethod = payload.paymentMethod;
+
     if (payload.ticketNumber !== undefined)
       entity.ticketNumber = payload.ticketNumber;
     if (payload.ticketUrl !== undefined) entity.ticketUrl = payload.ticketUrl;
@@ -102,8 +92,8 @@ export class HarvestTicketRelationalRepository
     harvestScheduleId: string,
   ): Promise<HarvestTicketResponse> {
     const entities = await this.harvestTicketRepository.find({
-      where: { harvestScheduleId: { id: harvestScheduleId } },
-      relations: ['harvestScheduleId'],
+      where: { harvestSchedule: { id: harvestScheduleId } },
+      relations: ['harvestSchedule'],
     });
 
     return HarvestTicketMapper.toResponse(entities[0]);

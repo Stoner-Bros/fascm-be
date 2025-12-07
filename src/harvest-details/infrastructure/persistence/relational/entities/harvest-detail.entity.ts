@@ -3,13 +3,13 @@ import { ProductEntity } from '../../../../../products/infrastructure/persistenc
 import { HarvestTicketEntity } from '../../../../../harvest-tickets/infrastructure/persistence/relational/entities/harvest-ticket.entity';
 
 import {
+  BeforeInsert,
+  Column,
   CreateDateColumn,
   Entity,
-  UpdateDateColumn,
   ManyToOne,
-  Column,
   PrimaryColumn,
-  BeforeInsert,
+  UpdateDateColumn,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -17,12 +17,6 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
   name: 'harvest_detail',
 })
 export class HarvestDetailEntity extends EntityRelationalHelper {
-  @Column({
-    nullable: true,
-    type: Number,
-  })
-  taxRate?: number | null;
-
   @Column({
     nullable: true,
     type: Number,

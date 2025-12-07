@@ -1,17 +1,16 @@
 import { TruckEntity } from '../../../../../trucks/infrastructure/persistence/relational/entities/truck.entity';
 
-import { HarvestScheduleEntity } from '../../../../../harvest-schedules/infrastructure/persistence/relational/entities/harvest-schedule.entity';
-
-import { OrderScheduleEntity } from '../../../../../order-schedules/infrastructure/persistence/relational/entities/order-schedule.entity';
-
+import { DeliveryStaffEntity } from 'src/delivery-staffs/infrastructure/persistence/relational/entities/delivery-staff.entity';
+import { HarvestPhaseEntity } from 'src/harvest-phases/infrastructure/persistence/relational/entities/harvest-phase.entity';
+import { OrderPhaseEntity } from 'src/order-phases/infrastructure/persistence/relational/entities/order-phase.entity';
 import {
+  BeforeInsert,
+  Column,
   CreateDateColumn,
   Entity,
-  UpdateDateColumn,
   ManyToOne,
-  Column,
   PrimaryColumn,
-  BeforeInsert,
+  UpdateDateColumn,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 import { DeliveryStatusEnum } from '../../../../enum/delivery-status.enum';
@@ -75,14 +74,17 @@ export class DeliveryEntity extends EntityRelationalHelper {
   })
   startTime?: Date | null;
 
+  @ManyToOne(() => DeliveryStaffEntity, { eager: true, nullable: true })
+  deliveryStaff?: DeliveryStaffEntity | null;
+
   @ManyToOne(() => TruckEntity, { eager: true, nullable: true })
   truck?: TruckEntity | null;
 
-  @ManyToOne(() => HarvestScheduleEntity, { eager: true, nullable: true })
-  harvestSchedule?: HarvestScheduleEntity | null;
+  @ManyToOne(() => HarvestPhaseEntity, { eager: true, nullable: true })
+  harvestPhase?: HarvestPhaseEntity | null;
 
-  @ManyToOne(() => OrderScheduleEntity, { eager: true, nullable: true })
-  orderSchedule?: OrderScheduleEntity | null;
+  @ManyToOne(() => OrderPhaseEntity, { eager: true, nullable: true })
+  orderPhase?: OrderPhaseEntity | null;
 
   @PrimaryColumn({
     type: String,

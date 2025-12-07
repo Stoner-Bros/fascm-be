@@ -1,7 +1,5 @@
 import { Order } from '../../../../domain/order';
 
-import { PaymentMapper } from '../../../../../payments/infrastructure/persistence/relational/mappers/payment.mapper';
-
 import { OrderScheduleMapper } from '../../../../../order-schedules/infrastructure/persistence/relational/mappers/order-schedule.mapper';
 
 import { OrderEntity } from '../entities/order.entity';
@@ -9,27 +7,12 @@ import { OrderEntity } from '../entities/order.entity';
 export class OrderMapper {
   static toDomain(raw: OrderEntity): Order {
     const domainEntity = new Order();
-    domainEntity.totalVolume = raw.totalVolume;
+    domainEntity.unit = raw.unit;
 
-    domainEntity.totalMass = raw.totalMass;
-
-    domainEntity.totalPayment = raw.totalPayment;
-
-    domainEntity.vatAmount = raw.vatAmount;
-
-    domainEntity.totalAmount = raw.totalAmount;
-
-    domainEntity.taxRate = raw.taxRate;
-
-    domainEntity.orderDate = raw.orderDate;
+    domainEntity.quantity = raw.quantity;
+    domainEntity.orderNumber = raw.orderNumber;
 
     domainEntity.orderUrl = raw.orderUrl;
-
-    if (raw.payment) {
-      domainEntity.payment = PaymentMapper.toDomain(raw.payment);
-    } else if (raw.payment === null) {
-      domainEntity.payment = null;
-    }
 
     if (raw.orderSchedule) {
       domainEntity.orderSchedule = OrderScheduleMapper.toDomain(
@@ -48,29 +31,12 @@ export class OrderMapper {
 
   static toPersistence(domainEntity: Order): OrderEntity {
     const persistenceEntity = new OrderEntity();
-    persistenceEntity.totalVolume = domainEntity.totalVolume;
+    persistenceEntity.unit = domainEntity.unit;
 
-    persistenceEntity.totalMass = domainEntity.totalMass;
-
-    persistenceEntity.totalPayment = domainEntity.totalPayment;
-
-    persistenceEntity.vatAmount = domainEntity.vatAmount;
-
-    persistenceEntity.totalAmount = domainEntity.totalAmount;
-
-    persistenceEntity.taxRate = domainEntity.taxRate;
-
-    persistenceEntity.orderDate = domainEntity.orderDate;
+    persistenceEntity.quantity = domainEntity.quantity;
+    persistenceEntity.orderNumber = domainEntity.orderNumber;
 
     persistenceEntity.orderUrl = domainEntity.orderUrl;
-
-    if (domainEntity.payment) {
-      persistenceEntity.payment = PaymentMapper.toPersistence(
-        domainEntity.payment,
-      );
-    } else if (domainEntity.payment === null) {
-      persistenceEntity.payment = null;
-    }
 
     if (domainEntity.orderSchedule) {
       persistenceEntity.orderSchedule = OrderScheduleMapper.toPersistence(

@@ -1,14 +1,10 @@
-import { InboundBatchEntity } from '../../../../../inbound-batches/infrastructure/persistence/relational/entities/inbound-batch.entity';
-
 import {
+  BeforeInsert,
+  Column,
   CreateDateColumn,
   Entity,
-  UpdateDateColumn,
-  JoinColumn,
-  OneToOne,
-  Column,
   PrimaryColumn,
-  BeforeInsert,
+  UpdateDateColumn,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -18,9 +14,15 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
 export class ImportTicketEntity extends EntityRelationalHelper {
   @Column({
     nullable: true,
+    type: String,
+  })
+  unit?: string | null;
+
+  @Column({
+    nullable: true,
     type: Number,
   })
-  numberOfBatch?: number | null;
+  quantity?: number | null;
 
   @Column({
     nullable: true,
@@ -34,9 +36,11 @@ export class ImportTicketEntity extends EntityRelationalHelper {
   })
   importDate?: Date | null;
 
-  @OneToOne(() => InboundBatchEntity, { eager: true, nullable: true })
-  @JoinColumn()
-  inboundBatch?: InboundBatchEntity | null;
+  @Column({
+    nullable: true,
+    type: Date,
+  })
+  expiredAt?: Date | null;
 
   @PrimaryColumn({
     type: String,

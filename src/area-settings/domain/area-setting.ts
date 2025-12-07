@@ -6,7 +6,7 @@ export class AreaSetting {
     type: () => Number,
     nullable: true,
   })
-  minCapacity?: number | null;
+  minStock?: number | null;
 
   @ApiProperty({
     type: () => Number,

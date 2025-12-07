@@ -1,15 +1,8 @@
-import { Truck } from '../../trucks/domain/truck';
-import { Warehouse } from '../../warehouses/domain/warehouse';
-import { User } from '../../users/domain/user';
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from '../../users/domain/user';
+import { Warehouse } from '../../warehouses/domain/warehouse';
 
 export class DeliveryStaff {
-  @ApiProperty({
-    type: () => Truck,
-    nullable: true,
-  })
-  truck?: Truck | null;
-
   @ApiProperty({
     type: () => Warehouse,
     nullable: true,

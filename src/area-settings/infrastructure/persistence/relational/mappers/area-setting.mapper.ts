@@ -7,7 +7,7 @@ import { AreaSettingEntity } from '../entities/area-setting.entity';
 export class AreaSettingMapper {
   static toDomain(raw: AreaSettingEntity): AreaSetting {
     const domainEntity = new AreaSetting();
-    domainEntity.minCapacity = raw.minCapacity;
+    domainEntity.minStock = raw.minStock;
 
     domainEntity.minHumidity = raw.minHumidity;
 
@@ -32,7 +32,7 @@ export class AreaSettingMapper {
 
   static toPersistence(domainEntity: AreaSetting): AreaSettingEntity {
     const persistenceEntity = new AreaSettingEntity();
-    persistenceEntity.minCapacity = domainEntity.minCapacity;
+    persistenceEntity.minStock = domainEntity.minStock;
 
     persistenceEntity.minHumidity = domainEntity.minHumidity;
     persistenceEntity.maxHumidity = domainEntity.maxHumidity;

@@ -1,5 +1,4 @@
 import { HarvestSchedule } from '../../../../domain/harvest-schedule';
-import { ImageProofMapper } from '../../../../../image-proofs/infrastructure/persistence/relational/mappers/image-proof.mapper';
 
 import { SupplierMapper } from '../../../../../suppliers/infrastructure/persistence/relational/mappers/supplier.mapper';
 
@@ -8,13 +7,6 @@ import { HarvestScheduleEntity } from '../entities/harvest-schedule.entity';
 export class HarvestScheduleMapper {
   static toDomain(raw: HarvestScheduleEntity): HarvestSchedule {
     const domainEntity = new HarvestSchedule();
-    if (raw.imageProof) {
-      domainEntity.imageProof = raw.imageProof.map((item) =>
-        ImageProofMapper.toDomain(item),
-      );
-    } else if (raw.imageProof === null) {
-      domainEntity.imageProof = null;
-    }
 
     domainEntity.address = raw.address;
 
@@ -24,10 +16,10 @@ export class HarvestScheduleMapper {
 
     domainEntity.harvestDate = raw.harvestDate;
 
-    if (raw.supplierId) {
-      domainEntity.supplierId = SupplierMapper.toDomain(raw.supplierId);
-    } else if (raw.supplierId === null) {
-      domainEntity.supplierId = null;
+    if (raw.supplier) {
+      domainEntity.supplier = SupplierMapper.toDomain(raw.supplier);
+    } else if (raw.supplier === null) {
+      domainEntity.supplier = null;
     }
 
     domainEntity.id = raw.id;
@@ -40,13 +32,6 @@ export class HarvestScheduleMapper {
 
   static toPersistence(domainEntity: HarvestSchedule): HarvestScheduleEntity {
     const persistenceEntity = new HarvestScheduleEntity();
-    if (domainEntity.imageProof) {
-      persistenceEntity.imageProof = domainEntity.imageProof.map((item) =>
-        ImageProofMapper.toPersistence(item),
-      );
-    } else if (domainEntity.imageProof === null) {
-      persistenceEntity.imageProof = null;
-    }
 
     persistenceEntity.address = domainEntity.address;
 
@@ -55,14 +40,6 @@ export class HarvestScheduleMapper {
     persistenceEntity.status = domainEntity.status;
 
     persistenceEntity.harvestDate = domainEntity.harvestDate;
-
-    if (domainEntity.supplierId) {
-      persistenceEntity.supplierId = SupplierMapper.toPersistence(
-        domainEntity.supplierId,
-      );
-    } else if (domainEntity.supplierId === null) {
-      persistenceEntity.supplierId = null;
-    }
 
     if (domainEntity.id) {
       persistenceEntity.id = domainEntity.id;

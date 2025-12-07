@@ -1,18 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Repository } from 'typeorm';
 import bcrypt from 'bcryptjs';
+import { ConsigneeEntity } from 'src/consignees/infrastructure/persistence/relational/entities/consignee.entity';
+import { DeliveryStaffEntity } from 'src/delivery-staffs/infrastructure/persistence/relational/entities/delivery-staff.entity';
+import { ManagerEntity } from 'src/managers/infrastructure/persistence/relational/entities/manager.entity';
+import { StaffEntity } from 'src/staffs/infrastructure/persistence/relational/entities/staff.entity';
+import { SupplierEntity } from 'src/suppliers/infrastructure/persistence/relational/entities/supplier.entity';
+import { WarehouseEntity } from 'src/warehouses/infrastructure/persistence/relational/entities/warehouse.entity';
+import { Repository } from 'typeorm';
 import { RoleEnum } from '../../../../roles/roles.enum';
 import { StatusEnum } from '../../../../statuses/statuses.enum';
 import { UserEntity } from '../../../../users/infrastructure/persistence/relational/entities/user.entity';
-import { ManagerEntity } from 'src/managers/infrastructure/persistence/relational/entities/manager.entity';
-import { StaffEntity } from 'src/staffs/infrastructure/persistence/relational/entities/staff.entity';
-import { DeliveryStaffEntity } from 'src/delivery-staffs/infrastructure/persistence/relational/entities/delivery-staff.entity';
-import { ConsigneeEntity } from 'src/consignees/infrastructure/persistence/relational/entities/consignee.entity';
-import { SupplierEntity } from 'src/suppliers/infrastructure/persistence/relational/entities/supplier.entity';
-import { WarehouseEntity } from 'src/warehouses/infrastructure/persistence/relational/entities/warehouse.entity';
-import { TruckEntity } from 'src/trucks/infrastructure/persistence/relational/entities/truck.entity';
 
 @Injectable()
 export class UserSeedService {
@@ -37,14 +36,10 @@ export class UserSeedService {
 
     @InjectRepository(WarehouseEntity)
     private warehouseRepo: Repository<WarehouseEntity>,
-
-    @InjectRepository(TruckEntity)
-    private truckRepo: Repository<TruckEntity>,
   ) {}
 
   async run() {
     const warehouses = await this.warehouseRepo.find();
-    const trucks = await this.truckRepo.find();
 
     // 1. Admin User
     const countAdmin = await this.userRepo.count({
@@ -235,28 +230,24 @@ export class UserSeedService {
           firstName: 'Ngô',
           lastName: 'Văn Khánh',
           email: 'deliverystaff1@example.com',
-          truck: trucks[0],
           warehouse: warehouses[0],
         },
         {
           firstName: 'Dương',
           lastName: 'Thị Loan',
           email: 'deliverystaff2@example.com',
-          truck: trucks[1],
           warehouse: warehouses[1],
         },
         {
           firstName: 'Lý',
           lastName: 'Văn Minh',
           email: 'deliverystaff3@example.com',
-          truck: trucks[2],
           warehouse: warehouses[2],
         },
         {
           firstName: 'Hồ',
           lastName: 'Thị Nga',
           email: 'deliverystaff4@example.com',
-          truck: trucks[3],
           warehouse: warehouses[3],
         },
       ];
@@ -285,7 +276,6 @@ export class UserSeedService {
         await this.dStaffRepo.save(
           this.dStaffRepo.create({
             user: user,
-            truck: dStaffData.truck,
             warehouse: dStaffData.warehouse,
           }),
         );

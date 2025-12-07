@@ -1,19 +1,15 @@
-import { OrderDetailDto } from '../../order-details/dto/order-detail.dto';
+import { OrderInvoiceDetailDto } from './../../order-invoice-details/dto/order-invoice-detail.dto';
 
 import {
   // decorators here
   Type,
-  Transform,
 } from 'class-transformer';
 
 import {
-  // decorators here
-
-  ValidateNested,
   IsNotEmptyObject,
   IsOptional,
-  IsDate,
-  IsNumber,
+  // decorators here
+  ValidateNested,
 } from 'class-validator';
 
 import {
@@ -24,30 +20,13 @@ import {
 export class CreateExportTicketDto {
   @ApiProperty({
     required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  numberOfBatch?: number | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => Date,
-  })
-  @IsOptional()
-  @Transform(({ value }) => new Date(value))
-  @IsDate()
-  ExportDate?: Date | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => OrderDetailDto,
+    type: () => OrderInvoiceDetailDto,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => OrderDetailDto)
+  @Type(() => OrderInvoiceDetailDto)
   @IsNotEmptyObject()
-  orderDetail?: OrderDetailDto | null;
+  OrderInvoiceDetailDto?: OrderInvoiceDetailDto | null;
 
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

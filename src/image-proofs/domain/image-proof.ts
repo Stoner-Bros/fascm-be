@@ -1,20 +1,20 @@
-import { OrderSchedule } from '../../order-schedules/domain/order-schedule';
-import { HarvestSchedule } from '../../harvest-schedules/domain/harvest-schedule';
-import { FileType } from '../../files/domain/file';
 import { ApiProperty } from '@nestjs/swagger';
+import { HarvestPhase } from 'src/harvest-phases/domain/harvest-phase';
+import { OrderPhase } from 'src/order-phases/domain/order-phase';
+import { FileType } from '../../files/domain/file';
 
 export class ImageProof {
   @ApiProperty({
-    type: () => OrderSchedule,
+    type: () => OrderPhase,
     nullable: true,
   })
-  orderSchedule?: OrderSchedule | null;
+  orderPhase?: OrderPhase | null;
 
   @ApiProperty({
-    type: () => HarvestSchedule,
+    type: () => HarvestPhase,
     nullable: true,
   })
-  harvestSchedule?: HarvestSchedule | null;
+  harvestPhase?: HarvestPhase | null;
 
   @ApiProperty({
     type: () => FileType,

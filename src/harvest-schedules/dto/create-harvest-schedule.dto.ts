@@ -54,7 +54,7 @@ export class CreateHarvestScheduleDto {
   @ValidateNested()
   @Type(() => SupplierDto)
   @IsNotEmptyObject()
-  supplierId?: SupplierDto | null;
+  supplier?: SupplierDto | null;
 
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

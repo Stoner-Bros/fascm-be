@@ -1,22 +1,22 @@
-import { ProductsService } from '../products/products.service';
 import { Product } from '../products/domain/product';
+import { ProductsService } from '../products/products.service';
 
-import { HarvestTicketsService } from '../harvest-tickets/harvest-tickets.service';
 import { HarvestTicket } from '../harvest-tickets/domain/harvest-ticket';
+import { HarvestTicketsService } from '../harvest-tickets/harvest-tickets.service';
 
 import {
+  HttpStatus,
+  Inject,
   // common
   Injectable,
-  HttpStatus,
   UnprocessableEntityException,
-  Inject,
   forwardRef,
 } from '@nestjs/common';
+import { IPaginationOptions } from '../utils/types/pagination-options';
+import { HarvestDetail } from './domain/harvest-detail';
 import { CreateHarvestDetailDto } from './dto/create-harvest-detail.dto';
 import { UpdateHarvestDetailDto } from './dto/update-harvest-detail.dto';
 import { HarvestDetailRepository } from './infrastructure/persistence/harvest-detail.repository';
-import { IPaginationOptions } from '../utils/types/pagination-options';
-import { HarvestDetail } from './domain/harvest-detail';
 
 @Injectable()
 export class HarvestDetailsService {
@@ -75,8 +75,6 @@ export class HarvestDetailsService {
     const createdDetail = await this.harvestDetailRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      taxRate: createHarvestDetailDto.taxRate,
-
       amount: createHarvestDetailDto.amount,
 
       unitPrice: createHarvestDetailDto.unitPrice,
@@ -91,9 +89,9 @@ export class HarvestDetailsService {
     });
 
     // Recalculate harvest ticket totals after creating detail
-    if (harvestTicket?.id) {
-      await this.harvestTicketService.recalculateTicketTotals(harvestTicket.id);
-    }
+    // if (harvestTicket?.id) {
+    //   await this.harvestTicketService.recalculateTicketTotals(harvestTicket.id);
+    // }
 
     return createdDetail;
   }
@@ -172,7 +170,6 @@ export class HarvestDetailsService {
     const updatedDetail = await this.harvestDetailRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      taxRate: updateHarvestDetailDto.taxRate,
 
       amount: updateHarvestDetailDto.amount,
 
@@ -188,24 +185,24 @@ export class HarvestDetailsService {
     });
 
     // Recalculate harvest ticket totals after updating detail
-    if (harvestTicket?.id) {
-      await this.harvestTicketService.recalculateTicketTotals(harvestTicket.id);
-    }
+    // if (harvestTicket?.id) {
+    //   await this.harvestTicketService.recalculateTicketTotals(harvestTicket.id);
+    // }
 
     return updatedDetail;
   }
 
   async remove(id: HarvestDetail['id']) {
     // Get the detail first to know which ticket to recalculate
-    const detail = await this.harvestDetailRepository.findById(id);
-    const harvestTicketId = detail?.harvestTicket?.id;
+    // const detail = await this.harvestDetailRepository.findById(id);
+    // const harvestTicketId = detail?.harvestTicket?.id;
 
     // Remove the detail
     await this.harvestDetailRepository.remove(id);
 
     // Recalculate harvest ticket totals after removing detail
-    if (harvestTicketId) {
-      await this.harvestTicketService.recalculateTicketTotals(harvestTicketId);
-    }
+    // if (harvestTicketId) {
+    //   await this.harvestTicketService.recalculateTicketTotals(harvestTicketId);
+    // }
   }
 }

@@ -11,7 +11,7 @@ import { BatchesModule } from 'src/batches/batches.module';
 
 @Module({
   imports: [
-    InboundBatchesModule,
+    forwardRef(() => InboundBatchesModule),
     forwardRef(() => BatchesModule),
 
     // do not remove this comment

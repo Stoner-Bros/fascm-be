@@ -1,21 +1,14 @@
 import { ExportTicket } from '../../../../domain/export-ticket';
 
-import { OrderDetailMapper } from '../../../../../order-details/infrastructure/persistence/relational/mappers/order-detail.mapper';
-
 import { ExportTicketEntity } from '../entities/export-ticket.entity';
 
 export class ExportTicketMapper {
   static toDomain(raw: ExportTicketEntity): ExportTicket {
     const domainEntity = new ExportTicket();
-    domainEntity.numberOfBatch = raw.numberOfBatch;
+    domainEntity.unit = raw.unit;
+    domainEntity.quantity = raw.quantity;
 
-    domainEntity.ExportDate = raw.ExportDate;
-
-    if (raw.orderDetail) {
-      domainEntity.orderDetail = OrderDetailMapper.toDomain(raw.orderDetail);
-    } else if (raw.orderDetail === null) {
-      domainEntity.orderDetail = null;
-    }
+    domainEntity.exportDate = raw.exportDate;
 
     domainEntity.id = raw.id;
     domainEntity.createdAt = raw.createdAt;
@@ -26,17 +19,9 @@ export class ExportTicketMapper {
 
   static toPersistence(domainEntity: ExportTicket): ExportTicketEntity {
     const persistenceEntity = new ExportTicketEntity();
-    persistenceEntity.numberOfBatch = domainEntity.numberOfBatch;
-
-    persistenceEntity.ExportDate = domainEntity.ExportDate;
-
-    if (domainEntity.orderDetail) {
-      persistenceEntity.orderDetail = OrderDetailMapper.toPersistence(
-        domainEntity.orderDetail,
-      );
-    } else if (domainEntity.orderDetail === null) {
-      persistenceEntity.orderDetail = null;
-    }
+    persistenceEntity.unit = domainEntity.unit;
+    persistenceEntity.quantity = domainEntity.quantity;
+    persistenceEntity.exportDate = domainEntity.exportDate;
 
     if (domainEntity.id) {
       persistenceEntity.id = domainEntity.id;

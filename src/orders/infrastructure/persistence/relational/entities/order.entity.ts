@@ -1,16 +1,14 @@
-import { PaymentEntity } from '../../../../../payments/infrastructure/persistence/relational/entities/payment.entity';
-
 import { OrderScheduleEntity } from '../../../../../order-schedules/infrastructure/persistence/relational/entities/order-schedule.entity';
 
 import {
+  BeforeInsert,
+  Column,
   CreateDateColumn,
   Entity,
-  UpdateDateColumn,
   JoinColumn,
   OneToOne,
-  Column,
   PrimaryColumn,
-  BeforeInsert,
+  UpdateDateColumn,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -20,55 +18,27 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
 export class OrderEntity extends EntityRelationalHelper {
   @Column({
     nullable: true,
-    type: Number,
+    type: String,
   })
-  totalVolume?: number | null;
+  unit?: string | null;
 
   @Column({
     nullable: true,
     type: Number,
   })
-  totalMass?: number | null;
-
-  @Column({
-    nullable: true,
-    type: Number,
-  })
-  totalPayment?: number | null;
-
-  @Column({
-    nullable: true,
-    type: Number,
-  })
-  vatAmount?: number | null;
-
-  @Column({
-    nullable: true,
-    type: Number,
-  })
-  totalAmount?: number | null;
-
-  @Column({
-    nullable: true,
-    type: Number,
-  })
-  taxRate?: number | null;
+  quantity?: number | null;
 
   @Column({
     nullable: true,
     type: String,
   })
-  orderDate?: string | null;
+  orderNumber?: string | null;
 
   @Column({
     nullable: true,
     type: String,
   })
   orderUrl?: string | null;
-
-  @OneToOne(() => PaymentEntity, { eager: true, nullable: true })
-  @JoinColumn()
-  payment?: PaymentEntity | null;
 
   @OneToOne(() => OrderScheduleEntity, { eager: true, nullable: true })
   @JoinColumn()

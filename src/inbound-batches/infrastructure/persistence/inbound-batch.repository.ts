@@ -1,3 +1,4 @@
+import { Product } from 'src/products/domain/product';
 import { DeepPartial } from '../../../utils/types/deep-partial.type';
 import { NullableType } from '../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../utils/types/pagination-options';
@@ -26,4 +27,8 @@ export abstract class InboundBatchRepository {
   ): Promise<InboundBatch | null>;
 
   abstract remove(id: InboundBatch['id']): Promise<void>;
+
+  abstract getProductOfInboundBatch(
+    inboundBatch: InboundBatch,
+  ): Promise<Product | null>;
 }

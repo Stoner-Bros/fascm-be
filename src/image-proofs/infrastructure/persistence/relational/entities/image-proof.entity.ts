@@ -1,17 +1,15 @@
-import { OrderScheduleEntity } from '../../../../../order-schedules/infrastructure/persistence/relational/entities/order-schedule.entity';
-
-import { HarvestScheduleEntity } from '../../../../../harvest-schedules/infrastructure/persistence/relational/entities/harvest-schedule.entity';
-
 import { FileEntity } from '../../../../../files/infrastructure/persistence/relational/entities/file.entity';
 
+import { HarvestPhaseEntity } from 'src/harvest-phases/infrastructure/persistence/relational/entities/harvest-phase.entity';
+import { OrderPhaseEntity } from 'src/order-phases/infrastructure/persistence/relational/entities/order-phase.entity';
 import {
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  JoinColumn,
-  OneToOne,
-  ManyToOne,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -20,18 +18,18 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
 })
 export class ImageProofEntity extends EntityRelationalHelper {
   @ManyToOne(
-    () => OrderScheduleEntity,
+    () => OrderPhaseEntity,
     (parentEntity) => parentEntity.imageProof,
     { eager: false, nullable: true },
   )
-  orderSchedule: OrderScheduleEntity;
+  orderPhase: OrderPhaseEntity;
 
   @ManyToOne(
-    () => HarvestScheduleEntity,
+    () => HarvestPhaseEntity,
     (parentEntity) => parentEntity.imageProof,
     { eager: false, nullable: true },
   )
-  harvestSchedule: HarvestScheduleEntity;
+  harvestPhase: HarvestPhaseEntity;
 
   @OneToOne(() => FileEntity, { eager: true, nullable: true })
   @JoinColumn()

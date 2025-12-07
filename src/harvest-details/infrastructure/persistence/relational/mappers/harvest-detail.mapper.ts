@@ -11,8 +11,6 @@ import { HarvestDetailResponse } from '../../../../dto/harvest-detail-response.d
 export class HarvestDetailMapper {
   static toDomain(raw: HarvestDetailEntity): HarvestDetail {
     const domainEntity = new HarvestDetail();
-    domainEntity.taxRate = raw.taxRate;
-
     domainEntity.amount = raw.amount;
 
     domainEntity.unitPrice = raw.unitPrice;
@@ -44,8 +42,6 @@ export class HarvestDetailMapper {
 
   static toPersistence(domainEntity: HarvestDetail): HarvestDetailEntity {
     const persistenceEntity = new HarvestDetailEntity();
-    persistenceEntity.taxRate = domainEntity.taxRate;
-
     persistenceEntity.amount = domainEntity.amount;
 
     persistenceEntity.unitPrice = domainEntity.unitPrice;
@@ -81,8 +77,6 @@ export class HarvestDetailMapper {
 
   static toResponse(entity: HarvestDetailEntity): HarvestDetailResponse {
     const responseEntity = new HarvestDetailResponse();
-    responseEntity.taxRate = entity.taxRate;
-
     responseEntity.amount = entity.amount;
 
     responseEntity.unitPrice = entity.unitPrice;

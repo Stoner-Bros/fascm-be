@@ -3,12 +3,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class HarvestTicket {
   @ApiProperty({
-    type: () => Date,
-    nullable: true,
-  })
-  date?: Date | null;
-
-  @ApiProperty({
     type: () => Number,
     nullable: true,
   })
@@ -19,42 +13,6 @@ export class HarvestTicket {
     nullable: true,
   })
   unit?: string | null;
-
-  @ApiProperty({
-    type: () => Number,
-    nullable: true,
-  })
-  totalPayment?: number | null;
-
-  @ApiProperty({
-    type: () => Number,
-    nullable: true,
-  })
-  vatAmount?: number | null;
-
-  @ApiProperty({
-    type: () => Number,
-    nullable: true,
-  })
-  totalAmount?: number | null;
-
-  @ApiProperty({
-    type: () => Number,
-    nullable: true,
-  })
-  taxRate?: number | null;
-
-  @ApiProperty({
-    type: () => String,
-    nullable: true,
-  })
-  accountNumber?: string | null;
-
-  @ApiProperty({
-    type: () => String,
-    nullable: true,
-  })
-  paymentMethod?: string | null;
 
   @ApiProperty({
     type: () => String,
@@ -72,7 +30,7 @@ export class HarvestTicket {
     type: () => HarvestSchedule,
     nullable: true,
   })
-  harvestScheduleId?: HarvestSchedule | null;
+  harvestSchedule?: HarvestSchedule | null;
 
   @ApiProperty({
     type: String,

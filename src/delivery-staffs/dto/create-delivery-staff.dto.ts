@@ -1,21 +1,18 @@
-import { TruckDto } from '../../trucks/dto/truck.dto';
-
 import { WarehouseDto } from '../../warehouses/dto/warehouse.dto';
 
 import {
+  Transform,
   // decorators here
   Type,
-  Transform,
 } from 'class-transformer';
 
 import {
-  // decorators here
-
-  ValidateNested,
-  IsNotEmptyObject,
-  IsString,
-  IsOptional,
   IsDate,
+  IsNotEmptyObject,
+  IsOptional,
+  IsString,
+  // decorators here
+  ValidateNested,
 } from 'class-validator';
 
 import {
@@ -25,16 +22,6 @@ import {
 import { AuthRegisterLoginDto } from 'src/auth/dto/auth-register-login.dto';
 
 export class DeliveryStaffRegisterDto {
-  @ApiProperty({
-    required: false,
-    type: () => TruckDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => TruckDto)
-  @IsNotEmptyObject()
-  truck?: TruckDto | null;
-
   @ApiProperty({
     required: false,
     type: () => WarehouseDto,

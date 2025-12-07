@@ -18,12 +18,6 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
 export class HarvestTicketEntity extends EntityRelationalHelper {
   @Column({
     nullable: true,
-    type: Date,
-  })
-  date?: Date | null;
-
-  @Column({
-    nullable: true,
     type: Number,
   })
   quantity?: number | null;
@@ -33,42 +27,6 @@ export class HarvestTicketEntity extends EntityRelationalHelper {
     type: String,
   })
   unit?: string | null;
-
-  @Column({
-    nullable: true,
-    type: Number,
-  })
-  totalPayment?: number | null;
-
-  @Column({
-    nullable: true,
-    type: Number,
-  })
-  vatAmount?: number | null;
-
-  @Column({
-    nullable: true,
-    type: Number,
-  })
-  totalAmount?: number | null;
-
-  @Column({
-    nullable: true,
-    type: Number,
-  })
-  taxRate?: number | null;
-
-  @Column({
-    nullable: true,
-    type: String,
-  })
-  accountNumber?: string | null;
-
-  @Column({
-    nullable: true,
-    type: String,
-  })
-  paymentMethod?: string | null;
 
   @Column({
     nullable: true,
@@ -84,7 +42,7 @@ export class HarvestTicketEntity extends EntityRelationalHelper {
 
   @OneToOne(() => HarvestScheduleEntity, { eager: true, nullable: true })
   @JoinColumn()
-  harvestScheduleId?: HarvestScheduleEntity | null;
+  harvestSchedule?: HarvestScheduleEntity | null;
 
   @PrimaryColumn({
     type: String,

@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
-import { DeliveryEntity } from '../entities/delivery.entity';
+import { In, Repository } from 'typeorm';
 import { NullableType } from '../../../../../utils/types/nullable.type';
+import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 import { Delivery } from '../../../../domain/delivery';
 import { DeliveryRepository } from '../../delivery.repository';
+import { DeliveryEntity } from '../entities/delivery.entity';
 import { DeliveryMapper } from '../mappers/delivery.mapper';
-import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 
 @Injectable()
 export class DeliveryRelationalRepository implements DeliveryRepository {
@@ -70,23 +70,23 @@ export class DeliveryRelationalRepository implements DeliveryRepository {
     return entities.map((entity) => DeliveryMapper.toDomain(entity));
   }
 
-  async findByOrderScheduleId(
-    orderScheduleId: string,
+  async findByOrderPhaseId(
+    orderPhaseId: string,
   ): Promise<NullableType<Delivery>> {
     const entity = await this.deliveryRepository.findOne({
-      where: { orderSchedule: { id: orderScheduleId } },
-      relations: ['orderSchedule', 'harvestSchedule', 'truck'],
+      where: { orderPhase: { id: orderPhaseId } },
+      relations: ['orderPhase', 'harvestPhase', 'truck', 'deliveryStaff'],
     });
 
     return entity ? DeliveryMapper.toDomain(entity) : null;
   }
 
-  async findByHarvestScheduleId(
-    harvestScheduleId: string,
+  async findByHarvestPhaseId(
+    harvestPhaseId: string,
   ): Promise<NullableType<Delivery>> {
     const entity = await this.deliveryRepository.findOne({
-      where: { harvestSchedule: { id: harvestScheduleId } },
-      relations: ['orderSchedule', 'harvestSchedule', 'truck'],
+      where: { harvestPhase: { id: harvestPhaseId } },
+      relations: ['orderPhase', 'harvestPhase', 'truck', 'deliveryStaff'],
     });
 
     return entity ? DeliveryMapper.toDomain(entity) : null;

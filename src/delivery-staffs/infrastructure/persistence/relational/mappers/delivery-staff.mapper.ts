@@ -1,5 +1,4 @@
 import { DeliveryStaff } from '../../../../domain/delivery-staff';
-import { TruckMapper } from '../../../../../trucks/infrastructure/persistence/relational/mappers/truck.mapper';
 
 import { WarehouseMapper } from '../../../../../warehouses/infrastructure/persistence/relational/mappers/warehouse.mapper';
 
@@ -10,12 +9,6 @@ import { DeliveryStaffEntity } from '../entities/delivery-staff.entity';
 export class DeliveryStaffMapper {
   static toDomain(raw: DeliveryStaffEntity): DeliveryStaff {
     const domainEntity = new DeliveryStaff();
-    if (raw.truck) {
-      domainEntity.truck = TruckMapper.toDomain(raw.truck);
-    } else if (raw.truck === null) {
-      domainEntity.truck = null;
-    }
-
     if (raw.warehouse) {
       domainEntity.warehouse = WarehouseMapper.toDomain(raw.warehouse);
     } else if (raw.warehouse === null) {
@@ -41,12 +34,6 @@ export class DeliveryStaffMapper {
 
   static toPersistence(domainEntity: DeliveryStaff): DeliveryStaffEntity {
     const persistenceEntity = new DeliveryStaffEntity();
-    if (domainEntity.truck) {
-      persistenceEntity.truck = TruckMapper.toPersistence(domainEntity.truck);
-    } else if (domainEntity.truck === null) {
-      persistenceEntity.truck = null;
-    }
-
     if (domainEntity.warehouse) {
       persistenceEntity.warehouse = WarehouseMapper.toPersistence(
         domainEntity.warehouse,

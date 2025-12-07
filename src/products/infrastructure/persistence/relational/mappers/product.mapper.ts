@@ -1,4 +1,5 @@
 import { Product } from '../../../../domain/product';
+import { PriceMapper } from '../../../../../prices/infrastructure/persistence/relational/mappers/price.mapper';
 
 import { CategoryMapper } from '../../../../../categories/infrastructure/persistence/relational/mappers/category.mapper';
 
@@ -7,23 +8,21 @@ import { ProductEntity } from '../entities/product.entity';
 export class ProductMapper {
   static toDomain(raw: ProductEntity): Product {
     const domainEntity = new Product();
-    domainEntity.pricePerKg = raw.pricePerKg;
+    if (raw.price) {
+      domainEntity.price = raw.price.map((item) => PriceMapper.toDomain(item));
+    } else if (raw.price === null) {
+      domainEntity.price = null;
+    }
 
     domainEntity.image = raw.image;
 
-    if (raw.categoryId) {
-      domainEntity.categoryId = CategoryMapper.toDomain(raw.categoryId);
-    } else if (raw.categoryId === null) {
-      domainEntity.categoryId = null;
+    if (raw.category) {
+      domainEntity.category = CategoryMapper.toDomain(raw.category);
+    } else if (raw.category === null) {
+      domainEntity.category = null;
     }
 
     domainEntity.status = raw.status;
-
-    domainEntity.minStorageHumidity = raw.minStorageHumidity;
-    domainEntity.maxStorageHumidity = raw.maxStorageHumidity;
-
-    domainEntity.minStorageTemperature = raw.minStorageTemperature;
-    domainEntity.maxStorageTemperature = raw.maxStorageTemperature;
 
     domainEntity.description = raw.description;
 
@@ -38,27 +37,25 @@ export class ProductMapper {
 
   static toPersistence(domainEntity: Product): ProductEntity {
     const persistenceEntity = new ProductEntity();
-    persistenceEntity.pricePerKg = domainEntity.pricePerKg;
+    if (domainEntity.price) {
+      persistenceEntity.price = domainEntity.price.map((item) =>
+        PriceMapper.toPersistence(item),
+      );
+    } else if (domainEntity.price === null) {
+      persistenceEntity.price = null;
+    }
 
     persistenceEntity.image = domainEntity.image;
 
-    if (domainEntity.categoryId) {
-      persistenceEntity.categoryId = CategoryMapper.toPersistence(
-        domainEntity.categoryId,
+    if (domainEntity.category) {
+      persistenceEntity.category = CategoryMapper.toPersistence(
+        domainEntity.category,
       );
-    } else if (domainEntity.categoryId === null) {
-      persistenceEntity.categoryId = null;
+    } else if (domainEntity.category === null) {
+      persistenceEntity.category = null;
     }
 
     persistenceEntity.status = domainEntity.status;
-
-    persistenceEntity.minStorageHumidity = domainEntity.minStorageHumidity;
-    persistenceEntity.maxStorageHumidity = domainEntity.maxStorageHumidity;
-
-    persistenceEntity.minStorageTemperature =
-      domainEntity.minStorageTemperature;
-    persistenceEntity.minStorageTemperature =
-      domainEntity.minStorageTemperature;
 
     persistenceEntity.description = domainEntity.description;
 

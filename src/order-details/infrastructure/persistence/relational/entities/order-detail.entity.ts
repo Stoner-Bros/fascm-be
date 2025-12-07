@@ -3,13 +3,13 @@ import { ProductEntity } from '../../../../../products/infrastructure/persistenc
 import { OrderEntity } from '../../../../../orders/infrastructure/persistence/relational/entities/order.entity';
 
 import {
+  BeforeInsert,
+  Column,
   CreateDateColumn,
   Entity,
-  UpdateDateColumn,
   ManyToOne,
-  Column,
   PrimaryColumn,
-  BeforeInsert,
+  UpdateDateColumn,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -17,12 +17,6 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
   name: 'order_detail',
 })
 export class OrderDetailEntity extends EntityRelationalHelper {
-  @Column({
-    nullable: true,
-    type: Number,
-  })
-  taxRate?: number | null;
-
   @Column({
     nullable: true,
     type: Number,
