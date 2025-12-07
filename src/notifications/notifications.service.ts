@@ -12,6 +12,13 @@ import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { NotificationRepository } from './infrastructure/persistence/notification.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { Notification } from './domain/notification';
+import { NotificationsGateway } from './notifications.gateway';
+import { SuppliersService } from '../suppliers/suppliers.service';
+import { ConsigneesService } from '../consignees/consignees.service';
+import { RoleEnum } from 'src/roles/roles.enum';
+import { ManagersService } from '../managers/managers.service';
+import { StaffsService } from '../staffs/staffs.service';
+import { DeliveryStaffsService } from '../delivery-staffs/delivery-staffs.service';
 
 @Injectable()
 export class NotificationsService {
@@ -20,6 +27,12 @@ export class NotificationsService {
 
     // Dependencies here
     private readonly notificationRepository: NotificationRepository,
+    private readonly notificationsGateway: NotificationsGateway,
+    private readonly suppliersService: SuppliersService,
+    private readonly consigneesService: ConsigneesService,
+    private readonly managersService: ManagersService,
+    private readonly staffsService: StaffsService,
+    private readonly deliveryStaffsService: DeliveryStaffsService,
   ) {}
 
   async create(createNotificationDto: CreateNotificationDto) {
@@ -44,7 +57,7 @@ export class NotificationsService {
       user = null;
     }
 
-    return this.notificationRepository.create({
+    const created = await this.notificationRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
       user,
@@ -59,18 +72,67 @@ export class NotificationsService {
 
       title: createNotificationDto.title,
     });
+
+    try {
+      const payload = {
+        id: created.id,
+        type: created.type ?? 'info',
+        title: created.title ?? undefined,
+        message: created.message ?? undefined,
+        timestamp:
+          created.createdAt?.toISOString?.() ?? new Date().toISOString(),
+      };
+
+      const u = created.user;
+      const roleId = Number(u?.role?.id ?? NaN);
+      const userId = Number(u?.id ?? NaN);
+
+      if (!Number.isNaN(roleId) && !Number.isNaN(userId)) {
+        if (roleId === RoleEnum.supplier) {
+          const supplier = await this.suppliersService.findByUserId(userId);
+          if (supplier?.id) {
+            this.notificationsGateway.notifySupplier(supplier.id, payload);
+          }
+        } else if (roleId === RoleEnum.consignee) {
+          const consignee = await this.consigneesService.findByUserId(userId);
+          if (consignee?.id) {
+            this.notificationsGateway.notifyConsignee(consignee.id, payload);
+          }
+        } else if (roleId === RoleEnum.manager) {
+          const manager = await this.managersService.findByUserId(userId);
+          if (manager?.id) {
+            this.notificationsGateway.notifyManager(manager.id, payload);
+          }
+        } else if (roleId === RoleEnum.staff) {
+          const staff = await this.staffsService.findByUserId(userId);
+          if (staff?.id) {
+            this.notificationsGateway.notifyStaff(staff.id, payload);
+          }
+        } else if (roleId === RoleEnum.delivery_staff) {
+          const ds = await this.deliveryStaffsService.findByUserId(userId);
+          if (ds?.id) {
+            this.notificationsGateway.notifyDeliveryStaff(ds.id, payload);
+          }
+        }
+      }
+    } catch (_) {}
+
+    return created;
   }
 
   findAllWithPagination({
     paginationOptions,
+    userId,
   }: {
     paginationOptions: IPaginationOptions;
+    userId?: number;
   }) {
     return this.notificationRepository.findAllWithPagination({
       paginationOptions: {
         page: paginationOptions.page,
         limit: paginationOptions.limit,
       },
+      userId,
     });
   }
 
