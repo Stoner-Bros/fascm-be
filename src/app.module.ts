@@ -83,8 +83,11 @@ import corsConfig from './config/cors.config';
 
 import { ImageProofsModule } from './image-proofs/image-proofs.module';
 
+import { NotificationsModule } from './notifications/notifications.module';
+
 @Module({
   imports: [
+    NotificationsModule,
     HomeModule,
     MailerModule,
     MailModule,
