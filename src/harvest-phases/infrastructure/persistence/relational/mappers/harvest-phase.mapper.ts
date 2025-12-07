@@ -2,6 +2,7 @@ import { HarvestPhase } from '../../../../domain/harvest-phase';
 
 import { HarvestScheduleMapper } from '../../../../../harvest-schedules/infrastructure/persistence/relational/mappers/harvest-schedule.mapper';
 
+import { ImageProofMapper } from 'src/image-proofs/infrastructure/persistence/relational/mappers/image-proof.mapper';
 import { HarvestPhaseEntity } from '../entities/harvest-phase.entity';
 
 export class HarvestPhaseMapper {
@@ -12,6 +13,14 @@ export class HarvestPhaseMapper {
     domainEntity.status = raw.status;
 
     domainEntity.phaseNumber = raw.phaseNumber;
+
+    if (raw.imageProof) {
+      domainEntity.imageProof = raw.imageProof.map((item) =>
+        ImageProofMapper.toDomain(item),
+      );
+    } else if (raw.imageProof === null) {
+      domainEntity.imageProof = null;
+    }
 
     if (raw.harvestSchedule) {
       domainEntity.harvestSchedule = HarvestScheduleMapper.toDomain(
@@ -35,6 +44,14 @@ export class HarvestPhaseMapper {
     persistenceEntity.status = domainEntity.status;
 
     persistenceEntity.phaseNumber = domainEntity.phaseNumber;
+
+    if (domainEntity.imageProof) {
+      persistenceEntity.imageProof = domainEntity.imageProof.map((item) =>
+        ImageProofMapper.toPersistence(item),
+      );
+    } else if (domainEntity.imageProof === null) {
+      persistenceEntity.imageProof = null;
+    }
 
     if (domainEntity.harvestSchedule) {
       persistenceEntity.harvestSchedule = HarvestScheduleMapper.toPersistence(

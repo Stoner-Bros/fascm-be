@@ -1,32 +1,40 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
   Query,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { HarvestPhasesService } from './harvest-phases.service';
-import { CreateHarvestPhaseDto } from './dto/create-harvest-phase.dto';
-import { UpdateHarvestPhaseDto } from './dto/update-harvest-phase.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express/multer/interceptors/file.interceptor';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { HarvestPhase } from './domain/harvest-phase';
-import { AuthGuard } from '@nestjs/passport';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
+import { HarvestPhase } from './domain/harvest-phase';
+import { CreateHarvestPhaseDto } from './dto/create-harvest-phase.dto';
 import { FindAllHarvestPhasesDto } from './dto/find-all-harvest-phases.dto';
+import { UpdateHarvestPhaseDto } from './dto/update-harvest-phase.dto';
+import { HarvestPhasesService } from './harvest-phases.service';
+import { UpdateHarvestPhaseStatusDto } from './dto/update-harvest-phase-status.dto';
 
 @ApiTags('Harvestphases')
 @ApiBearerAuth()
@@ -107,5 +115,47 @@ export class HarvestPhasesController {
   })
   remove(@Param('id') id: string) {
     return this.harvestPhasesService.remove(id);
+  }
+
+  @Patch(':id/status')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: HarvestPhase,
+  })
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateHarvestPhaseStatusDto: UpdateHarvestPhaseStatusDto,
+  ) {
+    return this.harvestPhasesService.updateStatus(
+      id,
+      updateHarvestPhaseStatusDto.status,
+      // updateHarvestPhaseStatusDto.reason,
+    );
+  }
+
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @Post(':id/upload-img-proof')
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImgProof(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<{ path: string }> {
+    return await this.harvestPhasesService.uploadImgProof(id, file);
   }
 }

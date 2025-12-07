@@ -1,10 +1,18 @@
 import { OrderPhaseMapper } from 'src/order-phases/infrastructure/persistence/relational/mappers/order-phase.mapper';
+import { PaymentMapper } from '../../../../../payments/infrastructure/persistence/relational/mappers/payment.mapper';
+
 import { OrderInvoice } from '../../../../domain/order-invoice';
 import { OrderInvoiceEntity } from '../entities/order-invoice.entity';
 
 export class OrderInvoiceMapper {
   static toDomain(raw: OrderInvoiceEntity): OrderInvoice {
     const domainEntity = new OrderInvoice();
+    if (raw.payment) {
+      domainEntity.payment = PaymentMapper.toDomain(raw.payment);
+    } else if (raw.payment === null) {
+      domainEntity.payment = null;
+    }
+
     domainEntity.totalPayment = raw.totalPayment;
     domainEntity.totalAmount = raw.totalAmount;
     domainEntity.quantity = raw.quantity;
@@ -28,6 +36,14 @@ export class OrderInvoiceMapper {
 
   static toPersistence(domainEntity: OrderInvoice): OrderInvoiceEntity {
     const persistenceEntity = new OrderInvoiceEntity();
+    if (domainEntity.payment) {
+      persistenceEntity.payment = PaymentMapper.toPersistence(
+        domainEntity.payment,
+      );
+    } else if (domainEntity.payment === null) {
+      persistenceEntity.payment = null;
+    }
+
     persistenceEntity.totalPayment = domainEntity.totalPayment;
     persistenceEntity.totalAmount = domainEntity.totalAmount;
     persistenceEntity.quantity = domainEntity.quantity;

@@ -101,11 +101,6 @@ import { OrderInvoiceDetailsModule } from './order-invoice-details/order-invoice
 
 @Module({
   imports: [
-    OrderInvoiceDetailsModule,
-    OrderInvoicesModule,
-    OrderPhasesModule,
-    HarvestInvoiceDetailsModule,
-    HarvestInvoicesModule,
     HomeModule,
     MailerModule,
     MailModule,
@@ -182,6 +177,11 @@ import { OrderInvoiceDetailsModule } from './order-invoice-details/order-invoice
     HarvestPhasesModule,
     PricesModule,
     NotificationsModule,
+    OrderInvoiceDetailsModule,
+    OrderInvoicesModule,
+    OrderPhasesModule,
+    HarvestInvoiceDetailsModule,
+    HarvestInvoicesModule,
   ],
 })
 export class AppModule {}

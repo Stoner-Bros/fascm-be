@@ -1,30 +1,19 @@
-import { ImageProofsModule } from '../image-proofs/image-proofs.module';
-import { SuppliersModule } from '../suppliers/suppliers.module';
 import {
   forwardRef,
   // do not remove this comment
   Module,
 } from '@nestjs/common';
-import { HarvestSchedulesService } from './harvest-schedules.service';
-import { HarvestSchedulesController } from './harvest-schedules.controller';
-import { RelationalHarvestSchedulePersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
-import { HarvestTicketsModule } from 'src/harvest-tickets/harvest-tickets.module';
-import { HarvestDetailsModule } from 'src/harvest-details/harvest-details.module';
-import { InboundBatchesModule } from 'src/inbound-batches/inbound-batches.module';
+import { ImageProofsModule } from '../image-proofs/image-proofs.module';
 import { NotificationsModule } from '../notifications/notifications.module';
-import { DeliveriesModule } from 'src/deliveries/deliveries.module';
-import { FilesCloudinaryModule } from 'src/files/infrastructure/uploader/cloudinary/files.module';
+import { SuppliersModule } from '../suppliers/suppliers.module';
+import { HarvestSchedulesController } from './harvest-schedules.controller';
+import { HarvestSchedulesService } from './harvest-schedules.service';
+import { RelationalHarvestSchedulePersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 
 @Module({
   imports: [
     forwardRef(() => ImageProofsModule),
-    FilesCloudinaryModule,
     SuppliersModule,
-
-    forwardRef(() => HarvestTicketsModule),
-    forwardRef(() => HarvestDetailsModule),
-    forwardRef(() => DeliveriesModule),
-    InboundBatchesModule,
     NotificationsModule,
     // do not remove this comment
     RelationalHarvestSchedulePersistenceModule,

@@ -1,21 +1,24 @@
-import { HarvestPhasesService } from '../harvest-phases/harvest-phases.service';
 import { HarvestPhase } from '../harvest-phases/domain/harvest-phase';
+import { HarvestPhasesService } from '../harvest-phases/harvest-phases.service';
 
 import {
+  HttpStatus,
+  Inject,
   // common
   Injectable,
-  HttpStatus,
   UnprocessableEntityException,
+  forwardRef,
 } from '@nestjs/common';
+import { IPaginationOptions } from '../utils/types/pagination-options';
+import { HarvestInvoice } from './domain/harvest-invoice';
 import { CreateHarvestInvoiceDto } from './dto/create-harvest-invoice.dto';
 import { UpdateHarvestInvoiceDto } from './dto/update-harvest-invoice.dto';
 import { HarvestInvoiceRepository } from './infrastructure/persistence/harvest-invoice.repository';
-import { IPaginationOptions } from '../utils/types/pagination-options';
-import { HarvestInvoice } from './domain/harvest-invoice';
 
 @Injectable()
 export class HarvestInvoicesService {
   constructor(
+    @Inject(forwardRef(() => HarvestPhasesService))
     private readonly harvestPhaseService: HarvestPhasesService,
 
     // Dependencies here

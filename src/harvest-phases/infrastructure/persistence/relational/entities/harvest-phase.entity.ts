@@ -1,19 +1,29 @@
 import { HarvestScheduleEntity } from '../../../../../harvest-schedules/infrastructure/persistence/relational/entities/harvest-schedule.entity';
 
 import {
+  Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  ManyToOne,
-  Column,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
+import { ImageProofEntity } from 'src/image-proofs/infrastructure/persistence/relational/entities/image-proof.entity';
+import { HarvestPhaseStatusEnum } from 'src/harvest-phases/enum/harvest-phase-status.enum';
 
 @Entity({
   name: 'harvest_phase',
 })
 export class HarvestPhaseEntity extends EntityRelationalHelper {
+  @OneToMany(
+    () => ImageProofEntity,
+    (childEntity) => childEntity.harvestPhase,
+    { eager: true, nullable: true },
+  )
+  imageProof?: ImageProofEntity[] | null;
+
   @Column({
     nullable: true,
     type: String,
@@ -22,9 +32,10 @@ export class HarvestPhaseEntity extends EntityRelationalHelper {
 
   @Column({
     nullable: true,
-    type: String,
+    type: 'enum',
+    enum: HarvestPhaseStatusEnum,
   })
-  status?: string | null;
+  status?: HarvestPhaseStatusEnum | null;
 
   @Column({
     nullable: true,

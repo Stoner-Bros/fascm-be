@@ -1,14 +1,8 @@
-import { Product } from '../../products/domain/product';
-import { HarvestTicket } from '../../harvest-tickets/domain/harvest-ticket';
 import { ApiProperty } from '@nestjs/swagger';
+import { HarvestTicket } from '../../harvest-tickets/domain/harvest-ticket';
+import { Product } from '../../products/domain/product';
 
 export class HarvestDetail {
-  @ApiProperty({
-    type: () => Number,
-    nullable: true,
-  })
-  taxRate?: number | null;
-
   @ApiProperty({
     type: () => Number,
     nullable: true,

@@ -1,61 +1,30 @@
-import { Payment } from '../../payments/domain/payment';
-import { OrderSchedule } from '../../order-schedules/domain/order-schedule';
 import { ApiProperty } from '@nestjs/swagger';
+import { OrderSchedule } from '../../order-schedules/domain/order-schedule';
 
 export class Order {
   @ApiProperty({
-    type: () => Number,
+    type: () => String,
     nullable: true,
   })
-  totalVolume?: number | null;
+  unit?: string | null;
 
   @ApiProperty({
     type: () => Number,
     nullable: true,
   })
-  totalMass?: number | null;
-
-  @ApiProperty({
-    type: () => Number,
-    nullable: true,
-  })
-  totalPayment?: number | null;
-
-  @ApiProperty({
-    type: () => Number,
-    nullable: true,
-  })
-  vatAmount?: number | null;
-
-  @ApiProperty({
-    type: () => Number,
-    nullable: true,
-  })
-  totalAmount?: number | null;
-
-  @ApiProperty({
-    type: () => Number,
-    nullable: true,
-  })
-  taxRate?: number | null;
+  quantity?: number | null;
 
   @ApiProperty({
     type: () => String,
     nullable: true,
   })
-  orderDate?: string | null;
+  orderNumber?: string | null;
 
   @ApiProperty({
     type: () => String,
     nullable: true,
   })
   orderUrl?: string | null;
-
-  @ApiProperty({
-    type: () => Payment,
-    nullable: true,
-  })
-  payment?: Payment | null;
 
   @ApiProperty({
     type: () => OrderSchedule,

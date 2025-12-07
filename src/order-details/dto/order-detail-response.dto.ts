@@ -6,12 +6,6 @@ export class OrderDetailResponseDto {
     type: () => Number,
     nullable: true,
   })
-  taxRate?: number | null;
-
-  @ApiProperty({
-    type: () => Number,
-    nullable: true,
-  })
   amount?: number | null;
 
   @ApiProperty({

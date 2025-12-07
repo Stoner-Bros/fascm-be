@@ -1,25 +1,20 @@
 import { ImageProof } from '../../../../domain/image-proof';
-import { OrderScheduleMapper } from '../../../../../order-schedules/infrastructure/persistence/relational/mappers/order-schedule.mapper';
-
-import { HarvestScheduleMapper } from '../../../../../harvest-schedules/infrastructure/persistence/relational/mappers/harvest-schedule.mapper';
 
 import { FileMapper } from '../../../../../files/infrastructure/persistence/relational/mappers/file.mapper';
 
+import { HarvestPhaseMapper } from 'src/harvest-phases/infrastructure/persistence/relational/mappers/harvest-phase.mapper';
+import { OrderPhaseMapper } from 'src/order-phases/infrastructure/persistence/relational/mappers/order-phase.mapper';
 import { ImageProofEntity } from '../entities/image-proof.entity';
 
 export class ImageProofMapper {
   static toDomain(raw: ImageProofEntity): ImageProof {
     const domainEntity = new ImageProof();
-    if (raw.orderSchedule) {
-      domainEntity.orderSchedule = OrderScheduleMapper.toDomain(
-        raw.orderSchedule,
-      );
+    if (raw.orderPhase) {
+      domainEntity.orderPhase = OrderPhaseMapper.toDomain(raw.orderPhase);
     }
 
-    if (raw.harvestSchedule) {
-      domainEntity.harvestSchedule = HarvestScheduleMapper.toDomain(
-        raw.harvestSchedule,
-      );
+    if (raw.harvestPhase) {
+      domainEntity.harvestPhase = HarvestPhaseMapper.toDomain(raw.harvestPhase);
     }
 
     if (raw.photo) {
@@ -37,15 +32,15 @@ export class ImageProofMapper {
 
   static toPersistence(domainEntity: ImageProof): ImageProofEntity {
     const persistenceEntity = new ImageProofEntity();
-    if (domainEntity.orderSchedule) {
-      persistenceEntity.orderSchedule = OrderScheduleMapper.toPersistence(
-        domainEntity.orderSchedule,
+    if (domainEntity.orderPhase) {
+      persistenceEntity.orderPhase = OrderPhaseMapper.toPersistence(
+        domainEntity.orderPhase,
       );
     }
 
-    if (domainEntity.harvestSchedule) {
-      persistenceEntity.harvestSchedule = HarvestScheduleMapper.toPersistence(
-        domainEntity.harvestSchedule,
+    if (domainEntity.harvestPhase) {
+      persistenceEntity.harvestPhase = HarvestPhaseMapper.toPersistence(
+        domainEntity.harvestPhase,
       );
     }
 

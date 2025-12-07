@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
-import { HarvestInvoiceEntity } from '../entities/harvest-invoice.entity';
+import { In, Repository } from 'typeorm';
 import { NullableType } from '../../../../../utils/types/nullable.type';
+import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 import { HarvestInvoice } from '../../../../domain/harvest-invoice';
 import { HarvestInvoiceRepository } from '../../harvest-invoice.repository';
+import { HarvestInvoiceEntity } from '../entities/harvest-invoice.entity';
 import { HarvestInvoiceMapper } from '../mappers/harvest-invoice.mapper';
-import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 
 @Injectable()
 export class HarvestInvoiceRelationalRepository
@@ -82,5 +82,15 @@ export class HarvestInvoiceRelationalRepository
 
   async remove(id: HarvestInvoice['id']): Promise<void> {
     await this.harvestInvoiceRepository.delete(id);
+  }
+
+  async findByHarvestPhaseId(
+    harvestPhaseId: HarvestInvoice['id'],
+  ): Promise<NullableType<HarvestInvoice>> {
+    const entity = await this.harvestInvoiceRepository.findOne({
+      where: { harvestPhase: { id: harvestPhaseId } },
+    });
+
+    return entity ? HarvestInvoiceMapper.toDomain(entity) : null;
   }
 }

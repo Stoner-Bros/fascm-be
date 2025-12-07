@@ -1,5 +1,3 @@
-import { PaymentDto } from '../../payments/dto/payment.dto';
-
 import { OrderScheduleDto } from '../../order-schedules/dto/order-schedule.dto';
 
 import {
@@ -8,13 +6,12 @@ import {
 } from 'class-transformer';
 
 import {
-  // decorators here
-
-  ValidateNested,
   IsNotEmptyObject,
+  IsNumber,
   IsOptional,
   IsString,
-  IsNumber,
+  // decorators here
+  ValidateNested,
 } from 'class-validator';
 
 import {
@@ -25,11 +22,11 @@ import {
 export class CreateOrderDto {
   @ApiProperty({
     required: false,
-    type: () => Number,
+    type: () => String,
   })
   @IsOptional()
-  @IsNumber()
-  totalVolume?: number | null;
+  @IsString()
+  unit?: string | null;
 
   @ApiProperty({
     required: false,
@@ -37,39 +34,7 @@ export class CreateOrderDto {
   })
   @IsOptional()
   @IsNumber()
-  totalMass?: number | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  totalPayment?: number | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  vatAmount?: number | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  totalAmount?: number | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  taxRate?: number | null;
+  quantity?: number | null;
 
   @ApiProperty({
     required: false,
@@ -77,7 +42,7 @@ export class CreateOrderDto {
   })
   @IsOptional()
   @IsString()
-  orderDate?: string | null;
+  orderNumber?: string | null;
 
   @ApiProperty({
     required: false,
@@ -86,16 +51,6 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   orderUrl?: string | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => PaymentDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => PaymentDto)
-  @IsNotEmptyObject()
-  payment?: PaymentDto | null;
 
   @ApiProperty({
     required: false,

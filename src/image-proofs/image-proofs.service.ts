@@ -1,34 +1,32 @@
-import { OrderSchedulesService } from '../order-schedules/order-schedules.service';
-import { OrderSchedule } from '../order-schedules/domain/order-schedule';
-
-import { HarvestSchedulesService } from '../harvest-schedules/harvest-schedules.service';
-import { HarvestSchedule } from '../harvest-schedules/domain/harvest-schedule';
-
-import { FilesService } from '../files/files.service';
 import { FileType } from '../files/domain/file';
+import { FilesService } from '../files/files.service';
 
 import {
+  HttpStatus,
+  Inject,
   // common
   Injectable,
-  HttpStatus,
   UnprocessableEntityException,
-  Inject,
   forwardRef,
 } from '@nestjs/common';
+import { HarvestPhase } from 'src/harvest-phases/domain/harvest-phase';
+import { HarvestPhasesService } from 'src/harvest-phases/harvest-phases.service';
+import { OrderPhase } from 'src/order-phases/domain/order-phase';
+import { OrderPhasesService } from 'src/order-phases/order-phases.service';
+import { IPaginationOptions } from '../utils/types/pagination-options';
+import { ImageProof } from './domain/image-proof';
 import { CreateImageProofDto } from './dto/create-image-proof.dto';
 import { UpdateImageProofDto } from './dto/update-image-proof.dto';
 import { ImageProofRepository } from './infrastructure/persistence/image-proof.repository';
-import { IPaginationOptions } from '../utils/types/pagination-options';
-import { ImageProof } from './domain/image-proof';
 
 @Injectable()
 export class ImageProofsService {
   constructor(
-    @Inject(forwardRef(() => OrderSchedulesService))
-    private readonly orderScheduleService: OrderSchedulesService,
+    @Inject(forwardRef(() => OrderPhasesService))
+    private readonly orderPhaseService: OrderPhasesService,
 
-    @Inject(forwardRef(() => HarvestSchedulesService))
-    private readonly harvestScheduleService: HarvestSchedulesService,
+    @Inject(forwardRef(() => HarvestPhasesService))
+    private readonly harvestPhaseService: HarvestPhasesService,
 
     private readonly fileService: FilesService,
 
@@ -38,42 +36,36 @@ export class ImageProofsService {
 
   async create(createImageProofDto: CreateImageProofDto) {
     // check if orderSchedule or harvestSchedule exists
-    if (
-      !createImageProofDto.orderSchedule &&
-      !createImageProofDto.harvestSchedule
-    ) {
+    if (!createImageProofDto.orderPhase && !createImageProofDto.harvestPhase) {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,
         errors: {
-          orderSchedule: 'orderScheduleOrHarvestScheduleRequired',
-          harvestSchedule: 'orderScheduleOrHarvestScheduleRequired',
+          orderPhase: 'orderPhaseOrHarvestPhaseRequired',
+          harvestPhase: 'orderPhaseOrHarvestPhaseRequired',
         },
       });
     }
     // check if both orderSchedule and harvestSchedule exist
-    if (
-      createImageProofDto.orderSchedule &&
-      createImageProofDto.harvestSchedule
-    ) {
+    if (createImageProofDto.orderPhase && createImageProofDto.harvestPhase) {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,
         errors: {
-          orderSchedule: 'orderScheduleAndHarvestScheduleCannotExistTogether',
-          harvestSchedule: 'orderScheduleAndHarvestScheduleCannotExistTogether',
+          orderPhase: 'orderPhaseAndHarvestPhaseCannotExistTogether',
+          harvestPhase: 'orderPhaseAndHarvestPhaseCannotExistTogether',
         },
       });
     }
     // Do not remove comment below.
     // <creating-property />
-    const orderScheduleObject = await this.orderScheduleService.findById(
-      createImageProofDto?.orderSchedule?.id ?? '',
+    const orderPhaseObject = await this.orderPhaseService.findById(
+      createImageProofDto?.orderPhase?.id ?? '',
     );
-    const orderSchedule = orderScheduleObject;
+    const orderPhase = orderPhaseObject;
 
-    const harvestScheduleObject = await this.harvestScheduleService.findById(
-      createImageProofDto?.harvestSchedule?.id ?? '',
+    const harvestPhaseObject = await this.harvestPhaseService.findById(
+      createImageProofDto?.harvestPhase?.id ?? '',
     );
-    const harvestSchedule = harvestScheduleObject;
+    const harvestPhase = harvestPhaseObject;
 
     let photo: FileType | null | undefined = undefined;
 
@@ -97,9 +89,9 @@ export class ImageProofsService {
     return this.imageProofRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      orderSchedule,
+      orderPhase,
 
-      harvestSchedule,
+      harvestPhase,
 
       photo,
     });
@@ -133,13 +125,13 @@ export class ImageProofsService {
   ) {
     // Do not remove comment below.
     // <updating-property />
-    let orderSchedule: OrderSchedule | undefined = undefined;
+    let orderPhase: OrderPhase | undefined = undefined;
 
-    if (updateImageProofDto.orderSchedule) {
-      const orderScheduleObject = await this.orderScheduleService.findById(
-        updateImageProofDto.orderSchedule.id,
+    if (updateImageProofDto.orderPhase) {
+      const orderPhaseObject = await this.orderPhaseService.findById(
+        updateImageProofDto.orderPhase.id,
       );
-      if (!orderScheduleObject) {
+      if (!orderPhaseObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
@@ -147,24 +139,24 @@ export class ImageProofsService {
           },
         });
       }
-      orderSchedule = orderScheduleObject;
+      orderPhase = orderPhaseObject;
     }
 
-    let harvestSchedule: HarvestSchedule | undefined = undefined;
+    let harvestPhase: HarvestPhase | undefined = undefined;
 
-    if (updateImageProofDto.harvestSchedule) {
-      const harvestScheduleObject = await this.harvestScheduleService.findById(
-        updateImageProofDto.harvestSchedule.id,
+    if (updateImageProofDto.harvestPhase) {
+      const harvestPhaseObject = await this.harvestPhaseService.findById(
+        updateImageProofDto.harvestPhase.id,
       );
-      if (!harvestScheduleObject) {
+      if (!harvestPhaseObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            harvestSchedule: 'notExists',
+            harvestPhase: 'notExists',
           },
         });
       }
-      harvestSchedule = harvestScheduleObject;
+      harvestPhase = harvestPhaseObject;
     }
 
     let photo: FileType | null | undefined = undefined;
@@ -189,9 +181,9 @@ export class ImageProofsService {
     return this.imageProofRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      orderSchedule,
+      orderPhase,
 
-      harvestSchedule,
+      harvestPhase,
 
       photo,
     });

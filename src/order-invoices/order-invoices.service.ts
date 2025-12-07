@@ -1,3 +1,6 @@
+import { PaymentsService } from '../payments/payments.service';
+import { Payment } from '../payments/domain/payment';
+
 import {
   HttpStatus,
   // common
@@ -15,6 +18,8 @@ import { UpdateOrderInvoiceDto } from './dto/update-order-invoice.dto';
 @Injectable()
 export class OrderInvoicesService {
   constructor(
+    private readonly paymentService: PaymentsService,
+
     // Dependencies here
     private readonly orderInvoiceRepository: OrderInvoiceRepository,
     private readonly orderPhaseService: OrderPhasesService,
@@ -23,6 +28,24 @@ export class OrderInvoicesService {
   async create(createOrderInvoiceDto: CreateOrderInvoiceDto) {
     // Do not remove comment below.
     // <creating-property />
+    let payment: Payment | null | undefined = undefined;
+
+    if (createOrderInvoiceDto.payment) {
+      const paymentObject = await this.paymentService.findById(
+        createOrderInvoiceDto.payment.id,
+      );
+      if (!paymentObject) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            payment: 'notExists',
+          },
+        });
+      }
+      payment = paymentObject;
+    } else if (createOrderInvoiceDto.payment === null) {
+      payment = null;
+    }
 
     let orderPhase: OrderPhase | null | undefined = undefined;
 
@@ -46,6 +69,8 @@ export class OrderInvoicesService {
     return this.orderInvoiceRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
+      payment,
+
       totalPayment: createOrderInvoiceDto.totalPayment,
 
       totalAmount: createOrderInvoiceDto.totalAmount,
@@ -92,6 +117,24 @@ export class OrderInvoicesService {
   ) {
     // Do not remove comment below.
     // <updating-property />
+    let payment: Payment | null | undefined = undefined;
+
+    if (updateOrderInvoiceDto.payment) {
+      const paymentObject = await this.paymentService.findById(
+        updateOrderInvoiceDto.payment.id,
+      );
+      if (!paymentObject) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            payment: 'notExists',
+          },
+        });
+      }
+      payment = paymentObject;
+    } else if (updateOrderInvoiceDto.payment === null) {
+      payment = null;
+    }
 
     let orderPhase: OrderPhase | null | undefined = undefined;
 
@@ -115,6 +158,8 @@ export class OrderInvoicesService {
     return this.orderInvoiceRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
+      payment,
+
       totalPayment: updateOrderInvoiceDto.totalPayment,
 
       totalAmount: updateOrderInvoiceDto.totalAmount,

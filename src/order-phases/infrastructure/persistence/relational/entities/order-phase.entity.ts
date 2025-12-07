@@ -1,12 +1,15 @@
 import { OrderScheduleEntity } from '../../../../../order-schedules/infrastructure/persistence/relational/entities/order-schedule.entity';
 
+import { ImageProofEntity } from 'src/image-proofs/infrastructure/persistence/relational/entities/image-proof.entity';
+import { OrderPhaseStatusEnum } from 'src/order-phases/enum/order-phase-status.enum';
 import {
+  Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  ManyToOne,
-  Column,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -14,6 +17,12 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
   name: 'order_phase',
 })
 export class OrderPhaseEntity extends EntityRelationalHelper {
+  @OneToMany(() => ImageProofEntity, (childEntity) => childEntity.orderPhase, {
+    eager: true,
+    nullable: true,
+  })
+  imageProof?: ImageProofEntity[] | null;
+
   @Column({
     nullable: true,
     type: String,
@@ -22,9 +31,10 @@ export class OrderPhaseEntity extends EntityRelationalHelper {
 
   @Column({
     nullable: true,
-    type: String,
+    type: 'enum',
+    enum: OrderPhaseStatusEnum,
   })
-  status?: string | null;
+  status?: OrderPhaseStatusEnum | null;
 
   @Column({
     nullable: true,

@@ -1,13 +1,7 @@
-import { Product } from '../../products/domain/product';
 import { ApiProperty } from '@nestjs/swagger';
+import { Product } from '../../products/domain/product';
 
 export class HarvestDetailResponse {
-  @ApiProperty({
-    type: () => Number,
-    nullable: true,
-  })
-  taxRate?: number | null;
-
   @ApiProperty({
     type: () => Number,
     nullable: true,

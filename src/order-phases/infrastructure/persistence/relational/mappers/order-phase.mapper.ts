@@ -2,6 +2,7 @@ import { OrderPhase } from '../../../../domain/order-phase';
 
 import { OrderScheduleMapper } from '../../../../../order-schedules/infrastructure/persistence/relational/mappers/order-schedule.mapper';
 
+import { ImageProofMapper } from 'src/image-proofs/infrastructure/persistence/relational/mappers/image-proof.mapper';
 import { OrderPhaseEntity } from '../entities/order-phase.entity';
 
 export class OrderPhaseMapper {
@@ -12,6 +13,14 @@ export class OrderPhaseMapper {
     domainEntity.status = raw.status;
 
     domainEntity.phaseNumber = raw.phaseNumber;
+
+    if (raw.imageProof) {
+      domainEntity.imageProof = raw.imageProof.map((item) =>
+        ImageProofMapper.toDomain(item),
+      );
+    } else if (raw.imageProof === null) {
+      domainEntity.imageProof = null;
+    }
 
     if (raw.orderSchedule) {
       domainEntity.orderSchedule = OrderScheduleMapper.toDomain(
@@ -35,6 +44,14 @@ export class OrderPhaseMapper {
     persistenceEntity.status = domainEntity.status;
 
     persistenceEntity.phaseNumber = domainEntity.phaseNumber;
+
+    if (domainEntity.imageProof) {
+      persistenceEntity.imageProof = domainEntity.imageProof.map((item) =>
+        ImageProofMapper.toPersistence(item),
+      );
+    } else if (domainEntity.imageProof === null) {
+      persistenceEntity.imageProof = null;
+    }
 
     if (domainEntity.orderSchedule) {
       persistenceEntity.orderSchedule = OrderScheduleMapper.toPersistence(

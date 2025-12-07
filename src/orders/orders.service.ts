@@ -1,28 +1,23 @@
-import { PaymentsService } from '../payments/payments.service';
-import { Payment } from '../payments/domain/payment';
-
-import { OrderSchedulesService } from '../order-schedules/order-schedules.service';
 import { OrderSchedule } from '../order-schedules/domain/order-schedule';
+import { OrderSchedulesService } from '../order-schedules/order-schedules.service';
 
 import {
+  HttpStatus,
+  Inject,
   // common
   Injectable,
-  HttpStatus,
   UnprocessableEntityException,
-  Inject,
   forwardRef,
 } from '@nestjs/common';
+import { IPaginationOptions } from '../utils/types/pagination-options';
+import { Order } from './domain/order';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderRepository } from './infrastructure/persistence/order.repository';
-import { IPaginationOptions } from '../utils/types/pagination-options';
-import { Order } from './domain/order';
 
 @Injectable()
 export class OrdersService {
   constructor(
-    private readonly paymentService: PaymentsService,
-
     @Inject(forwardRef(() => OrderSchedulesService))
     private readonly orderScheduleService: OrderSchedulesService,
 
@@ -33,26 +28,6 @@ export class OrdersService {
   async create(createOrderDto: CreateOrderDto) {
     // Do not remove comment below.
     // <creating-property />
-
-    let payment: Payment | null | undefined = undefined;
-
-    if (createOrderDto.payment) {
-      const paymentObject = await this.paymentService.findById(
-        createOrderDto.payment.id,
-      );
-      if (!paymentObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            payment: 'notExists',
-          },
-        });
-      }
-      payment = paymentObject;
-    } else if (createOrderDto.payment === null) {
-      payment = null;
-    }
-
     let orderSchedule: OrderSchedule | null | undefined = undefined;
 
     if (createOrderDto.orderSchedule) {
@@ -75,23 +50,12 @@ export class OrdersService {
     return this.orderRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      totalVolume: createOrderDto.totalVolume,
+      unit: createOrderDto.unit,
 
-      totalMass: createOrderDto.totalMass,
-
-      totalPayment: createOrderDto.totalPayment,
-
-      vatAmount: createOrderDto.vatAmount,
-
-      totalAmount: createOrderDto.totalAmount,
-
-      taxRate: createOrderDto.taxRate,
-
-      orderDate: createOrderDto.orderDate,
+      quantity: createOrderDto.quantity,
+      orderNumber: createOrderDto.orderNumber,
 
       orderUrl: createOrderDto.orderUrl,
-
-      payment,
 
       orderSchedule,
     });
@@ -142,25 +106,6 @@ export class OrdersService {
     // Do not remove comment below.
     // <updating-property />
 
-    let payment: Payment | null | undefined = undefined;
-
-    if (updateOrderDto.payment) {
-      const paymentObject = await this.paymentService.findById(
-        updateOrderDto.payment.id,
-      );
-      if (!paymentObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            payment: 'notExists',
-          },
-        });
-      }
-      payment = paymentObject;
-    } else if (updateOrderDto.payment === null) {
-      payment = null;
-    }
-
     let orderSchedule: OrderSchedule | null | undefined = undefined;
 
     if (updateOrderDto.orderSchedule) {
@@ -183,24 +128,12 @@ export class OrdersService {
     return this.orderRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      totalVolume: updateOrderDto.totalVolume,
+      unit: updateOrderDto.unit,
 
-      totalMass: updateOrderDto.totalMass,
-
-      totalPayment: updateOrderDto.totalPayment,
-
-      vatAmount: updateOrderDto.vatAmount,
-
-      totalAmount: updateOrderDto.totalAmount,
-
-      taxRate: updateOrderDto.taxRate,
-
-      orderDate: updateOrderDto.orderDate,
+      quantity: updateOrderDto.quantity,
+      orderNumber: updateOrderDto.orderNumber,
 
       orderUrl: updateOrderDto.orderUrl,
-
-      payment,
-
       orderSchedule,
     });
   }

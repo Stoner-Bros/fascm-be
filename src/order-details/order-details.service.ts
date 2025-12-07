@@ -1,19 +1,19 @@
-import { ProductsService } from '../products/products.service';
 import { Product } from '../products/domain/product';
+import { ProductsService } from '../products/products.service';
 
-import { OrdersService } from '../orders/orders.service';
 import {
+  HttpStatus,
   // common
   Injectable,
-  HttpStatus,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { Order } from '../orders/domain/order';
+import { OrdersService } from '../orders/orders.service';
+import { IPaginationOptions } from '../utils/types/pagination-options';
+import { OrderDetail } from './domain/order-detail';
 import { CreateOrderDetailDto } from './dto/create-order-detail.dto';
 import { UpdateOrderDetailDto } from './dto/update-order-detail.dto';
 import { OrderDetailRepository } from './infrastructure/persistence/order-detail.repository';
-import { IPaginationOptions } from '../utils/types/pagination-options';
-import { OrderDetail } from './domain/order-detail';
-import { Order } from '../orders/domain/order';
 
 @Injectable()
 export class OrderDetailsService {
@@ -71,8 +71,6 @@ export class OrderDetailsService {
     return this.orderDetailRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      taxRate: createOrderDetailDto.taxRate,
-
       amount: createOrderDetailDto.amount,
 
       unitPrice: createOrderDetailDto.unitPrice,
@@ -164,8 +162,6 @@ export class OrderDetailsService {
     return this.orderDetailRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      taxRate: updateOrderDetailDto.taxRate,
-
       amount: updateOrderDetailDto.amount,
 
       unitPrice: updateOrderDetailDto.unitPrice,

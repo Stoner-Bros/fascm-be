@@ -1,3 +1,5 @@
+import { PaymentEntity } from '../../../../../payments/infrastructure/persistence/relational/entities/payment.entity';
+
 import { OrderPhaseEntity } from 'src/order-phases/infrastructure/persistence/relational/entities/order-phase.entity';
 import {
   Column,
@@ -14,6 +16,10 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
   name: 'order_invoice',
 })
 export class OrderInvoiceEntity extends EntityRelationalHelper {
+  @OneToOne(() => PaymentEntity, { eager: true, nullable: true })
+  @JoinColumn()
+  payment?: PaymentEntity | null;
+
   @Column({
     nullable: true,
     type: Number,

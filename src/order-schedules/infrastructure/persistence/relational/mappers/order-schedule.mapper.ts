@@ -1,5 +1,4 @@
 import { OrderSchedule } from '../../../../domain/order-schedule';
-import { ImageProofMapper } from '../../../../../image-proofs/infrastructure/persistence/relational/mappers/image-proof.mapper';
 
 import { ConsigneeMapper } from '../../../../../consignees/infrastructure/persistence/relational/mappers/consignee.mapper';
 
@@ -8,14 +7,6 @@ import { OrderScheduleEntity } from '../entities/order-schedule.entity';
 export class OrderScheduleMapper {
   static toDomain(raw: OrderScheduleEntity): OrderSchedule {
     const domainEntity = new OrderSchedule();
-    if (raw.imageProof) {
-      domainEntity.imageProof = raw.imageProof.map((item) =>
-        ImageProofMapper.toDomain(item),
-      );
-    } else if (raw.imageProof === null) {
-      domainEntity.imageProof = null;
-    }
-
     domainEntity.address = raw.address;
 
     domainEntity.description = raw.description;
@@ -40,13 +31,6 @@ export class OrderScheduleMapper {
 
   static toPersistence(domainEntity: OrderSchedule): OrderScheduleEntity {
     const persistenceEntity = new OrderScheduleEntity();
-    if (domainEntity.imageProof) {
-      persistenceEntity.imageProof = domainEntity.imageProof.map((item) =>
-        ImageProofMapper.toPersistence(item),
-      );
-    } else if (domainEntity.imageProof === null) {
-      persistenceEntity.imageProof = null;
-    }
 
     persistenceEntity.address = domainEntity.address;
 

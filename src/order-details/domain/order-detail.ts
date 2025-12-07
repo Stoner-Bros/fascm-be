@@ -1,14 +1,8 @@
-import { Product } from '../../products/domain/product';
-import { Order } from '../../orders/domain/order';
 import { ApiProperty } from '@nestjs/swagger';
+import { Order } from '../../orders/domain/order';
+import { Product } from '../../products/domain/product';
 
 export class OrderDetail {
-  @ApiProperty({
-    type: () => Number,
-    nullable: true,
-  })
-  taxRate?: number | null;
-
   @ApiProperty({
     type: () => Number,
     nullable: true,

@@ -1,7 +1,15 @@
-import { OrderSchedule } from '../../order-schedules/domain/order-schedule';
 import { ApiProperty } from '@nestjs/swagger';
+import { ImageProof } from 'src/image-proofs/domain/image-proof';
+import { OrderSchedule } from '../../order-schedules/domain/order-schedule';
+import { OrderPhaseStatusEnum } from '../enum/order-phase-status.enum';
 
 export class OrderPhase {
+  @ApiProperty({
+    type: () => [ImageProof],
+    nullable: true,
+  })
+  imageProof?: ImageProof[] | null;
+
   @ApiProperty({
     type: () => String,
     nullable: true,
@@ -9,10 +17,10 @@ export class OrderPhase {
   description?: string | null;
 
   @ApiProperty({
-    type: () => String,
+    enum: OrderPhaseStatusEnum,
     nullable: true,
   })
-  status?: string | null;
+  status?: OrderPhaseStatusEnum | null;
 
   @ApiProperty({
     type: () => Number,

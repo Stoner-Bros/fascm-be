@@ -1,9 +1,5 @@
 import { TruckDto } from '../../trucks/dto/truck.dto';
 
-import { HarvestScheduleDto } from '../../harvest-schedules/dto/harvest-schedule.dto';
-
-import { OrderScheduleDto } from '../../order-schedules/dto/order-schedule.dto';
-
 import {
   Transform,
   // decorators here
@@ -24,6 +20,9 @@ import {
   // decorators here
   ApiProperty,
 } from '@nestjs/swagger';
+import { DeliveryStaffDto } from 'src/delivery-staffs/dto/delivery-staff.dto';
+import { HarvestPhaseDto } from 'src/harvest-phases/dto/harvest-phase.dto';
+import { OrderPhaseDto } from 'src/order-phases/dto/order-phase.dto';
 
 export class CreateDeliveryDto {
   @ApiProperty({
@@ -95,23 +94,33 @@ export class CreateDeliveryDto {
 
   @ApiProperty({
     required: false,
-    type: () => HarvestScheduleDto,
+    type: () => TruckDto,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => HarvestScheduleDto)
+  @Type(() => DeliveryStaffDto)
   @IsNotEmptyObject()
-  harvestSchedule?: HarvestScheduleDto | null;
+  deliveryStaff?: DeliveryStaffDto | null;
 
   @ApiProperty({
     required: false,
-    type: () => OrderScheduleDto,
+    type: () => HarvestPhaseDto,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => OrderScheduleDto)
+  @Type(() => HarvestPhaseDto)
   @IsNotEmptyObject()
-  orderSchedule?: OrderScheduleDto | null;
+  harvestPhase?: HarvestPhaseDto | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => OrderPhaseDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => OrderPhaseDto)
+  @IsNotEmptyObject()
+  orderPhase?: OrderPhaseDto | null;
 
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

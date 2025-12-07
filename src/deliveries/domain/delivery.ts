@@ -1,7 +1,8 @@
-import { Truck } from '../../trucks/domain/truck';
-import { HarvestSchedule } from '../../harvest-schedules/domain/harvest-schedule';
-import { OrderSchedule } from '../../order-schedules/domain/order-schedule';
 import { ApiProperty } from '@nestjs/swagger';
+import { DeliveryStaff } from 'src/delivery-staffs/domain/delivery-staff';
+import { HarvestPhase } from 'src/harvest-phases/domain/harvest-phase';
+import { OrderPhase } from 'src/order-phases/domain/order-phase';
+import { Truck } from '../../trucks/domain/truck';
 import { DeliveryStatusEnum } from '../enum/delivery-status.enum';
 
 export class Delivery {
@@ -60,22 +61,28 @@ export class Delivery {
   startTime?: Date | null;
 
   @ApiProperty({
+    type: () => DeliveryStaff,
+    nullable: true,
+  })
+  deliveryStaff?: DeliveryStaff | null;
+
+  @ApiProperty({
     type: () => Truck,
     nullable: true,
   })
   truck?: Truck | null;
 
   @ApiProperty({
-    type: () => HarvestSchedule,
+    type: () => HarvestPhase,
     nullable: true,
   })
-  harvestSchedule?: HarvestSchedule | null;
+  harvestPhase?: HarvestPhase | null;
 
   @ApiProperty({
-    type: () => OrderSchedule,
+    type: () => OrderPhase,
     nullable: true,
   })
-  orderSchedule?: OrderSchedule | null;
+  orderPhase?: OrderPhase | null;
 
   @ApiProperty({
     type: String,

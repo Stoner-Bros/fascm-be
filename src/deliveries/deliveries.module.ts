@@ -1,23 +1,26 @@
-import { TrucksModule } from '../trucks/trucks.module';
-import { HarvestSchedulesModule } from '../harvest-schedules/harvest-schedules.module';
-import { OrderSchedulesModule } from '../order-schedules/order-schedules.module';
 import {
   // do not remove this comment
   Module,
   forwardRef,
 } from '@nestjs/common';
-import { DeliveriesService } from './deliveries.service';
+import { DeliveryStaffsModule } from 'src/delivery-staffs/delivery-staffs.module';
+import { HarvestPhasesModule } from 'src/harvest-phases/harvest-phases.module';
+import { OrderPhasesModule } from 'src/order-phases/order-phases.module';
+import { TrucksModule } from '../trucks/trucks.module';
 import { DeliveriesController } from './deliveries.controller';
-import { RelationalDeliveryPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+import { DeliveriesService } from './deliveries.service';
 import { DeliveryGateway } from './delivery.gateway';
+import { RelationalDeliveryPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 
 @Module({
   imports: [
     TrucksModule,
 
-    forwardRef(() => HarvestSchedulesModule),
+    DeliveryStaffsModule,
 
-    forwardRef(() => OrderSchedulesModule),
+    forwardRef(() => HarvestPhasesModule),
+
+    forwardRef(() => OrderPhasesModule),
 
     // do not remove this comment
     RelationalDeliveryPersistenceModule,

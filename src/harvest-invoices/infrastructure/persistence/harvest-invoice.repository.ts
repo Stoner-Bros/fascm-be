@@ -26,4 +26,8 @@ export abstract class HarvestInvoiceRepository {
   ): Promise<HarvestInvoice | null>;
 
   abstract remove(id: HarvestInvoice['id']): Promise<void>;
+
+  abstract findByHarvestPhaseId(
+    harvestPhaseId: HarvestInvoice['id'],
+  ): Promise<NullableType<HarvestInvoice>>;
 }

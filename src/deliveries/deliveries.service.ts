@@ -1,40 +1,40 @@
-import { TrucksService } from '../trucks/trucks.service';
 import { Truck } from '../trucks/domain/truck';
-
-import { HarvestSchedulesService } from '../harvest-schedules/harvest-schedules.service';
-import { HarvestSchedule } from '../harvest-schedules/domain/harvest-schedule';
-
-import { OrderSchedulesService } from '../order-schedules/order-schedules.service';
-import { OrderSchedule } from '../order-schedules/domain/order-schedule';
+import { TrucksService } from '../trucks/trucks.service';
 
 import {
-  // common
-  Injectable,
-  HttpStatus,
-  UnprocessableEntityException,
   BadRequestException,
   forwardRef,
+  HttpStatus,
   Inject,
+  // common
+  Injectable,
+  UnprocessableEntityException,
 } from '@nestjs/common';
-import { CreateDeliveryDto } from './dto/create-delivery.dto';
-import { UpdateDeliveryDto } from './dto/update-delivery.dto';
-import { DeliveryRepository } from './infrastructure/persistence/delivery.repository';
+import { DeliveryStaffsService } from 'src/delivery-staffs/delivery-staffs.service';
+import { DeliveryStaff } from 'src/delivery-staffs/domain/delivery-staff';
+import { HarvestPhase } from 'src/harvest-phases/domain/harvest-phase';
+import { HarvestPhaseStatusEnum } from 'src/harvest-phases/enum/harvest-phase-status.enum';
+import { HarvestPhasesService } from 'src/harvest-phases/harvest-phases.service';
+import { OrderPhase } from 'src/order-phases/domain/order-phase';
+import { OrderPhaseStatusEnum } from 'src/order-phases/enum/order-phase-status.enum';
+import { OrderPhasesService } from 'src/order-phases/order-phases.service';
+import { TruckStatusEnum } from 'src/trucks/enum/truck-status.enum';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { Delivery } from './domain/delivery';
+import { CreateDeliveryDto } from './dto/create-delivery.dto';
+import { UpdateDeliveryDto } from './dto/update-delivery.dto';
 import { DeliveryStatusEnum } from './enum/delivery-status.enum';
-import { HarvestScheduleStatusEnum } from 'src/harvest-schedules/enum/harvest-schedule-status.enum';
-import { OrderScheduleStatusEnum } from 'src/order-schedules/enum/order-schedule-status.enum';
-import { TruckStatusEnum } from 'src/trucks/enum/truck-status.enum';
+import { DeliveryRepository } from './infrastructure/persistence/delivery.repository';
 
 @Injectable()
 export class DeliveriesService {
   constructor(
     private readonly truckService: TrucksService,
-
-    @Inject(forwardRef(() => HarvestSchedulesService))
-    private readonly harvestScheduleService: HarvestSchedulesService,
-
-    private readonly orderScheduleService: OrderSchedulesService,
+    private readonly deliveryStaffService: DeliveryStaffsService,
+    @Inject(forwardRef(() => HarvestPhasesService))
+    private readonly harvestPhaseService: HarvestPhasesService,
+    @Inject(forwardRef(() => OrderPhasesService))
+    private readonly orderPhaseService: OrderPhasesService,
 
     // Dependencies here
     private readonly deliveryRepository: DeliveryRepository,
@@ -84,42 +84,61 @@ export class DeliveriesService {
       truck = null;
     }
 
-    let harvestSchedule: HarvestSchedule | null | undefined = undefined;
+    let deliveryStaff: DeliveryStaff | null | undefined = undefined;
 
-    if (createDeliveryDto.harvestSchedule) {
-      const harvestScheduleObject = await this.harvestScheduleService.findById(
-        createDeliveryDto.harvestSchedule.id,
+    if (createDeliveryDto.deliveryStaff) {
+      const deliveryStaffObject = await this.deliveryStaffService.findById(
+        createDeliveryDto.deliveryStaff.id,
       );
-      if (!harvestScheduleObject) {
+      if (!deliveryStaffObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            harvestSchedule: 'notExists',
+            deliveryStaff: 'notExists',
           },
         });
       }
-      harvestSchedule = harvestScheduleObject;
-    } else if (createDeliveryDto.harvestSchedule === null) {
-      harvestSchedule = null;
+      deliveryStaff = deliveryStaffObject;
+    } else if (createDeliveryDto.deliveryStaff === null) {
+      deliveryStaff = null;
     }
 
-    let orderSchedule: OrderSchedule | null | undefined = undefined;
+    let harvestPhase: HarvestPhase | null | undefined = undefined;
 
-    if (createDeliveryDto.orderSchedule) {
-      const orderScheduleObject = await this.orderScheduleService.findById(
-        createDeliveryDto.orderSchedule.id,
+    if (createDeliveryDto.harvestPhase) {
+      const harvestPhaseObject = await this.harvestPhaseService.findById(
+        createDeliveryDto.harvestPhase.id,
       );
-      if (!orderScheduleObject) {
+      if (!harvestPhaseObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            orderSchedule: 'notExists',
+            harvestPhase: 'notExists',
           },
         });
       }
-      orderSchedule = orderScheduleObject;
-    } else if (createDeliveryDto.orderSchedule === null) {
-      orderSchedule = null;
+      harvestPhase = harvestPhaseObject;
+    } else if (createDeliveryDto.harvestPhase === null) {
+      harvestPhase = null;
+    }
+
+    let orderPhase: OrderPhase | null | undefined = undefined;
+
+    if (createDeliveryDto.orderPhase) {
+      const orderPhaseObject = await this.orderPhaseService.findById(
+        createDeliveryDto.orderPhase.id,
+      );
+      if (!orderPhaseObject) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            orderPhase: 'notExists',
+          },
+        });
+      }
+      orderPhase = orderPhaseObject;
+    } else if (createDeliveryDto.orderPhase === null) {
+      orderPhase = null;
     }
 
     if (
@@ -143,19 +162,19 @@ export class DeliveriesService {
       }
     }
 
-    if (createDeliveryDto.harvestSchedule) {
-      if (harvestSchedule?.status !== HarvestScheduleStatusEnum.PREPARING) {
-        await this.harvestScheduleService.updateStatus(
-          createDeliveryDto.harvestSchedule.id,
-          HarvestScheduleStatusEnum.PREPARING,
+    if (createDeliveryDto.harvestPhase) {
+      if (harvestPhase?.status !== HarvestPhaseStatusEnum.PREPARING) {
+        await this.harvestPhaseService.updateStatus(
+          createDeliveryDto.harvestPhase.id,
+          HarvestPhaseStatusEnum.PREPARING,
         );
       }
     }
-    if (createDeliveryDto.orderSchedule) {
-      if (orderSchedule?.status !== OrderScheduleStatusEnum.PREPARING) {
-        await this.orderScheduleService.updateStatus(
-          createDeliveryDto.orderSchedule.id,
-          OrderScheduleStatusEnum.PREPARING,
+    if (createDeliveryDto.orderPhase) {
+      if (orderPhase?.status !== OrderPhaseStatusEnum.PREPARING) {
+        await this.orderPhaseService.updateStatus(
+          createDeliveryDto.orderPhase.id,
+          OrderPhaseStatusEnum.PREPARING,
         );
       }
     }
@@ -178,12 +197,13 @@ export class DeliveriesService {
       status: DeliveryStatusEnum.SCHEDULED,
 
       startTime: createDeliveryDto.startTime,
-
       truck,
 
-      harvestSchedule,
+      deliveryStaff,
 
-      orderSchedule,
+      harvestPhase,
+
+      orderPhase,
     });
   }
 
@@ -211,13 +231,13 @@ export class DeliveriesService {
     return this.deliveryRepository.findByIds(ids);
   }
 
-  findByOrderScheduleId(orderScheduleId: OrderSchedule['id']) {
-    return this.deliveryRepository.findByOrderScheduleId(orderScheduleId);
-  }
+  // findByOrderScheduleId(orderScheduleId: OrderSchedule['id']) {
+  //   return this.deliveryRepository.findByOrderScheduleId(orderScheduleId);
+  // }
 
-  findByHarvestScheduleId(harvestScheduleId: HarvestSchedule['id']) {
-    return this.deliveryRepository.findByHarvestScheduleId(harvestScheduleId);
-  }
+  // findByHarvestScheduleId(harvestScheduleId: HarvestSchedule['id']) {
+  //   return this.deliveryRepository.findByHarvestScheduleId(harvestScheduleId);
+  // }
 
   async update(
     id: Delivery['id'],
@@ -246,42 +266,61 @@ export class DeliveriesService {
       truck = null;
     }
 
-    let harvestSchedule: HarvestSchedule | null | undefined = undefined;
+    let deliveryStaff: DeliveryStaff | null | undefined = undefined;
 
-    if (updateDeliveryDto.harvestSchedule) {
-      const harvestScheduleObject = await this.harvestScheduleService.findById(
-        updateDeliveryDto.harvestSchedule.id,
+    if (updateDeliveryDto.deliveryStaff) {
+      const deliveryStaffObject = await this.deliveryStaffService.findById(
+        updateDeliveryDto.deliveryStaff.id,
       );
-      if (!harvestScheduleObject) {
+      if (!deliveryStaffObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            harvestSchedule: 'notExists',
+            deliveryStaff: 'notExists',
           },
         });
       }
-      harvestSchedule = harvestScheduleObject;
-    } else if (updateDeliveryDto.harvestSchedule === null) {
-      harvestSchedule = null;
+      deliveryStaff = deliveryStaffObject;
+    } else if (updateDeliveryDto.deliveryStaff === null) {
+      deliveryStaff = null;
     }
 
-    let orderSchedule: OrderSchedule | null | undefined = undefined;
+    let harvestPhase: HarvestPhase | null | undefined = undefined;
 
-    if (updateDeliveryDto.orderSchedule) {
-      const orderScheduleObject = await this.orderScheduleService.findById(
-        updateDeliveryDto.orderSchedule.id,
+    if (updateDeliveryDto.harvestPhase) {
+      const harvestPhaseObject = await this.harvestPhaseService.findById(
+        updateDeliveryDto.harvestPhase.id,
       );
-      if (!orderScheduleObject) {
+      if (!harvestPhaseObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            orderSchedule: 'notExists',
+            harvestPhase: 'notExists',
           },
         });
       }
-      orderSchedule = orderScheduleObject;
-    } else if (updateDeliveryDto.orderSchedule === null) {
-      orderSchedule = null;
+      harvestPhase = harvestPhaseObject;
+    } else if (updateDeliveryDto.harvestPhase === null) {
+      harvestPhase = null;
+    }
+
+    let orderPhase: OrderPhase | null | undefined = undefined;
+
+    if (updateDeliveryDto.orderPhase) {
+      const orderPhaseObject = await this.orderPhaseService.findById(
+        updateDeliveryDto.orderPhase.id,
+      );
+      if (!orderPhaseObject) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            orderPhase: 'notExists',
+          },
+        });
+      }
+      orderPhase = orderPhaseObject;
+    } else if (updateDeliveryDto.orderPhase === null) {
+      orderPhase = null;
     }
 
     if (
@@ -324,9 +363,11 @@ export class DeliveriesService {
 
       truck,
 
-      harvestSchedule,
+      deliveryStaff,
 
-      orderSchedule,
+      harvestPhase,
+
+      orderPhase,
     });
   }
 
@@ -373,24 +414,21 @@ export class DeliveriesService {
 
     switch (status) {
       case DeliveryStatusEnum.SCHEDULED:
-        if (delivery.harvestSchedule) {
+        if (delivery.harvestPhase) {
           if (
-            delivery.harvestSchedule.status !==
-            HarvestScheduleStatusEnum.PREPARING
+            delivery.harvestPhase.status !== HarvestPhaseStatusEnum.PREPARING
           ) {
-            await this.harvestScheduleService.updateStatus(
-              delivery.harvestSchedule.id,
-              HarvestScheduleStatusEnum.PREPARING,
+            await this.harvestPhaseService.updateStatus(
+              delivery.harvestPhase.id,
+              HarvestPhaseStatusEnum.PREPARING,
             );
           }
         }
-        if (delivery.orderSchedule) {
-          if (
-            delivery.orderSchedule.status !== OrderScheduleStatusEnum.PREPARING
-          ) {
-            await this.orderScheduleService.updateStatus(
-              delivery.orderSchedule.id,
-              OrderScheduleStatusEnum.PREPARING,
+        if (delivery.orderPhase) {
+          if (delivery.orderPhase.status !== OrderPhaseStatusEnum.PREPARING) {
+            await this.orderPhaseService.updateStatus(
+              delivery.orderPhase.id,
+              OrderPhaseStatusEnum.PREPARING,
             );
           }
         }
@@ -405,47 +443,41 @@ export class DeliveriesService {
         }
         break;
       case DeliveryStatusEnum.DELIVERING:
-        if (delivery.harvestSchedule) {
+        if (delivery.harvestPhase) {
           if (
-            delivery.harvestSchedule.status !==
-            HarvestScheduleStatusEnum.DELIVERING
+            delivery.harvestPhase.status !== HarvestPhaseStatusEnum.DELIVERING
           ) {
-            await this.harvestScheduleService.updateStatus(
-              delivery.harvestSchedule.id,
-              HarvestScheduleStatusEnum.DELIVERING,
+            await this.harvestPhaseService.updateStatus(
+              delivery.harvestPhase.id,
+              HarvestPhaseStatusEnum.DELIVERING,
             );
           }
         }
-        if (delivery.orderSchedule) {
-          if (
-            delivery.orderSchedule.status !== OrderScheduleStatusEnum.DELIVERING
-          ) {
-            await this.orderScheduleService.updateStatus(
-              delivery.orderSchedule.id,
-              OrderScheduleStatusEnum.DELIVERING,
+        if (delivery.orderPhase) {
+          if (delivery.orderPhase.status !== OrderPhaseStatusEnum.DELIVERING) {
+            await this.orderPhaseService.updateStatus(
+              delivery.orderPhase.id,
+              OrderPhaseStatusEnum.DELIVERING,
             );
           }
         }
         break;
       case DeliveryStatusEnum.DELIVERED:
-        if (delivery.harvestSchedule) {
+        if (delivery.harvestPhase) {
           if (
-            delivery.harvestSchedule.status !==
-            HarvestScheduleStatusEnum.DELIVERED
+            delivery.harvestPhase.status !== HarvestPhaseStatusEnum.DELIVERED
           ) {
-            await this.harvestScheduleService.updateStatus(
-              delivery.harvestSchedule.id,
-              HarvestScheduleStatusEnum.DELIVERED,
+            await this.harvestPhaseService.updateStatus(
+              delivery.harvestPhase.id,
+              HarvestPhaseStatusEnum.DELIVERED,
             );
           }
         }
-        if (delivery.orderSchedule) {
-          if (
-            delivery.orderSchedule.status !== OrderScheduleStatusEnum.DELIVERED
-          ) {
-            await this.orderScheduleService.updateStatus(
-              delivery.orderSchedule.id,
-              OrderScheduleStatusEnum.DELIVERED,
+        if (delivery.orderPhase) {
+          if (delivery.orderPhase.status !== OrderPhaseStatusEnum.DELIVERED) {
+            await this.orderPhaseService.updateStatus(
+              delivery.orderPhase.id,
+              OrderPhaseStatusEnum.DELIVERED,
             );
           }
         }

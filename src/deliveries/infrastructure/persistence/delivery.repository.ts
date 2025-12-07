@@ -22,12 +22,12 @@ export abstract class DeliveryRepository {
 
   abstract findByIds(ids: Delivery['id'][]): Promise<Delivery[]>;
 
-  abstract findByOrderScheduleId(
-    orderScheduleId: OrderSchedule['id'],
+  abstract findByOrderPhaseId(
+    orderPhaseId: OrderSchedule['id'],
   ): Promise<NullableType<Delivery>>;
 
-  abstract findByHarvestScheduleId(
-    harvestScheduleId: HarvestSchedule['id'],
+  abstract findByHarvestPhaseId(
+    harvestPhaseId: HarvestSchedule['id'],
   ): Promise<NullableType<Delivery>>;
 
   abstract update(

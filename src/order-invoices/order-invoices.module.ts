@@ -1,3 +1,4 @@
+import { PaymentsModule } from '../payments/payments.module';
 import {
   // do not remove this comment
   Module,
@@ -9,6 +10,8 @@ import { OrderPhasesModule } from 'src/order-phases/order-phases.module';
 
 @Module({
   imports: [
+    PaymentsModule,
+
     OrderInvoicesModule,
     OrderPhasesModule,
     // do not remove this comment

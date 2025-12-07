@@ -1,5 +1,6 @@
 import { HarvestPhasesModule } from '../harvest-phases/harvest-phases.module';
 import {
+  forwardRef,
   // do not remove this comment
   Module,
 } from '@nestjs/common';
@@ -9,7 +10,7 @@ import { RelationalHarvestInvoicePersistenceModule } from './infrastructure/pers
 
 @Module({
   imports: [
-    HarvestPhasesModule,
+    forwardRef(() => HarvestPhasesModule),
 
     // do not remove this comment
     RelationalHarvestInvoicePersistenceModule,

@@ -9,34 +9,20 @@ import { HarvestTicketResponse } from '../../../../dto/harvest-ticket-response.d
 export class HarvestTicketMapper {
   static toDomain(raw: HarvestTicketEntity): HarvestTicket {
     const domainEntity = new HarvestTicket();
-    domainEntity.date = raw.date;
-
     domainEntity.quantity = raw.quantity;
 
     domainEntity.unit = raw.unit;
-
-    domainEntity.totalPayment = raw.totalPayment;
-
-    domainEntity.vatAmount = raw.vatAmount;
-
-    domainEntity.totalAmount = raw.totalAmount;
-
-    domainEntity.taxRate = raw.taxRate;
-
-    domainEntity.accountNumber = raw.accountNumber;
-
-    domainEntity.paymentMethod = raw.paymentMethod;
 
     domainEntity.ticketNumber = raw.ticketNumber;
 
     domainEntity.ticketUrl = raw.ticketUrl;
 
-    if (raw.harvestScheduleId) {
-      domainEntity.harvestScheduleId = HarvestScheduleMapper.toDomain(
-        raw.harvestScheduleId,
+    if (raw.harvestSchedule) {
+      domainEntity.harvestSchedule = HarvestScheduleMapper.toDomain(
+        raw.harvestSchedule,
       );
-    } else if (raw.harvestScheduleId === null) {
-      domainEntity.harvestScheduleId = null;
+    } else if (raw.harvestSchedule === null) {
+      domainEntity.harvestSchedule = null;
     }
 
     domainEntity.id = raw.id;
@@ -48,34 +34,20 @@ export class HarvestTicketMapper {
 
   static toPersistence(domainEntity: HarvestTicket): HarvestTicketEntity {
     const persistenceEntity = new HarvestTicketEntity();
-    persistenceEntity.date = domainEntity.date;
-
     persistenceEntity.quantity = domainEntity.quantity;
 
     persistenceEntity.unit = domainEntity.unit;
-
-    persistenceEntity.totalPayment = domainEntity.totalPayment;
-
-    persistenceEntity.vatAmount = domainEntity.vatAmount;
-
-    persistenceEntity.totalAmount = domainEntity.totalAmount;
-
-    persistenceEntity.taxRate = domainEntity.taxRate;
-
-    persistenceEntity.accountNumber = domainEntity.accountNumber;
-
-    persistenceEntity.paymentMethod = domainEntity.paymentMethod;
 
     persistenceEntity.ticketNumber = domainEntity.ticketNumber;
 
     persistenceEntity.ticketUrl = domainEntity.ticketUrl;
 
-    if (domainEntity.harvestScheduleId) {
-      persistenceEntity.harvestScheduleId = HarvestScheduleMapper.toPersistence(
-        domainEntity.harvestScheduleId,
+    if (domainEntity.harvestSchedule) {
+      persistenceEntity.harvestSchedule = HarvestScheduleMapper.toPersistence(
+        domainEntity.harvestSchedule,
       );
-    } else if (domainEntity.harvestScheduleId === null) {
-      persistenceEntity.harvestScheduleId = null;
+    } else if (domainEntity.harvestSchedule === null) {
+      persistenceEntity.harvestSchedule = null;
     }
 
     if (domainEntity.id) {
@@ -89,29 +61,15 @@ export class HarvestTicketMapper {
 
   static toResponse(entity: HarvestTicketEntity): HarvestTicketResponse {
     const responseEntity = new HarvestTicketResponse();
-    responseEntity.date = entity.date;
-
     responseEntity.quantity = entity.quantity;
 
     responseEntity.unit = entity.unit;
-
-    responseEntity.totalPayment = entity.totalPayment;
-
-    responseEntity.vatAmount = entity.vatAmount;
-
-    responseEntity.totalAmount = entity.totalAmount;
-
-    responseEntity.taxRate = entity.taxRate;
-
-    responseEntity.accountNumber = entity.accountNumber;
-
-    responseEntity.paymentMethod = entity.paymentMethod;
 
     responseEntity.ticketNumber = entity.ticketNumber;
 
     responseEntity.ticketUrl = entity.ticketUrl;
 
-    responseEntity.harvestScheduleId = entity.harvestScheduleId?.id || null;
+    responseEntity.harvestScheduleId = entity.harvestSchedule?.id || null;
 
     responseEntity.id = entity.id;
 

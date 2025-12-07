@@ -28,4 +28,8 @@ export abstract class HarvestInvoiceDetailRepository {
   ): Promise<HarvestInvoiceDetail | null>;
 
   abstract remove(id: HarvestInvoiceDetail['id']): Promise<void>;
+
+  abstract findByHarvestInvoiceId(
+    harvestInvoiceId: HarvestInvoiceDetail['id'],
+  ): Promise<HarvestInvoiceDetail[]>;
 }

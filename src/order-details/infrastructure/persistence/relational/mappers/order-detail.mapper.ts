@@ -4,14 +4,12 @@ import { ProductMapper } from '../../../../../products/infrastructure/persistenc
 
 import { OrderMapper } from '../../../../../orders/infrastructure/persistence/relational/mappers/order.mapper';
 
-import { OrderDetailEntity } from '../entities/order-detail.entity';
 import { OrderDetailResponseDto } from 'src/order-details/dto/order-detail-response.dto';
+import { OrderDetailEntity } from '../entities/order-detail.entity';
 
 export class OrderDetailMapper {
   static toDomain(raw: OrderDetailEntity): OrderDetail {
     const domainEntity = new OrderDetail();
-    domainEntity.taxRate = raw.taxRate;
-
     domainEntity.amount = raw.amount;
 
     domainEntity.unitPrice = raw.unitPrice;
@@ -41,8 +39,6 @@ export class OrderDetailMapper {
 
   static toResponseDto(raw: OrderDetailEntity): OrderDetailResponseDto {
     const domainEntity = new OrderDetailResponseDto();
-    domainEntity.taxRate = raw.taxRate;
-
     domainEntity.amount = raw.amount;
 
     domainEntity.unitPrice = raw.unitPrice;
@@ -66,8 +62,6 @@ export class OrderDetailMapper {
 
   static toPersistence(domainEntity: OrderDetail): OrderDetailEntity {
     const persistenceEntity = new OrderDetailEntity();
-    persistenceEntity.taxRate = domainEntity.taxRate;
-
     persistenceEntity.amount = domainEntity.amount;
 
     persistenceEntity.unitPrice = domainEntity.unitPrice;
