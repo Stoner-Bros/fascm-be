@@ -26,7 +26,7 @@ export class CreateAreaSettingDto {
   })
   @IsOptional()
   @IsNumber()
-  minCapacity?: number | null;
+  minStock?: number | null;
 
   @ApiProperty({
     required: false,

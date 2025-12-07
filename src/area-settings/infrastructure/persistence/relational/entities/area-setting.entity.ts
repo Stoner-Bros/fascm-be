@@ -19,7 +19,7 @@ export class AreaSettingEntity extends EntityRelationalHelper {
     nullable: true,
     type: Number,
   })
-  minCapacity?: number | null;
+  minStock?: number | null;
 
   @Column({
     nullable: true,

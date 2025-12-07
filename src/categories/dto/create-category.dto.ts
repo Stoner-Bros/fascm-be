@@ -17,15 +17,6 @@ export class CreateCategoryDto {
   })
   @IsOptional()
   @IsString()
-  englishName?: string | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => String,
-  })
-  @IsOptional()
-  @IsString()
-  vietnameseName?: string | null;
-
+  name?: string | null;
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

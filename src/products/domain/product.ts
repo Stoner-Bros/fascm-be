@@ -1,12 +1,13 @@
+import { Price } from '../../prices/domain/price';
 import { Category } from '../../categories/domain/category';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class Product {
   @ApiProperty({
-    type: () => Number,
+    type: () => [Price],
     nullable: true,
   })
-  pricePerKg?: number | null;
+  price?: Price[] | null;
 
   @ApiProperty({
     type: () => String,
@@ -18,37 +19,13 @@ export class Product {
     type: () => Category,
     nullable: true,
   })
-  categoryId?: Category | null;
+  category?: Category | null;
 
   @ApiProperty({
     type: () => String,
     nullable: true,
   })
   status?: string | null;
-
-  @ApiProperty({
-    type: () => String,
-    nullable: true,
-  })
-  minStorageHumidity?: string | null;
-
-  @ApiProperty({
-    type: () => String,
-    nullable: true,
-  })
-  maxStorageHumidity?: string | null;
-
-  @ApiProperty({
-    type: () => String,
-    nullable: true,
-  })
-  minStorageTemperature?: string | null;
-
-  @ApiProperty({
-    type: () => String,
-    nullable: true,
-  })
-  maxStorageTemperature?: string | null;
 
   @ApiProperty({
     type: () => String,

@@ -8,7 +8,9 @@ import { AreaEntity } from '../entities/area.entity';
 export class AreaMapper {
   static toDomain(raw: AreaEntity): Area {
     const domainEntity = new Area();
-    domainEntity.availableCapacity = raw.availableCapacity;
+    domainEntity.unit = raw.unit;
+    domainEntity.quantity = raw.quantity;
+    domainEntity.status = raw.status;
 
     if (raw.iotDevice) {
       domainEntity.iotDevice = raw.iotDevice.map((item) =>
@@ -19,8 +21,6 @@ export class AreaMapper {
     }
 
     domainEntity.description = raw.description;
-
-    domainEntity.capacity = raw.capacity;
 
     domainEntity.location = raw.location;
 
@@ -41,7 +41,9 @@ export class AreaMapper {
 
   static toPersistence(domainEntity: Area): AreaEntity {
     const persistenceEntity = new AreaEntity();
-    persistenceEntity.availableCapacity = domainEntity.availableCapacity;
+    persistenceEntity.unit = domainEntity.unit;
+    persistenceEntity.quantity = domainEntity.quantity;
+    persistenceEntity.status = domainEntity.status;
 
     if (domainEntity.iotDevice) {
       persistenceEntity.iotDevice = domainEntity.iotDevice.map((item) =>
@@ -52,8 +54,6 @@ export class AreaMapper {
     }
 
     persistenceEntity.description = domainEntity.description;
-
-    persistenceEntity.capacity = domainEntity.capacity;
 
     persistenceEntity.location = domainEntity.location;
 

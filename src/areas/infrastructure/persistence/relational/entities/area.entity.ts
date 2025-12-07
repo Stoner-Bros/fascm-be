@@ -19,9 +19,21 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
 export class AreaEntity extends EntityRelationalHelper {
   @Column({
     nullable: true,
+    type: String,
+  })
+  unit?: string | null;
+
+  @Column({
+    nullable: true,
     type: Number,
   })
-  availableCapacity?: number | null;
+  quantity?: number | null;
+
+  @Column({
+    nullable: true,
+    type: String,
+  })
+  status?: string | null;
 
   @OneToMany(() => IoTDeviceEntity, (childEntity) => childEntity.area, {
     eager: true,
@@ -34,12 +46,6 @@ export class AreaEntity extends EntityRelationalHelper {
     type: String,
   })
   description?: string | null;
-
-  @Column({
-    nullable: true,
-    type: Number,
-  })
-  capacity?: number | null;
 
   @Column({
     nullable: true,

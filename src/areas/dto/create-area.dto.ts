@@ -26,11 +26,28 @@ import {
 export class CreateAreaDto {
   @ApiProperty({
     required: false,
+    type: () => String,
+  })
+  @IsOptional()
+  @IsString()
+  unit?: string | null;
+
+  @ApiProperty({
+    required: false,
     type: () => Number,
   })
   @IsOptional()
   @IsNumber()
-  availableCapacity?: number | null;
+  quantity?: number | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => String,
+    default: 'available',
+  })
+  @IsOptional()
+  @IsString()
+  status?: string | null;
 
   @ApiProperty({
     required: false,
@@ -49,14 +66,6 @@ export class CreateAreaDto {
   @IsOptional()
   @IsString()
   description?: string | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  capacity?: number | null;
 
   @ApiProperty({
     required: false,

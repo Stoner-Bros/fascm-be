@@ -85,8 +85,11 @@ import { ImageProofsModule } from './image-proofs/image-proofs.module';
 
 import { NotificationsModule } from './notifications/notifications.module';
 
+import { PricesModule } from './prices/prices.module';
+
 @Module({
   imports: [
+    PricesModule,
     NotificationsModule,
     HomeModule,
     MailerModule,

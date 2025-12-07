@@ -16,44 +16,34 @@ export class CategorySeedService {
     if (!count) {
       const categories = [
         {
-          vietnameseName: 'Rau lá xanh',
-          englishName: 'Leafy Greens',
+          name: 'Leafy Greens',
         },
         {
-          vietnameseName: 'Củ quả',
-          englishName: 'Root Vegetables',
+          name: 'Root Vegetables',
         },
         {
-          vietnameseName: 'Trái cây nhiệt đới',
-          englishName: 'Tropical Fruits',
+          name: 'Tropical Fruits',
         },
         {
-          vietnameseName: 'Trái cây ôn đới',
-          englishName: 'Temperate Fruits',
+          name: 'Temperate Fruits',
         },
         {
-          vietnameseName: 'Rau gia vị',
-          englishName: 'Herbs & Spices',
+          name: 'Herbs & Spices',
         },
         {
-          vietnameseName: 'Nấm các loại',
-          englishName: 'Mushrooms',
+          name: 'Mushrooms',
         },
         {
-          vietnameseName: 'Ngũ cốc',
-          englishName: 'Grains',
+          name: 'Grains',
         },
         {
-          vietnameseName: 'Đậu các loại',
-          englishName: 'Legumes',
+          name: 'Legumes',
         },
         {
-          vietnameseName: 'Hoa quả khô',
-          englishName: 'Dried Fruits',
+          name: 'Dried Fruits',
         },
         {
-          vietnameseName: 'Rau quả hữu cơ',
-          englishName: 'Organic Produce',
+          name: 'Organic Produce',
         },
       ];
 

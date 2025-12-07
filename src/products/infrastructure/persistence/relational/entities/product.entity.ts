@@ -1,3 +1,5 @@
+import { PriceEntity } from '../../../../../prices/infrastructure/persistence/relational/entities/price.entity';
+
 import { CategoryEntity } from '../../../../../categories/infrastructure/persistence/relational/entities/category.entity';
 
 import {
@@ -8,6 +10,7 @@ import {
   ManyToOne,
   PrimaryColumn,
   BeforeInsert,
+  OneToMany,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -15,11 +18,11 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
   name: 'product',
 })
 export class ProductEntity extends EntityRelationalHelper {
-  @Column({
+  @OneToMany(() => PriceEntity, (childEntity) => childEntity.product, {
+    eager: true,
     nullable: true,
-    type: Number,
   })
-  pricePerKg?: number | null;
+  price?: PriceEntity[] | null;
 
   @Column({
     nullable: true,
@@ -28,37 +31,13 @@ export class ProductEntity extends EntityRelationalHelper {
   image?: string | null;
 
   @ManyToOne(() => CategoryEntity, { eager: true, nullable: true })
-  categoryId?: CategoryEntity | null;
+  category?: CategoryEntity | null;
 
   @Column({
     nullable: true,
     type: String,
   })
   status?: string | null;
-
-  @Column({
-    nullable: true,
-    type: String,
-  })
-  minStorageHumidity?: string | null;
-
-  @Column({
-    nullable: true,
-    type: String,
-  })
-  maxStorageHumidity?: string | null;
-
-  @Column({
-    nullable: true,
-    type: String,
-  })
-  minStorageTemperature?: string | null;
-
-  @Column({
-    nullable: true,
-    type: String,
-  })
-  maxStorageTemperature?: string | null;
 
   @Column({
     nullable: true,

@@ -5,13 +5,7 @@ export class Category {
     type: () => String,
     nullable: true,
   })
-  englishName?: string | null;
-
-  @ApiProperty({
-    type: () => String,
-    nullable: true,
-  })
-  vietnameseName?: string | null;
+  name?: string | null;
 
   @ApiProperty({
     type: String,

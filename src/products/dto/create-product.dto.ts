@@ -1,13 +1,14 @@
+import { PriceDto } from '../../prices/dto/price.dto';
+
 import { CategoryDto } from '../../categories/dto/category.dto';
 
 import {
-  // decorators here
-
-  IsString,
-  IsOptional,
-  ValidateNested,
   IsNotEmptyObject,
-  IsNumber,
+  IsOptional,
+  // decorators here
+  IsString,
+  ValidateNested,
+  IsArray,
 } from 'class-validator';
 
 import {
@@ -23,11 +24,13 @@ import {
 export class CreateProductDto {
   @ApiProperty({
     required: false,
-    type: () => Number,
+    type: () => [PriceDto],
   })
   @IsOptional()
-  @IsNumber()
-  pricePerKg?: number | null;
+  @ValidateNested()
+  @Type(() => PriceDto)
+  @IsArray()
+  price?: PriceDto[] | null;
 
   @ApiProperty({
     required: false,
@@ -45,39 +48,7 @@ export class CreateProductDto {
   @ValidateNested()
   @Type(() => CategoryDto)
   @IsNotEmptyObject()
-  categoryId?: CategoryDto | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => String,
-  })
-  @IsOptional()
-  @IsString()
-  minStorageHumidity?: string | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => String,
-  })
-  @IsOptional()
-  @IsString()
-  maxStorageHumidity?: string | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => String,
-  })
-  @IsOptional()
-  @IsString()
-  minStorageTemperature?: string | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => String,
-  })
-  @IsOptional()
-  @IsString()
-  maxStorageTemperature?: string | null;
+  category?: CategoryDto | null;
 
   @ApiProperty({
     required: false,

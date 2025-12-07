@@ -74,13 +74,14 @@ export class AreasService {
     return this.areaRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      availableCapacity: createAreaDto.availableCapacity,
+      unit: createAreaDto.unit,
 
+      quantity: createAreaDto.quantity,
+
+      status: createAreaDto.status,
       iotDevice,
 
       description: createAreaDto.description,
-
-      capacity: createAreaDto.capacity,
 
       location: createAreaDto.location,
 
@@ -159,13 +160,15 @@ export class AreasService {
     return this.areaRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      availableCapacity: updateAreaDto.availableCapacity,
+      unit: updateAreaDto.unit,
+
+      quantity: updateAreaDto.quantity,
+
+      status: updateAreaDto.status,
 
       iotDevice,
 
       description: updateAreaDto.description,
-
-      capacity: updateAreaDto.capacity,
 
       location: updateAreaDto.location,
 
