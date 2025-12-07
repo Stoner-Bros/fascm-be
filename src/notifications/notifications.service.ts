@@ -115,7 +115,9 @@ export class NotificationsService {
           }
         }
       }
-    } catch (_) {}
+    } catch (error) {
+      console.error(error);
+    }
 
     return created;
   }
