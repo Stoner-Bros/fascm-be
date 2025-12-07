@@ -41,6 +41,14 @@ export class HarvestScheduleMapper {
 
     persistenceEntity.harvestDate = domainEntity.harvestDate;
 
+    if (domainEntity.supplier) {
+      persistenceEntity.supplier = SupplierMapper.toPersistence(
+        domainEntity.supplier,
+      );
+    } else if (domainEntity.supplier === null) {
+      persistenceEntity.supplier = null;
+    }
+
     if (domainEntity.id) {
       persistenceEntity.id = domainEntity.id;
     }
