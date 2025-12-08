@@ -1,5 +1,3 @@
-import { PaymentDto } from '../../payments/dto/payment.dto';
-
 import { ApiProperty } from '@nestjs/swagger';
 
 import { Type } from 'class-transformer';
@@ -13,16 +11,6 @@ import {
 import { OrderPhaseDto } from 'src/order-phases/dto/order-phase.dto';
 
 export class CreateOrderInvoiceDto {
-  @ApiProperty({
-    required: false,
-    type: () => PaymentDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => PaymentDto)
-  @IsNotEmptyObject()
-  payment?: PaymentDto | null;
-
   // Don't forget to use the class-validator decorators in the DTO properties.
   @ApiProperty({
     required: false,
