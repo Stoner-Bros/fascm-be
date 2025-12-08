@@ -1,3 +1,4 @@
+import { OrderInvoice } from 'src/order-invoices/domain/order-invoice';
 import { DeepPartial } from '../../../utils/types/deep-partial.type';
 import { NullableType } from '../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../utils/types/pagination-options';
@@ -17,6 +18,10 @@ export abstract class OrderInvoiceDetailRepository {
   abstract findById(
     id: OrderInvoiceDetail['id'],
   ): Promise<NullableType<OrderInvoiceDetail>>;
+
+  abstract findByInvoiceId(
+    id: OrderInvoice['id'],
+  ): Promise<NullableType<OrderInvoiceDetail[]>>;
 
   abstract findByIds(
     ids: OrderInvoiceDetail['id'][],

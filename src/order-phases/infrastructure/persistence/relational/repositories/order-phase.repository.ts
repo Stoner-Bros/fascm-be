@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
-import { OrderPhaseEntity } from '../entities/order-phase.entity';
+import { OrderPhaseResponse } from 'src/order-phases/dto/order-phase-response.dto';
+import { In, Repository } from 'typeorm';
 import { NullableType } from '../../../../../utils/types/nullable.type';
+import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 import { OrderPhase } from '../../../../domain/order-phase';
 import { OrderPhaseRepository } from '../../order-phase.repository';
+import { OrderPhaseEntity } from '../entities/order-phase.entity';
 import { OrderPhaseMapper } from '../mappers/order-phase.mapper';
-import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 
 @Injectable()
 export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
@@ -27,10 +28,70 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
     paginationOptions,
   }: {
     paginationOptions: IPaginationOptions;
-  }): Promise<OrderPhase[]> {
+  }): Promise<OrderPhaseResponse[]> {
+    const qb = this.orderPhaseRepository.createQueryBuilder('op');
+    qb.leftJoinAndSelect('op.orderInvoice', 'orderInvoice');
+    qb.leftJoinAndSelect(
+      'orderInvoice.orderInvoiceDetails',
+      'orderInvoiceDetails',
+    );
+    qb.leftJoinAndSelect('orderInvoiceDetails.product', 'product');
+    qb.leftJoinAndSelect('op.imageProof', 'imageProof');
+
+    qb.orderBy('DESC');
+    qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
+    qb.take(paginationOptions.limit);
+
+    const entities = await qb.getMany();
+    return entities.map((entity) => OrderPhaseMapper.toResponse(entity));
+  }
+
+  async findAllByScheduleWithPagination({
+    scheduleId,
+    paginationOptions,
+  }: {
+    scheduleId: string;
+    paginationOptions: IPaginationOptions;
+  }): Promise<OrderPhaseResponse[]> {
+    const qb = this.orderPhaseRepository.createQueryBuilder('op');
+    qb.leftJoinAndSelect('op.orderInvoice', 'orderInvoice');
+    qb.leftJoinAndSelect(
+      'orderInvoice.orderInvoiceDetails',
+      'orderInvoiceDetails',
+    );
+    qb.leftJoinAndSelect('orderInvoiceDetails.product', 'product');
+    qb.leftJoinAndSelect('op.imageProof', 'imageProof');
+
+    qb.where('op.scheduleId = :scheduleId', { scheduleId });
+
+    qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
+    qb.take(paginationOptions.limit);
+
+    const entities = await qb.getMany();
+    return entities.map((entity) => OrderPhaseMapper.toResponse(entity));
+  }
+
+  async findFullById(
+    id: OrderPhase['id'],
+  ): Promise<NullableType<OrderPhaseResponse>> {
+    const qb = this.orderPhaseRepository.createQueryBuilder('op');
+    qb.leftJoinAndSelect('op.orderInvoice', 'orderInvoice');
+    qb.leftJoinAndSelect(
+      'orderInvoice.orderInvoiceDetails',
+      'orderInvoiceDetails',
+    );
+    qb.leftJoinAndSelect('orderInvoiceDetails.product', 'product');
+    qb.leftJoinAndSelect('op.imageProof', 'imageProof');
+
+    qb.where('op.id = :id', { id });
+
+    const entities = await qb.getOne();
+    return entities ? OrderPhaseMapper.toResponse(entities) : null;
+  }
+
+  async findByIds(ids: OrderPhase['id'][]): Promise<OrderPhase[]> {
     const entities = await this.orderPhaseRepository.find({
-      skip: (paginationOptions.page - 1) * paginationOptions.limit,
-      take: paginationOptions.limit,
+      where: { id: In(ids) },
     });
 
     return entities.map((entity) => OrderPhaseMapper.toDomain(entity));
@@ -40,16 +101,10 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
     const entity = await this.orderPhaseRepository.findOne({
       where: { id },
     });
-
-    return entity ? OrderPhaseMapper.toDomain(entity) : null;
-  }
-
-  async findByIds(ids: OrderPhase['id'][]): Promise<OrderPhase[]> {
-    const entities = await this.orderPhaseRepository.find({
-      where: { id: In(ids) },
-    });
-
-    return entities.map((entity) => OrderPhaseMapper.toDomain(entity));
+    if (!entity) {
+      return null;
+    }
+    return OrderPhaseMapper.toDomain(entity);
   }
 
   async update(

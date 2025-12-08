@@ -1,11 +1,13 @@
 import { PaymentEntity } from '../../../../../payments/infrastructure/persistence/relational/entities/payment.entity';
 
+import { OrderInvoiceDetailEntity } from 'src/order-invoice-details/infrastructure/persistence/relational/entities/order-invoice-detail.entity';
 import { OrderPhaseEntity } from 'src/order-phases/infrastructure/persistence/relational/entities/order-phase.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -71,6 +73,12 @@ export class OrderInvoiceEntity extends EntityRelationalHelper {
   @OneToOne(() => OrderPhaseEntity, { eager: true, nullable: true })
   @JoinColumn()
   orderPhase?: OrderPhaseEntity | null;
+
+  @OneToMany(
+    () => OrderInvoiceDetailEntity,
+    (orderInvoiceDetail) => orderInvoiceDetail.orderInvoice,
+  )
+  orderInvoiceDetails?: OrderInvoiceDetailEntity[];
 
   @PrimaryGeneratedColumn('uuid')
   id: string;

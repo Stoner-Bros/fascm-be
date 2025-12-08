@@ -5,14 +5,14 @@ import { ProductEntity } from '../../../../../products/infrastructure/persistenc
 import { OrderInvoiceEntity } from '../../../../../order-invoices/infrastructure/persistence/relational/entities/order-invoice.entity';
 
 import {
+  Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-  OneToOne,
-  Column,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -54,8 +54,7 @@ export class OrderInvoiceDetailEntity extends EntityRelationalHelper {
   })
   unit?: string | null;
 
-  @OneToOne(() => ProductEntity, { eager: true, nullable: true })
-  @JoinColumn()
+  @ManyToOne(() => ProductEntity, { eager: true, nullable: true })
   product?: ProductEntity | null;
 
   @ManyToOne(() => OrderInvoiceEntity, { eager: true, nullable: true })

@@ -30,11 +30,15 @@ import {
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
 import { OrderPhase } from './domain/order-phase';
-import { CreateOrderPhaseDto } from './dto/create-order-phase.dto';
+import {
+  CreateMultipleOrderPhaseDto,
+  CreateOrderPhaseDto,
+} from './dto/create-order-phase.dto';
 import { FindAllOrderPhasesDto } from './dto/find-all-order-phases.dto';
+import { OrderPhaseResponse } from './dto/order-phase-response.dto';
+import { UpdateOrderPhaseStatusDto } from './dto/update-order-phase-status.dto';
 import { UpdateOrderPhaseDto } from './dto/update-order-phase.dto';
 import { OrderPhasesService } from './order-phases.service';
-import { UpdateOrderPhaseStatusDto } from './dto/update-order-phase-status.dto';
 
 @ApiTags('Orderphases')
 @ApiBearerAuth()
@@ -54,13 +58,23 @@ export class OrderPhasesController {
     return this.orderPhasesService.create(createOrderPhaseDto);
   }
 
+  @Post('multiple')
+  @ApiCreatedResponse({
+    type: OrderPhase,
+  })
+  createMultiple(
+    @Body() createMultipleOrderPhaseDto: CreateMultipleOrderPhaseDto,
+  ) {
+    return this.orderPhasesService.createMultiple(createMultipleOrderPhaseDto);
+  }
+
   @Get()
   @ApiOkResponse({
-    type: InfinityPaginationResponse(OrderPhase),
+    type: InfinityPaginationResponse(OrderPhaseResponse),
   })
   async findAll(
     @Query() query: FindAllOrderPhasesDto,
-  ): Promise<InfinityPaginationResponseDto<OrderPhase>> {
+  ): Promise<InfinityPaginationResponseDto<OrderPhaseResponse>> {
     const page = query?.page ?? 1;
     let limit = query?.limit ?? 10;
     if (limit > 50) {
@@ -78,6 +92,32 @@ export class OrderPhasesController {
     );
   }
 
+  @Get('order-schedule/:orderScheduleId')
+  @ApiOkResponse({
+    type: InfinityPaginationResponse(OrderPhaseResponse),
+  })
+  async findAllBySchedule(
+    @Param('orderScheduleId') scheduleId: string,
+    @Query() query: FindAllOrderPhasesDto,
+  ): Promise<InfinityPaginationResponseDto<OrderPhaseResponse>> {
+    const page = query?.page ?? 1;
+    let limit = query?.limit ?? 10;
+    if (limit > 50) {
+      limit = 50;
+    }
+
+    return infinityPagination(
+      await this.orderPhasesService.findAllByScheduleWithPagination({
+        orderScheduleId: scheduleId,
+        paginationOptions: {
+          page,
+          limit,
+        },
+      }),
+      { page, limit },
+    );
+  }
+
   @Get(':id')
   @ApiParam({
     name: 'id',
@@ -85,7 +125,7 @@ export class OrderPhasesController {
     required: true,
   })
   @ApiOkResponse({
-    type: OrderPhase,
+    type: OrderPhaseResponse,
   })
   findById(@Param('id') id: string) {
     return this.orderPhasesService.findById(id);
@@ -133,7 +173,6 @@ export class OrderPhasesController {
     return this.orderPhasesService.updateStatus(
       id,
       updateOrderPhaseStatusDto.status,
-      // updateOrderPhaseStatusDto.reason,
     );
   }
 

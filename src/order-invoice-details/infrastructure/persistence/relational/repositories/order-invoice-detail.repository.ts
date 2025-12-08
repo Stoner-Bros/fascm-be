@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
-import { OrderInvoiceDetailEntity } from '../entities/order-invoice-detail.entity';
+import { OrderInvoice } from 'src/order-invoices/domain/order-invoice';
+import { In, Repository } from 'typeorm';
 import { NullableType } from '../../../../../utils/types/nullable.type';
+import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 import { OrderInvoiceDetail } from '../../../../domain/order-invoice-detail';
 import { OrderInvoiceDetailRepository } from '../../order-invoice-detail.repository';
+import { OrderInvoiceDetailEntity } from '../entities/order-invoice-detail.entity';
 import { OrderInvoiceDetailMapper } from '../mappers/order-invoice-detail.mapper';
-import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 
 @Injectable()
 export class OrderInvoiceDetailRelationalRepository
@@ -46,6 +47,18 @@ export class OrderInvoiceDetailRelationalRepository
     });
 
     return entity ? OrderInvoiceDetailMapper.toDomain(entity) : null;
+  }
+
+  async findByInvoiceId(
+    id: OrderInvoice['id'],
+  ): Promise<NullableType<OrderInvoiceDetail[]>> {
+    const entities = await this.orderInvoiceDetailRepository.find({
+      where: { orderInvoice: { id } },
+    });
+
+    return entities
+      ? entities.map((entity) => OrderInvoiceDetailMapper.toDomain(entity))
+      : null;
   }
 
   async findByIds(
