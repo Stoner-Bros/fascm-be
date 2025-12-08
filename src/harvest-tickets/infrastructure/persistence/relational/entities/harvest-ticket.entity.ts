@@ -1,4 +1,5 @@
 import { HarvestScheduleEntity } from '../../../../../harvest-schedules/infrastructure/persistence/relational/entities/harvest-schedule.entity';
+import { HarvestDetailEntity } from '../../../../../harvest-details/infrastructure/persistence/relational/entities/harvest-detail.entity';
 
 import {
   CreateDateColumn,
@@ -6,6 +7,7 @@ import {
   UpdateDateColumn,
   JoinColumn,
   OneToOne,
+  OneToMany,
   Column,
   BeforeInsert,
   PrimaryColumn,
@@ -43,6 +45,12 @@ export class HarvestTicketEntity extends EntityRelationalHelper {
   @OneToOne(() => HarvestScheduleEntity, { eager: true, nullable: true })
   @JoinColumn()
   harvestSchedule?: HarvestScheduleEntity | null;
+
+  @OneToMany(
+    () => HarvestDetailEntity,
+    (harvestDetail) => harvestDetail.harvestTicket,
+  )
+  harvestDetails?: HarvestDetailEntity[];
 
   @PrimaryColumn({
     type: String,

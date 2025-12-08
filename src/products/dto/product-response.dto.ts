@@ -1,37 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
-export class HarvestTicketResponse {
+
+export class ProductResponse {
   @ApiProperty({
-    type: () => Number,
+    type: () => String,
     nullable: true,
   })
-  quantity?: number | null;
+  image?: string | null;
 
   @ApiProperty({
     type: () => String,
     nullable: true,
   })
-  unit?: string | null;
+  categoryName?: string | null;
 
   @ApiProperty({
     type: () => String,
     nullable: true,
   })
-  ticketNumber?: string | null;
-
-  @ApiProperty({
-    type: () => String,
-    nullable: true,
-  })
-  ticketUrl?: string | null;
+  name?: string | null;
 
   @ApiProperty({
     type: String,
   })
   id: string;
-
-  @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
 }

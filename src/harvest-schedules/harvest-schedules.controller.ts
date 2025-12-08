@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -17,17 +18,19 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+import { SuppliersService } from 'src/suppliers/suppliers.service';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
-import { HarvestSchedule } from './domain/harvest-schedule';
 import { CreateHarvestScheduleDto } from './dto/create-harvest-schedule.dto';
 import { FindAllHarvestSchedulesDto } from './dto/find-all-harvest-schedules.dto';
+import { HarvestScheduleResponse } from './dto/harvest-schedule-response';
 import { UpdateHarvestScheduleStatusDto } from './dto/update-harvest-schedule-status.dto';
 import { UpdateHarvestScheduleDto } from './dto/update-harvest-schedule.dto';
 import { HarvestSchedulesService } from './harvest-schedules.service';
+import { HarvestSchedule } from './domain/harvest-schedule';
 
 @ApiTags('Harvestschedules')
 @ApiBearerAuth()
@@ -39,23 +42,30 @@ import { HarvestSchedulesService } from './harvest-schedules.service';
 export class HarvestSchedulesController {
   constructor(
     private readonly harvestSchedulesService: HarvestSchedulesService,
+    private readonly supplierService: SuppliersService,
   ) {}
 
   @Post()
   @ApiCreatedResponse({
     type: HarvestSchedule,
   })
-  create(@Body() createHarvestScheduleDto: CreateHarvestScheduleDto) {
-    return this.harvestSchedulesService.create(createHarvestScheduleDto);
+  create(
+    @Body() createHarvestScheduleDto: CreateHarvestScheduleDto,
+    @Request() request,
+  ) {
+    return this.harvestSchedulesService.create(
+      createHarvestScheduleDto,
+      request.user.id,
+    );
   }
 
   @Get()
   @ApiOkResponse({
-    type: InfinityPaginationResponse(HarvestSchedule),
+    type: InfinityPaginationResponse(HarvestScheduleResponse),
   })
   async findAll(
     @Query() query: FindAllHarvestSchedulesDto,
-  ): Promise<InfinityPaginationResponseDto<HarvestSchedule>> {
+  ): Promise<InfinityPaginationResponseDto<HarvestScheduleResponse>> {
     const page = query?.page ?? 1;
     let limit = query?.limit ?? 10;
     if (limit > 50) {
@@ -77,6 +87,71 @@ export class HarvestSchedulesController {
     );
   }
 
+  @Get('supplier/:supplierId')
+  @ApiOkResponse({
+    type: InfinityPaginationResponse(HarvestScheduleResponse),
+  })
+  async findAllBySupplier(
+    @Param('supplierId') supplierId: string,
+    @Query() query: FindAllHarvestSchedulesDto,
+  ): Promise<InfinityPaginationResponseDto<HarvestScheduleResponse>> {
+    const page = query?.page ?? 1;
+    let limit = query?.limit ?? 10;
+    if (limit > 50) {
+      limit = 50;
+    }
+    const status = query?.status;
+    const sort = query?.sort === 'asc' ? 'ASC' : 'DESC';
+
+    return infinityPagination(
+      await this.harvestSchedulesService.findAllBySupplierWithPagination({
+        supplierId,
+        paginationOptions: {
+          page,
+          limit,
+        },
+        filters: { status },
+        sort,
+      }),
+      { page, limit },
+    );
+  }
+
+  @Get('mine')
+  @ApiOkResponse({
+    type: InfinityPaginationResponse(HarvestScheduleResponse),
+  })
+  async findAllMine(
+    @Request() request,
+    @Query() query: FindAllHarvestSchedulesDto,
+  ): Promise<InfinityPaginationResponseDto<HarvestScheduleResponse>> {
+    const userId = request.user.id;
+    const supplier = await this.supplierService.findByUserId(userId);
+    if (!supplier) {
+      return infinityPagination([], { page: 1, limit: 10 });
+    }
+    const page = query?.page ?? 1;
+    let limit = query?.limit ?? 10;
+    if (limit > 50) {
+      limit = 50;
+    }
+    const status = query?.status;
+    const sort = query?.sort === 'asc' ? 'ASC' : 'DESC';
+
+    return infinityPagination(
+      await this.harvestSchedulesService.findAllBySupplierWithPagination({
+        supplierId: supplier.id,
+        paginationOptions: {
+          page,
+          limit,
+        },
+        filters: { status },
+        sort,
+      }),
+      { page, limit },
+    );
+  }
+
   @Get(':id')
   @ApiParam({
     name: 'id',
@@ -84,7 +159,7 @@ export class HarvestSchedulesController {
     required: true,
   })
   @ApiOkResponse({
-    type: HarvestSchedule,
+    type: HarvestScheduleResponse,
   })
   findById(@Param('id') id: string) {
     return this.harvestSchedulesService.findById(id);
@@ -102,8 +177,13 @@ export class HarvestSchedulesController {
   update(
     @Param('id') id: string,
     @Body() updateHarvestScheduleDto: UpdateHarvestScheduleDto,
+    @Request() request,
   ) {
-    return this.harvestSchedulesService.update(id, updateHarvestScheduleDto);
+    return this.harvestSchedulesService.update(
+      id,
+      updateHarvestScheduleDto,
+      request.user.id,
+    );
   }
 
   @Delete(':id')

@@ -1,5 +1,3 @@
-import { SupplierDto } from '../../suppliers/dto/supplier.dto';
-
 import {
   Transform,
   // decorators here
@@ -7,8 +5,8 @@ import {
 } from 'class-transformer';
 
 import {
+  IsArray,
   IsDate,
-  IsNotEmptyObject,
   IsOptional,
   IsString,
   // decorators here
@@ -19,6 +17,8 @@ import {
   // decorators here
   ApiProperty,
 } from '@nestjs/swagger';
+import { CreateHarvestDetailDto } from 'src/harvest-details/dto/create-harvest-detail.dto';
+import { CreateHarvestTicketDto } from 'src/harvest-tickets/dto/create-harvest-ticket.dto';
 
 export class CreateHarvestScheduleDto {
   @ApiProperty({
@@ -47,14 +47,20 @@ export class CreateHarvestScheduleDto {
   harvestDate?: Date | null;
 
   @ApiProperty({
-    required: false,
-    type: () => SupplierDto,
+    required: true,
+    type: () => CreateHarvestTicketDto,
   })
-  @IsOptional()
   @ValidateNested()
-  @Type(() => SupplierDto)
-  @IsNotEmptyObject()
-  supplier?: SupplierDto | null;
+  @Type(() => CreateHarvestTicketDto)
+  harvestTicket: CreateHarvestTicketDto;
 
+  @ApiProperty({
+    required: true,
+    type: () => [CreateHarvestDetailDto],
+  })
+  @ValidateNested({ each: true })
+  @Type(() => CreateHarvestDetailDto)
+  @IsArray()
+  harvestDetails: CreateHarvestDetailDto[];
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

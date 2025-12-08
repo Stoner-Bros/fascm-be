@@ -1,8 +1,9 @@
-import { Product } from '../../../../domain/product';
 import { PriceMapper } from '../../../../../prices/infrastructure/persistence/relational/mappers/price.mapper';
+import { Product } from '../../../../domain/product';
 
 import { CategoryMapper } from '../../../../../categories/infrastructure/persistence/relational/mappers/category.mapper';
 
+import { ProductResponse } from 'src/products/dto/product-response.dto';
 import { ProductEntity } from '../entities/product.entity';
 
 export class ProductMapper {
@@ -68,5 +69,21 @@ export class ProductMapper {
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 
     return persistenceEntity;
+  }
+
+  static toResponse(raw: ProductEntity): ProductResponse {
+    const responseEntity = new ProductResponse();
+    responseEntity.image = raw.image;
+
+    if (raw.category) {
+      responseEntity.categoryName = CategoryMapper.toDomain(raw.category).name;
+    } else if (raw.category === null) {
+      responseEntity.categoryName = null;
+    }
+
+    responseEntity.name = raw.name;
+    responseEntity.id = raw.id;
+
+    return responseEntity;
   }
 }

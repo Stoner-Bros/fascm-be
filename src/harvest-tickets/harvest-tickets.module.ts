@@ -1,20 +1,14 @@
-import { HarvestSchedulesModule } from '../harvest-schedules/harvest-schedules.module';
-import { HarvestDetailsModule } from '../harvest-details/harvest-details.module';
 import {
   // do not remove this comment
   Module,
-  forwardRef,
 } from '@nestjs/common';
-import { HarvestTicketsService } from './harvest-tickets.service';
-import { HarvestTicketsController } from './harvest-tickets.controller';
-import { RelationalHarvestTicketPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { PdfGeneratorService } from '../utils/pdf-generator.helper';
+import { HarvestTicketsController } from './harvest-tickets.controller';
+import { HarvestTicketsService } from './harvest-tickets.service';
+import { RelationalHarvestTicketPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 
 @Module({
   imports: [
-    forwardRef(() => HarvestSchedulesModule),
-    forwardRef(() => HarvestDetailsModule),
-
     // do not remove this comment
     RelationalHarvestTicketPersistenceModule,
   ],

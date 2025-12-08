@@ -7,7 +7,7 @@ import { HarvestDetailResponse } from '../../dto/harvest-detail-response.dto';
 export abstract class HarvestDetailRepository {
   abstract create(
     data: Omit<HarvestDetail, 'id' | 'createdAt' | 'updatedAt'>,
-  ): Promise<HarvestDetail>;
+  ): Promise<HarvestDetailResponse>;
 
   abstract findAllWithPagination({
     paginationOptions,

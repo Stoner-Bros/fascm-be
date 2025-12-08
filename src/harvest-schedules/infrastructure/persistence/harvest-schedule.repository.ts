@@ -1,3 +1,4 @@
+import { HarvestScheduleResponse } from 'src/harvest-schedules/dto/harvest-schedule-response';
 import { DeepPartial } from '../../../utils/types/deep-partial.type';
 import { NullableType } from '../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../utils/types/pagination-options';
@@ -17,11 +18,23 @@ export abstract class HarvestScheduleRepository {
     paginationOptions: IPaginationOptions;
     filters?: { status?: HarvestScheduleStatusEnum };
     sort?: 'ASC' | 'DESC';
-  }): Promise<HarvestSchedule[]>;
+  }): Promise<HarvestScheduleResponse[]>;
+
+  abstract findAllBySupplierWithPagination({
+    supplierId,
+    paginationOptions,
+    filters,
+    sort,
+  }: {
+    supplierId: string;
+    paginationOptions: IPaginationOptions;
+    filters?: { status?: HarvestScheduleStatusEnum };
+    sort?: 'ASC' | 'DESC';
+  }): Promise<HarvestScheduleResponse[]>;
 
   abstract findById(
     id: HarvestSchedule['id'],
-  ): Promise<NullableType<HarvestSchedule>>;
+  ): Promise<NullableType<HarvestScheduleResponse>>;
 
   abstract findByIds(ids: HarvestSchedule['id'][]): Promise<HarvestSchedule[]>;
 

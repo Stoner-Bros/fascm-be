@@ -1,4 +1,5 @@
 import { SupplierEntity } from '../../../../../suppliers/infrastructure/persistence/relational/entities/supplier.entity';
+import { HarvestTicketEntity } from '../../../../../harvest-tickets/infrastructure/persistence/relational/entities/harvest-ticket.entity';
 
 import {
   BeforeInsert,
@@ -6,6 +7,7 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -43,6 +45,13 @@ export class HarvestScheduleEntity extends EntityRelationalHelper {
 
   @ManyToOne(() => SupplierEntity, { eager: true, nullable: true })
   supplier?: SupplierEntity | null;
+
+  @OneToOne(
+    () => HarvestTicketEntity,
+    (harvestTicket) => harvestTicket.harvestSchedule,
+    { nullable: true },
+  )
+  harvestTicket?: HarvestTicketEntity | null;
 
   @PrimaryColumn({
     type: String,

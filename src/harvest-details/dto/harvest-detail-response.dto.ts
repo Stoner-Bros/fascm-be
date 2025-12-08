@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Product } from '../../products/domain/product';
+import { ProductResponse } from 'src/products/dto/product-response.dto';
 
 export class HarvestDetailResponse {
   @ApiProperty({
@@ -27,16 +27,10 @@ export class HarvestDetailResponse {
   unit?: string | null;
 
   @ApiProperty({
-    type: () => Product,
+    type: () => ProductResponse,
     nullable: true,
   })
-  product?: Product | null;
-
-  @ApiProperty({
-    type: () => String,
-    nullable: true,
-  })
-  harvestTicketId?: string | null;
+  product?: ProductResponse | null;
 
   @ApiProperty({
     type: String,

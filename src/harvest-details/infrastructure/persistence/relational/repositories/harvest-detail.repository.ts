@@ -18,12 +18,12 @@ export class HarvestDetailRelationalRepository
     private readonly harvestDetailRepository: Repository<HarvestDetailEntity>,
   ) {}
 
-  async create(data: HarvestDetail): Promise<HarvestDetail> {
+  async create(data: HarvestDetail): Promise<HarvestDetailResponse> {
     const persistenceModel = HarvestDetailMapper.toPersistence(data);
     const newEntity = await this.harvestDetailRepository.save(
       this.harvestDetailRepository.create(persistenceModel),
     );
-    return HarvestDetailMapper.toDomain(newEntity);
+    return HarvestDetailMapper.toResponse(newEntity);
   }
 
   async findAllWithPagination({
