@@ -92,6 +92,8 @@ export class HarvestScheduleRelationalRepository
     qb.leftJoinAndSelect('hs.harvestTicket', 'harvestTicket');
     qb.leftJoinAndSelect('harvestTicket.harvestDetails', 'harvestDetails');
     qb.leftJoinAndSelect('harvestDetails.product', 'product');
+    qb.leftJoinAndSelect('supplier.user', 'user');
+    qb.leftJoinAndSelect('supplier.warehouse', 'warehouse');
     qb.where('hs.id = :id', { id });
 
     const entity = await qb.getOne();

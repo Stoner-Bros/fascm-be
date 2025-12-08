@@ -1,6 +1,7 @@
 import { OrderScheduleEntity } from '../../../../../order-schedules/infrastructure/persistence/relational/entities/order-schedule.entity';
 
 import { ImageProofEntity } from 'src/image-proofs/infrastructure/persistence/relational/entities/image-proof.entity';
+import { OrderInvoiceEntity } from 'src/order-invoices/infrastructure/persistence/relational/entities/order-invoice.entity';
 import { OrderPhaseStatusEnum } from 'src/order-phases/enum/order-phase-status.enum';
 import {
   Column,
@@ -8,6 +9,7 @@ import {
   Entity,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -44,6 +46,15 @@ export class OrderPhaseEntity extends EntityRelationalHelper {
 
   @ManyToOne(() => OrderScheduleEntity, { eager: true, nullable: true })
   orderSchedule?: OrderScheduleEntity | null;
+
+  @OneToOne(
+    () => OrderInvoiceEntity,
+    (orderInvoice) => orderInvoice.orderPhase,
+    {
+      nullable: true,
+    },
+  )
+  orderInvoice?: OrderInvoiceEntity | null;
 
   @PrimaryGeneratedColumn('uuid')
   id: string;

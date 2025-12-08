@@ -1,7 +1,5 @@
 import { ProductDto } from '../../products/dto/product.dto';
 
-import { OrderDto } from '../../orders/dto/order.dto';
-
 import {
   // decorators here
   Type,
@@ -22,14 +20,6 @@ import {
 } from '@nestjs/swagger';
 
 export class CreateOrderDetailDto {
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  amount?: number | null;
-
   @ApiProperty({
     required: false,
     type: () => Number,
@@ -63,16 +53,5 @@ export class CreateOrderDetailDto {
   @Type(() => ProductDto)
   @IsNotEmptyObject()
   product?: ProductDto | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => OrderDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => OrderDto)
-  @IsNotEmptyObject()
-  order?: OrderDto | null;
-
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

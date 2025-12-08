@@ -61,6 +61,7 @@ export class NotificationsService {
       // Do not remove comment below.
       // <creating-property-payload />
       user,
+      data: createNotificationDto.data,
 
       deletedAt: createNotificationDto.deletedAt,
 
@@ -77,6 +78,9 @@ export class NotificationsService {
       const payload = {
         id: created.id,
         type: created.type ?? 'info',
+        // JSON parse data
+        data: created.data ? JSON.parse(created.data) : undefined,
+        isRead: created.isRead ?? false,
         title: created.title ?? undefined,
         message: created.message ?? undefined,
         timestamp:
@@ -88,30 +92,39 @@ export class NotificationsService {
       const userId = Number(u?.id ?? NaN);
 
       if (!Number.isNaN(roleId) && !Number.isNaN(userId)) {
-        if (roleId === RoleEnum.supplier) {
-          const supplier = await this.suppliersService.findByUserId(userId);
-          if (supplier?.id) {
-            this.notificationsGateway.notifySupplier(supplier.id, payload);
-          }
-        } else if (roleId === RoleEnum.consignee) {
-          const consignee = await this.consigneesService.findByUserId(userId);
-          if (consignee?.id) {
-            this.notificationsGateway.notifyConsignee(consignee.id, payload);
-          }
-        } else if (roleId === RoleEnum.manager) {
-          const manager = await this.managersService.findByUserId(userId);
-          if (manager?.id) {
-            this.notificationsGateway.notifyManager(manager.id, payload);
-          }
-        } else if (roleId === RoleEnum.staff) {
-          const staff = await this.staffsService.findByUserId(userId);
-          if (staff?.id) {
-            this.notificationsGateway.notifyStaff(staff.id, payload);
-          }
-        } else if (roleId === RoleEnum.delivery_staff) {
-          const ds = await this.deliveryStaffsService.findByUserId(userId);
-          if (ds?.id) {
-            this.notificationsGateway.notifyDeliveryStaff(ds.id, payload);
+        const roleHandlers = {
+          [RoleEnum.supplier]: {
+            service: this.suppliersService,
+            notify: (id: string) =>
+              this.notificationsGateway.notifySupplier(id, payload),
+          },
+          [RoleEnum.consignee]: {
+            service: this.consigneesService,
+            notify: (id: string) =>
+              this.notificationsGateway.notifyConsignee(id, payload),
+          },
+          [RoleEnum.manager]: {
+            service: this.managersService,
+            notify: (id: string) =>
+              this.notificationsGateway.notifyManager(id, payload),
+          },
+          [RoleEnum.staff]: {
+            service: this.staffsService,
+            notify: (id: string) =>
+              this.notificationsGateway.notifyStaff(id, payload),
+          },
+          [RoleEnum.delivery_staff]: {
+            service: this.deliveryStaffsService,
+            notify: (id: string) =>
+              this.notificationsGateway.notifyDeliveryStaff(id, payload),
+          },
+        };
+
+        const handler = roleHandlers[roleId];
+        if (handler) {
+          const entity = await handler.service.findByUserId(userId);
+          if (entity?.id) {
+            handler.notify(entity.id);
           }
         }
       }
@@ -176,6 +189,7 @@ export class NotificationsService {
       // Do not remove comment below.
       // <updating-property-payload />
       user,
+      data: updateNotificationDto.data,
 
       deletedAt: updateNotificationDto.deletedAt,
 

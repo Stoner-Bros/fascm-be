@@ -1,35 +1,42 @@
-import { ImageProofsModule } from '../image-proofs/image-proofs.module';
-import { ConsigneesModule } from '../consignees/consignees.module';
-import { NotificationsModule } from '../notifications/notifications.module';
 import {
   // do not remove this comment
   Module,
-  forwardRef,
 } from '@nestjs/common';
-import { OrderSchedulesService } from './order-schedules.service';
-import { OrderSchedulesController } from './order-schedules.controller';
-import { RelationalOrderSchedulePersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
-import { DeliveriesModule } from '../deliveries/deliveries.module';
-import { FilesCloudinaryModule } from 'src/files/infrastructure/uploader/cloudinary/files.module';
-import { OrdersModule } from 'src/orders/orders.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderDetailsModule } from 'src/order-details/order-details.module';
+import { OrderDetailEntity } from 'src/order-details/infrastructure/persistence/relational/entities/order-detail.entity';
+import { OrderInvoiceDetailEntity } from 'src/order-invoice-details/infrastructure/persistence/relational/entities/order-invoice-detail.entity';
+import { OrderPhaseEntity } from 'src/order-phases/infrastructure/persistence/relational/entities/order-phase.entity';
+import { OrdersModule } from 'src/orders/orders.module';
+import { ProductsModule } from 'src/products/products.module';
+import { ConsigneesModule } from '../consignees/consignees.module';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { RelationalOrderSchedulePersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+import { OrderSchedulesController } from './order-schedules.controller';
+import { OrderSchedulesService } from './order-schedules.service';
+import { OrderScheduleValidationService } from './validators/order-schedule-validation.service';
 
 @Module({
   imports: [
-    forwardRef(() => ImageProofsModule),
-    forwardRef(() => OrdersModule),
-    forwardRef(() => OrderDetailsModule),
-    FilesCloudinaryModule,
     ConsigneesModule,
+    ProductsModule,
     NotificationsModule,
-
-    forwardRef(() => DeliveriesModule),
-
+    OrdersModule,
+    OrderDetailsModule,
     // do not remove this comment
     RelationalOrderSchedulePersistenceModule,
+    TypeOrmModule.forFeature([
+      OrderDetailEntity,
+      OrderInvoiceDetailEntity,
+      OrderPhaseEntity,
+    ]),
   ],
   controllers: [OrderSchedulesController],
-  providers: [OrderSchedulesService],
-  exports: [OrderSchedulesService, RelationalOrderSchedulePersistenceModule],
+  providers: [OrderSchedulesService, OrderScheduleValidationService],
+  exports: [
+    OrderSchedulesService,
+    OrderScheduleValidationService,
+    RelationalOrderSchedulePersistenceModule,
+  ],
 })
 export class OrderSchedulesModule {}

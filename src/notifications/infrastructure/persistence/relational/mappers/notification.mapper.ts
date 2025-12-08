@@ -17,6 +17,7 @@ export class NotificationMapper {
     domainEntity.isRead = raw.isRead;
 
     domainEntity.type = raw.type;
+    domainEntity.data = raw.data;
 
     domainEntity.message = raw.message;
 
@@ -42,6 +43,7 @@ export class NotificationMapper {
     persistenceEntity.isRead = domainEntity.isRead;
 
     persistenceEntity.type = domainEntity.type;
+    persistenceEntity.data = domainEntity.data;
 
     persistenceEntity.message = domainEntity.message;
 

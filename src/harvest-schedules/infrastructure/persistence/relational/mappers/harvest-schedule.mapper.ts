@@ -71,12 +71,11 @@ export class HarvestScheduleMapper {
     responseEntity.status = raw.status;
 
     responseEntity.harvestDate = raw.harvestDate;
+    responseEntity.reason = raw.reason;
 
     // remove warehouse prop of supplier mapping
     if (raw.supplier) {
       responseEntity.supplier = SupplierMapper.toDomain(raw.supplier);
-      delete responseEntity.supplier.warehouse;
-      delete responseEntity.supplier.user;
     } else if (raw.supplier === null) {
       responseEntity.supplier = null;
     }

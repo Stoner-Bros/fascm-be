@@ -2,6 +2,7 @@ import { Order } from '../../../../domain/order';
 
 import { OrderScheduleMapper } from '../../../../../order-schedules/infrastructure/persistence/relational/mappers/order-schedule.mapper';
 
+import { OrderResponseDto } from 'src/orders/dto/order-response.dto';
 import { OrderEntity } from '../entities/order.entity';
 
 export class OrderMapper {
@@ -53,5 +54,20 @@ export class OrderMapper {
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 
     return persistenceEntity;
+  }
+
+  static toResponse(raw: OrderEntity): OrderResponseDto {
+    const responseEntity = new OrderResponseDto();
+    responseEntity.unit = raw.unit;
+
+    responseEntity.quantity = raw.quantity;
+    responseEntity.orderNumber = raw.orderNumber;
+    responseEntity.orderUrl = raw.orderUrl;
+
+    responseEntity.id = raw.id;
+    responseEntity.createdAt = raw.createdAt;
+    responseEntity.updatedAt = raw.updatedAt;
+
+    return responseEntity;
   }
 }

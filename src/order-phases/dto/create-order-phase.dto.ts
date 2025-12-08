@@ -6,6 +6,7 @@ import {
 } from 'class-transformer';
 
 import {
+  IsArray,
   IsNotEmptyObject,
   IsNumber,
   IsOptional,
@@ -18,6 +19,7 @@ import {
   // decorators here
   ApiProperty,
 } from '@nestjs/swagger';
+import { CreateOrderInvoiceDetailDto } from 'src/order-invoice-details/dto/create-order-invoice-detail.dto';
 import { CreateOrderInvoiceDto } from '../../order-invoices/dto/create-order-invoice.dto';
 
 export class CreateOrderPhaseDto {
@@ -38,24 +40,41 @@ export class CreateOrderPhaseDto {
   phaseNumber?: number | null;
 
   @ApiProperty({
-    required: false,
+    required: true,
     type: () => OrderScheduleDto,
   })
-  @IsOptional()
   @ValidateNested()
   @Type(() => OrderScheduleDto)
   @IsNotEmptyObject()
-  orderSchedule?: OrderScheduleDto | null;
+  orderSchedule: OrderScheduleDto;
 
   @ApiProperty({
-    required: false,
+    required: true,
     type: () => CreateOrderInvoiceDto,
   })
-  @IsOptional()
   @ValidateNested()
   @Type(() => CreateOrderInvoiceDto)
-  @IsNotEmptyObject()
   orderInvoice?: CreateOrderInvoiceDto | null;
 
+  @ApiProperty({
+    required: true,
+    type: () => [CreateOrderInvoiceDetailDto],
+  })
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderInvoiceDetailDto)
+  @IsArray()
+  orderInvoiceDetails: CreateOrderInvoiceDetailDto[];
+
   // Don't forget to use the class-validator decorators in the DTO properties.
+}
+
+export class CreateMultipleOrderPhaseDto {
+  @ApiProperty({
+    required: true,
+    type: () => [CreateOrderPhaseDto],
+  })
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderPhaseDto)
+  @IsArray()
+  orderPhases: CreateOrderPhaseDto[];
 }

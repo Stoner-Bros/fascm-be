@@ -3,6 +3,7 @@ import { ImageProof } from '../../../../domain/image-proof';
 import { FileMapper } from '../../../../../files/infrastructure/persistence/relational/mappers/file.mapper';
 
 import { HarvestPhaseMapper } from 'src/harvest-phases/infrastructure/persistence/relational/mappers/harvest-phase.mapper';
+import { ImageProofResponse } from 'src/image-proofs/dto/image-proof-response.dto';
 import { OrderPhaseMapper } from 'src/order-phases/infrastructure/persistence/relational/mappers/order-phase.mapper';
 import { ImageProofEntity } from '../entities/image-proof.entity';
 
@@ -57,5 +58,21 @@ export class ImageProofMapper {
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 
     return persistenceEntity;
+  }
+
+  static toResponse(raw: ImageProofEntity): ImageProofResponse {
+    const domainEntity = new ImageProofResponse();
+
+    if (raw.photo) {
+      domainEntity.photo = FileMapper.toDomain(raw.photo);
+    } else if (raw.photo === null) {
+      domainEntity.photo = null;
+    }
+
+    domainEntity.id = raw.id;
+    domainEntity.createdAt = raw.createdAt;
+    domainEntity.updatedAt = raw.updatedAt;
+
+    return domainEntity;
   }
 }

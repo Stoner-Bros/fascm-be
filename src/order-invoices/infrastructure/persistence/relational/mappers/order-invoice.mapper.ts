@@ -1,6 +1,7 @@
 import { OrderPhaseMapper } from 'src/order-phases/infrastructure/persistence/relational/mappers/order-phase.mapper';
 import { PaymentMapper } from '../../../../../payments/infrastructure/persistence/relational/mappers/payment.mapper';
 
+import { OrderInvoiceResponse } from 'src/order-invoices/dto/order-invoice-response.dto';
 import { OrderInvoice } from '../../../../domain/order-invoice';
 import { OrderInvoiceEntity } from '../entities/order-invoice.entity';
 
@@ -67,5 +68,24 @@ export class OrderInvoiceMapper {
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 
     return persistenceEntity;
+  }
+
+  static toResponse(raw: OrderInvoiceEntity): OrderInvoiceResponse {
+    const domainEntity = new OrderInvoiceResponse();
+
+    domainEntity.totalPayment = raw.totalPayment;
+    domainEntity.totalAmount = raw.totalAmount;
+    domainEntity.quantity = raw.quantity;
+    domainEntity.unit = raw.unit;
+    domainEntity.vatAmount = raw.vatAmount;
+    domainEntity.taxRate = raw.taxRate;
+    domainEntity.invoiceNumber = raw.invoiceNumber;
+    domainEntity.invoiceUrl = raw.invoiceUrl;
+
+    domainEntity.id = raw.id;
+    domainEntity.createdAt = raw.createdAt;
+    domainEntity.updatedAt = raw.updatedAt;
+
+    return domainEntity;
   }
 }

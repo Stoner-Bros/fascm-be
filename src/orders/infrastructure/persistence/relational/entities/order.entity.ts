@@ -1,11 +1,13 @@
 import { OrderScheduleEntity } from '../../../../../order-schedules/infrastructure/persistence/relational/entities/order-schedule.entity';
 
+import { OrderDetailEntity } from 'src/order-details/infrastructure/persistence/relational/entities/order-detail.entity';
 import {
   BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
@@ -43,6 +45,9 @@ export class OrderEntity extends EntityRelationalHelper {
   @OneToOne(() => OrderScheduleEntity, { eager: true, nullable: true })
   @JoinColumn()
   orderSchedule?: OrderScheduleEntity | null;
+
+  @OneToMany(() => OrderDetailEntity, (orderDetail) => orderDetail.order)
+  orderDetails?: OrderDetailEntity[];
 
   @PrimaryColumn({
     type: String,

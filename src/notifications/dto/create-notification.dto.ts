@@ -65,6 +65,14 @@ export class CreateNotificationDto {
   })
   @IsOptional()
   @IsString()
+  data?: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => String,
+  })
+  @IsOptional()
+  @IsString()
   message?: string | null;
 
   @ApiProperty({

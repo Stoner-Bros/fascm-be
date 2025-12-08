@@ -1,12 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ProductResponse } from 'src/products/dto/product-response.dto';
 
-export class OrderDetailResponseDto {
+export class OrderInvoiceDetailResponse {
   @ApiProperty({
     type: () => Number,
     nullable: true,
   })
   amount?: number | null;
+
+  @ApiProperty({
+    type: () => Number,
+    nullable: true,
+  })
+  taxRate?: number | null;
 
   @ApiProperty({
     type: () => Number,

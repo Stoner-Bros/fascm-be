@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { OrderDetailResponseDto } from 'src/order-details/dto/order-detail-response.dto';
+import { OrderResponseDto } from 'src/orders/dto/order-response.dto';
 import { Consignee } from '../../consignees/domain/consignee';
-import { OrderPhase } from '../../order-phases/domain/order-phase';
 import { OrderScheduleStatusEnum } from '../enum/order-schedule-status.enum';
 
-export class OrderSchedule {
+export class OrderScheduleResponse {
   @ApiProperty({
     type: () => String,
     nullable: true,
@@ -35,12 +36,6 @@ export class OrderSchedule {
   consignee?: Consignee | null;
 
   @ApiProperty({
-    type: () => [OrderPhase],
-    nullable: true,
-  })
-  orderPhases?: OrderPhase[] | null;
-
-  @ApiProperty({
     type: String,
   })
   id: string;
@@ -56,4 +51,14 @@ export class OrderSchedule {
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty({
+    type: () => OrderResponseDto,
+  })
+  order: OrderResponseDto;
+
+  @ApiProperty({
+    type: () => [OrderDetailResponseDto],
+  })
+  orderDetails: OrderDetailResponseDto[];
 }

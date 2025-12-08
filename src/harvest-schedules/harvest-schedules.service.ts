@@ -1,5 +1,6 @@
 import { Supplier } from '../suppliers/domain/supplier';
 import { SuppliersService } from '../suppliers/suppliers.service';
+import { NotificationsService } from './../notifications/notifications.service';
 import { ProductsService } from './../products/products.service';
 
 import {
@@ -12,7 +13,6 @@ import {
 import { HarvestDetailRepository } from 'src/harvest-details/infrastructure/persistence/harvest-detail.repository';
 import { HarvestTicketRepository } from 'src/harvest-tickets/infrastructure/persistence/harvest-ticket.repository';
 import { Product } from 'src/products/domain/product';
-import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { HarvestSchedule } from './domain/harvest-schedule';
 import { CreateHarvestScheduleDto } from './dto/create-harvest-schedule.dto';
@@ -27,7 +27,7 @@ export class HarvestSchedulesService {
     private readonly harvestScheduleRepository: HarvestScheduleRepository,
     private readonly supplierService: SuppliersService,
     private readonly productsService: ProductsService,
-    private readonly notificationsGateway: NotificationsGateway,
+    private readonly notificationsService: NotificationsService,
     private readonly harvestTicketsRepository: HarvestTicketRepository,
     private readonly harvestDetailsRepository: HarvestDetailRepository,
   ) {}
@@ -268,29 +268,9 @@ export class HarvestSchedulesService {
     return this.harvestScheduleRepository.findById(id);
   }
 
-  async approveNotification(id: HarvestSchedule['id']) {
-    const harvestSchedule = await this.harvestScheduleRepository.findById(id);
-    if (!harvestSchedule) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: { id: 'notExists' },
-      });
-    }
-    const supplier = harvestSchedule?.supplier;
-    if (supplier?.id) {
-      this.notificationsGateway.notifySupplier(supplier.id, {
-        type: 'harvest-approved',
-        title: 'Lịch thu hoạch đã được duyệt',
-        message: `Lịch thu hoạch ${harvestSchedule.id} đã được duyệt`,
-        data: { harvestScheduleId: harvestSchedule.id },
-        timestamp: new Date().toISOString(),
-      });
-    }
-  }
-
-  remove(id: HarvestSchedule['id']) {
-    return this.harvestScheduleRepository.remove(id);
-  }
+  // remove(id: HarvestSchedule['id']) {
+  //   return this.harvestScheduleRepository.remove(id);
+  // }
 
   async updateStatus(
     id: HarvestSchedule['id'],
@@ -327,18 +307,6 @@ export class HarvestSchedulesService {
         HarvestScheduleStatusEnum.COMPLETED,
         HarvestScheduleStatusEnum.CANCELED,
       ],
-      // preparing: [
-      //   HarvestScheduleStatusEnum.DELIVERING,
-      //   HarvestScheduleStatusEnum.CANCELED,
-      // ],
-      // delivering: [
-      //   HarvestScheduleStatusEnum.DELIVERED,
-      //   HarvestScheduleStatusEnum.CANCELED,
-      // ],
-      // delivered: [
-      //   HarvestScheduleStatusEnum.COMPLETED,
-      //   HarvestScheduleStatusEnum.CANCELED,
-      // ],
       completed: [],
     };
 
@@ -368,25 +336,22 @@ export class HarvestSchedulesService {
     }
 
     if (status === HarvestScheduleStatusEnum.APPROVED) {
-      await this.approveNotification(id);
+      await this.approveNotification(harvestSchedule);
     }
-
-    // if (status === HarvestScheduleStatusEnum.COMPLETED) {
-    //   await this.createInboundBatchForHarvestSchedule(id);
-    // }
 
     // Send notification for rejection
     if (status === HarvestScheduleStatusEnum.REJECTED) {
-      const supplier = harvestSchedule?.supplier;
-      if (supplier?.id) {
-        this.notificationsGateway.notifySupplier(supplier.id, {
-          type: 'harvest-rejected',
-          title: 'Lịch thu hoạch đã bị từ chối',
-          message: `Lịch thu hoạch ${harvestSchedule.id} đã bị từ chối. Lý do: ${reason}`,
-          data: { harvestScheduleId: harvestSchedule.id, reason },
-          timestamp: new Date().toISOString(),
-        });
-      }
+      await this.rejectNotification(harvestSchedule, reason ?? '');
+    }
+
+    // Send notification for rejection
+    if (status === HarvestScheduleStatusEnum.COMPLETED) {
+      await this.completeNotification(harvestSchedule);
+    }
+
+    // Send notification for rejection
+    if (status === HarvestScheduleStatusEnum.CANCELED) {
+      await this.cancelNotification(harvestSchedule);
     }
 
     return this.harvestScheduleRepository.update(id, {
@@ -394,5 +359,61 @@ export class HarvestSchedulesService {
       reason: status === HarvestScheduleStatusEnum.REJECTED ? reason : null,
       updatedAt: new Date(),
     });
+  }
+
+  async approveNotification(hs: HarvestSchedule) {
+    const supplier = hs?.supplier;
+    if (supplier?.id) {
+      await this.notificationsService.create({
+        user: { id: Number(supplier.user?.id ?? 0) },
+        isRead: false,
+        type: 'harvest-approved',
+        title: 'harvestScheduleApproved',
+        message: `harvestScheduleHasBeenApproved`,
+        data: JSON.stringify({ harvestScheduleId: hs.id }),
+      });
+    }
+  }
+
+  async rejectNotification(hs: HarvestSchedule, reason: string) {
+    const supplier = hs?.supplier;
+    if (supplier?.id) {
+      await this.notificationsService.create({
+        user: { id: Number(supplier.user?.id ?? 0) },
+        isRead: false,
+        type: 'harvest-rejected',
+        title: 'harvestScheduleRejected',
+        message: `harvestScheduleHasBeenRejected`,
+        data: JSON.stringify({ harvestScheduleId: hs.id, reason }),
+      });
+    }
+  }
+
+  async completeNotification(hs: HarvestSchedule) {
+    const supplier = hs?.supplier;
+    if (supplier?.id) {
+      await this.notificationsService.create({
+        user: { id: Number(supplier.user?.id ?? 0) },
+        isRead: false,
+        type: 'harvest-completed',
+        title: 'harvestScheduleCompleted',
+        message: `harvestScheduleHasBeenCompleted`,
+        data: JSON.stringify({ harvestScheduleId: hs.id }),
+      });
+    }
+  }
+
+  async cancelNotification(hs: HarvestSchedule) {
+    const supplier = hs?.supplier;
+    if (supplier?.id) {
+      await this.notificationsService.create({
+        user: { id: Number(supplier.user?.id ?? 0) },
+        isRead: false,
+        type: 'harvest-canceled',
+        title: 'harvestScheduleCanceled',
+        message: `harvestScheduleHasBeenCanceled`,
+        data: JSON.stringify({ harvestScheduleId: hs.id }),
+      });
+    }
   }
 }
