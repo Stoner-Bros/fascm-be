@@ -62,7 +62,7 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
     qb.leftJoinAndSelect('orderInvoiceDetails.product', 'product');
     qb.leftJoinAndSelect('op.imageProof', 'imageProof');
 
-    qb.where('op.scheduleId = :scheduleId', { scheduleId });
+    qb.where('op.orderScheduleId = :scheduleId', { scheduleId });
 
     qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
     qb.take(paginationOptions.limit);

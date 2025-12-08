@@ -4,6 +4,7 @@ import { IoTDeviceMapper } from '../../../../../io-t-devices/infrastructure/pers
 
 import { TruckEntity } from '../entities/truck.entity';
 import { TruckStatusEnum } from '../../../../enum/truck-status.enum';
+import { TruckResponse } from 'src/trucks/dto/truck-response.dto';
 
 export class TruckMapper {
   static toDomain(raw: TruckEntity): Truck {
@@ -33,6 +34,25 @@ export class TruckMapper {
     domainEntity.updatedAt = raw.updatedAt;
 
     return domainEntity;
+  }
+
+  static toResponse(raw: TruckEntity): TruckResponse {
+    const responseEntity = new TruckResponse();
+    responseEntity.status = raw.status as TruckStatusEnum;
+
+    responseEntity.currentLocation = raw.currentLocation;
+
+    responseEntity.model = raw.model;
+
+    responseEntity.licensePhoto = raw.licensePhoto;
+
+    responseEntity.licensePlate = raw.licensePlate;
+    responseEntity.capacity = raw.capacity;
+
+    responseEntity.id = raw.id;
+    responseEntity.createdAt = raw.createdAt;
+    responseEntity.updatedAt = raw.updatedAt;
+    return responseEntity;
   }
 
   static toPersistence(domainEntity: Truck): TruckEntity {

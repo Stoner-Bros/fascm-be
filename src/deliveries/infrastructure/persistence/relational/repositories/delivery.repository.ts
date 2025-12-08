@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { DeliveryResponse } from 'src/deliveries/dto/delivery-response.dto';
 import { In, Repository } from 'typeorm';
 import { NullableType } from '../../../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
@@ -28,21 +29,24 @@ export class DeliveryRelationalRepository implements DeliveryRepository {
     filters,
   }: {
     paginationOptions: IPaginationOptions;
-    filters?: { orderScheduleId?: string; harvestScheduleId?: string };
-  }): Promise<Delivery[]> {
+    filters?: { orderPhaseId?: string; harvestPhaseId?: string };
+  }): Promise<DeliveryResponse[]> {
     const qb = this.deliveryRepository.createQueryBuilder('delivery');
-    qb.leftJoinAndSelect('delivery.orderSchedule', 'orderSchedule');
+    qb.leftJoinAndSelect('delivery.orderPhase', 'orderPhase');
     qb.leftJoinAndSelect('delivery.truck', 'truck');
-    qb.leftJoinAndSelect('delivery.harvestSchedule', 'harvestSchedule');
+    qb.leftJoinAndSelect('delivery.deliveryStaff', 'deliveryStaff');
+    qb.leftJoinAndSelect('delivery.harvestPhase', 'harvestPhase');
+    qb.leftJoinAndSelect('orderPhase.orderSchedule', 'orderSchedule');
+    qb.leftJoinAndSelect('harvestPhase.harvestSchedule', 'harvestSchedule');
 
-    if (filters?.orderScheduleId) {
-      qb.andWhere('orderSchedule.id = :orderScheduleId', {
-        orderScheduleId: filters.orderScheduleId,
+    if (filters?.orderPhaseId) {
+      qb.andWhere('orderPhase.id = :orderPhaseId', {
+        orderPhaseId: filters.orderPhaseId,
       });
     }
-    if (filters?.harvestScheduleId) {
-      qb.andWhere('harvestSchedule.id = :harvestScheduleId', {
-        harvestScheduleId: filters.harvestScheduleId,
+    if (filters?.harvestPhaseId) {
+      qb.andWhere('harvestPhase.id = :harvestPhaseId', {
+        harvestPhaseId: filters.harvestPhaseId,
       });
     }
 
@@ -51,7 +55,7 @@ export class DeliveryRelationalRepository implements DeliveryRepository {
     qb.take(paginationOptions.limit);
 
     const entities = await qb.getMany();
-    return entities.map((entity) => DeliveryMapper.toDomain(entity));
+    return entities.map((entity) => DeliveryMapper.toResponse(entity));
   }
 
   async findById(id: Delivery['id']): Promise<NullableType<Delivery>> {
@@ -75,7 +79,7 @@ export class DeliveryRelationalRepository implements DeliveryRepository {
   ): Promise<NullableType<Delivery>> {
     const entity = await this.deliveryRepository.findOne({
       where: { orderPhase: { id: orderPhaseId } },
-      relations: ['orderPhase', 'harvestPhase', 'truck', 'deliveryStaff'],
+      relations: ['orderPhase', 'truck', 'deliveryStaff'],
     });
 
     return entity ? DeliveryMapper.toDomain(entity) : null;
@@ -86,7 +90,7 @@ export class DeliveryRelationalRepository implements DeliveryRepository {
   ): Promise<NullableType<Delivery>> {
     const entity = await this.deliveryRepository.findOne({
       where: { harvestPhase: { id: harvestPhaseId } },
-      relations: ['orderPhase', 'harvestPhase', 'truck', 'deliveryStaff'],
+      relations: ['harvestPhase', 'truck', 'deliveryStaff'],
     });
 
     return entity ? DeliveryMapper.toDomain(entity) : null;

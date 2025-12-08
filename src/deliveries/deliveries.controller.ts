@@ -1,18 +1,15 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { DeliveriesService } from './deliveries.service';
-import { CreateDeliveryDto } from './dto/create-delivery.dto';
-import { UpdateDeliveryDto } from './dto/update-delivery.dto';
-import { UpdateDeliveryStatusDto } from './dto/update-delivery-status.dto';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -20,14 +17,18 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { Delivery } from './domain/delivery';
-import { AuthGuard } from '@nestjs/passport';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
+import { DeliveriesService } from './deliveries.service';
+import { Delivery } from './domain/delivery';
+import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { FindAllDeliveriesDto } from './dto/find-all-deliveries.dto';
+import { UpdateDeliveryStatusDto } from './dto/update-delivery-status.dto';
+import { UpdateDeliveryDto } from './dto/update-delivery.dto';
+import { DeliveryResponse } from './dto/delivery-response.dto';
 
 @ApiTags('Deliveries')
 @ApiBearerAuth()
@@ -49,11 +50,11 @@ export class DeliveriesController {
 
   @Get()
   @ApiOkResponse({
-    type: InfinityPaginationResponse(Delivery),
+    type: InfinityPaginationResponse(DeliveryResponse),
   })
   async findAll(
     @Query() query: FindAllDeliveriesDto,
-  ): Promise<InfinityPaginationResponseDto<Delivery>> {
+  ): Promise<InfinityPaginationResponseDto<DeliveryResponse>> {
     const page = query?.page ?? 1;
     let limit = query?.limit ?? 10;
     if (limit > 50) {
@@ -67,8 +68,8 @@ export class DeliveriesController {
           limit,
         },
         filters: {
-          orderScheduleId: query?.orderScheduleId,
-          harvestScheduleId: query?.harvestScheduleId,
+          orderPhaseId: query?.orderPhaseId,
+          harvestPhaseId: query?.harvestPhaseId,
         },
       }),
       { page, limit },

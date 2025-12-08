@@ -1,5 +1,6 @@
-import { HarvestSchedule } from 'src/harvest-schedules/domain/harvest-schedule';
-import { OrderSchedule } from 'src/order-schedules/domain/order-schedule';
+import { DeliveryResponse } from 'src/deliveries/dto/delivery-response.dto';
+import { HarvestPhase } from 'src/harvest-phases/domain/harvest-phase';
+import { OrderPhase } from 'src/order-phases/domain/order-phase';
 import { DeepPartial } from '../../../utils/types/deep-partial.type';
 import { NullableType } from '../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../utils/types/pagination-options';
@@ -15,19 +16,19 @@ export abstract class DeliveryRepository {
     filters,
   }: {
     paginationOptions: IPaginationOptions;
-    filters?: { orderScheduleId?: string; harvestScheduleId?: string };
-  }): Promise<Delivery[]>;
+    filters?: { orderPhaseId?: string; harvestPhaseId?: string };
+  }): Promise<DeliveryResponse[]>;
 
   abstract findById(id: Delivery['id']): Promise<NullableType<Delivery>>;
 
   abstract findByIds(ids: Delivery['id'][]): Promise<Delivery[]>;
 
   abstract findByOrderPhaseId(
-    orderPhaseId: OrderSchedule['id'],
+    orderPhaseId: OrderPhase['id'],
   ): Promise<NullableType<Delivery>>;
 
   abstract findByHarvestPhaseId(
-    harvestPhaseId: HarvestSchedule['id'],
+    harvestPhaseId: HarvestPhase['id'],
   ): Promise<NullableType<Delivery>>;
 
   abstract update(
