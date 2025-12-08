@@ -48,7 +48,7 @@ export class OrderDetailMapper {
     domainEntity.unit = raw.unit;
 
     if (raw.product) {
-      domainEntity.product = ProductMapper.toDomain(raw.product);
+      domainEntity.product = ProductMapper.toResponse(raw.product);
     } else if (raw.product === null) {
       domainEntity.product = null;
     }

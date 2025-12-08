@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
-import { OrderScheduleEntity } from '../entities/order-schedule.entity';
+import { OrderScheduleResponse } from 'src/order-schedules/dto/order-schedule-response.dto';
+import { In, Repository } from 'typeorm';
 import { NullableType } from '../../../../../utils/types/nullable.type';
+import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 import { OrderSchedule } from '../../../../domain/order-schedule';
 import { OrderScheduleRepository } from '../../order-schedule.repository';
+import { OrderScheduleEntity } from '../entities/order-schedule.entity';
 import { OrderScheduleMapper } from '../mappers/order-schedule.mapper';
-import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 
 @Injectable()
 export class OrderScheduleRelationalRepository
@@ -35,33 +36,72 @@ export class OrderScheduleRelationalRepository
       status?: OrderSchedule['status'];
     };
     sort?: 'ASC' | 'DESC';
-  }): Promise<OrderSchedule[]> {
-    const where: any = {};
+  }): Promise<OrderScheduleResponse[]> {
+    const qb = this.orderScheduleRepository.createQueryBuilder('os');
+    qb.leftJoinAndSelect('os.consignee', 'consignee');
+    qb.leftJoinAndSelect('os.order', 'order');
+    qb.leftJoinAndSelect('order.orderDetails', 'orderDetails');
+    qb.leftJoinAndSelect('orderDetails.product', 'product');
 
     if (filters?.status) {
-      where.status = filters.status;
+      qb.andWhere('os.status = :status', { status: filters.status });
     }
 
-    const entities = await this.orderScheduleRepository.find({
-      skip: (paginationOptions.page - 1) * paginationOptions.limit,
-      take: paginationOptions.limit,
-      where: Object.keys(where).length > 0 ? where : undefined,
-      order: {
-        id: sort ?? 'DESC',
-      },
-    });
+    qb.orderBy('os.id', sort ?? 'DESC');
+    qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
+    qb.take(paginationOptions.limit);
 
-    return entities.map((entity) => OrderScheduleMapper.toDomain(entity));
+    const entities = await qb.getMany();
+    return entities.map((entity) => OrderScheduleMapper.toResponse(entity));
+  }
+
+  async findAllByConsigneeWithPagination({
+    consigneeId,
+    paginationOptions,
+    filters,
+    sort,
+  }: {
+    consigneeId: string;
+    paginationOptions: IPaginationOptions;
+    filters?: {
+      status?: OrderSchedule['status'];
+    };
+    sort?: 'ASC' | 'DESC';
+  }): Promise<OrderScheduleResponse[]> {
+    const qb = this.orderScheduleRepository.createQueryBuilder('os');
+    qb.leftJoinAndSelect('os.consignee', 'consignee');
+    qb.leftJoinAndSelect('os.order', 'order');
+    qb.leftJoinAndSelect('order.orderDetails', 'orderDetails');
+    qb.leftJoinAndSelect('orderDetails.product', 'product');
+
+    qb.andWhere('consignee.id = :consigneeId', { consigneeId });
+
+    if (filters?.status) {
+      qb.andWhere('os.status = :status', { status: filters.status });
+    }
+
+    qb.orderBy('os.id', sort ?? 'DESC');
+    qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
+    qb.take(paginationOptions.limit);
+
+    const entities = await qb.getMany();
+    return entities.map((entity) => OrderScheduleMapper.toResponse(entity));
   }
 
   async findById(
     id: OrderSchedule['id'],
-  ): Promise<NullableType<OrderSchedule>> {
-    const entity = await this.orderScheduleRepository.findOne({
-      where: { id },
-    });
+  ): Promise<NullableType<OrderScheduleResponse>> {
+    const qb = this.orderScheduleRepository.createQueryBuilder('os');
+    qb.leftJoinAndSelect('os.consignee', 'consignee');
+    qb.leftJoinAndSelect('os.order', 'order');
+    qb.leftJoinAndSelect('order.orderDetails', 'orderDetails');
+    qb.leftJoinAndSelect('orderDetails.product', 'product');
+    qb.leftJoinAndSelect('consignee.user', 'user');
+    qb.where('os.id = :id', { id });
 
-    return entity ? OrderScheduleMapper.toDomain(entity) : null;
+    const entity = await qb.getOne();
+
+    return entity ? OrderScheduleMapper.toResponse(entity) : null;
   }
 
   async findByIds(ids: OrderSchedule['id'][]): Promise<OrderSchedule[]> {

@@ -1,37 +1,13 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  Query,
-  Req,
-  UnprocessableEntityException,
-  HttpStatus,
-} from '@nestjs/common';
-import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
-  ApiCreatedResponse,
   ApiOkResponse,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
 import { Order } from './domain/order';
-import { AuthGuard } from '@nestjs/passport';
-import {
-  InfinityPaginationResponse,
-  InfinityPaginationResponseDto,
-} from '../utils/dto/infinity-pagination-response.dto';
-import { infinityPagination } from '../utils/infinity-pagination';
-import { FindAllOrdersDto } from './dto/find-all-orders.dto';
-import { OrderDetailsService } from '../order-details/order-details.service';
-import { OrderWithDetailsResponseDto } from './dto/order-with-details-response.dto';
+import { OrdersService } from './orders.service';
 
 @ApiTags('Orders')
 @ApiBearerAuth()
@@ -41,70 +17,7 @@ import { OrderWithDetailsResponseDto } from './dto/order-with-details-response.d
   version: '1',
 })
 export class OrdersController {
-  constructor(
-    private readonly ordersService: OrdersService,
-    private readonly orderDetailsService: OrderDetailsService,
-  ) {}
-
-  @Post()
-  @ApiCreatedResponse({
-    type: Order,
-  })
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.create(createOrderDto);
-  }
-
-  @Get()
-  @ApiOkResponse({
-    type: InfinityPaginationResponse(Order),
-  })
-  async findAll(
-    @Query() query: FindAllOrdersDto,
-  ): Promise<InfinityPaginationResponseDto<Order>> {
-    const page = query?.page ?? 1;
-    let limit = query?.limit ?? 10;
-    if (limit > 50) {
-      limit = 50;
-    }
-
-    return infinityPagination(
-      await this.ordersService.findAllWithPagination({
-        paginationOptions: {
-          page,
-          limit,
-        },
-      }),
-      { page, limit },
-    );
-  }
-
-  @Get('mine')
-  @ApiOkResponse({
-    type: InfinityPaginationResponse(Order),
-  })
-  async findMine(
-    @Query() query: FindAllOrdersDto,
-    @Req() req: any,
-  ): Promise<InfinityPaginationResponseDto<Order>> {
-    const page = query?.page ?? 1;
-    let limit = query?.limit ?? 10;
-    if (limit > 50) {
-      limit = 50;
-    }
-
-    const userId = req?.user?.id as string | undefined;
-    return infinityPagination(
-      await this.ordersService.findMineWithPagination({
-        paginationOptions: {
-          page,
-          limit,
-        },
-        userId: String(userId ?? ''),
-      }),
-      { page, limit },
-    );
-  }
-
+  constructor(private readonly ordersService: OrdersService) {}
   @Get(':id')
   @ApiParam({
     name: 'id',
@@ -116,54 +29,5 @@ export class OrdersController {
   })
   findById(@Param('id') id: string) {
     return this.ordersService.findById(id);
-  }
-
-  @Get(':id/full-info')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-  })
-  @ApiOkResponse({
-    type: OrderWithDetailsResponseDto,
-  })
-  async findByIdWithDetails(
-    @Param('id') id: string,
-  ): Promise<OrderWithDetailsResponseDto> {
-    const order = await this.ordersService.findById(id);
-    if (!order) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: { id: 'notExists' },
-      });
-    }
-    const orderDetails = await this.orderDetailsService.findAllWithPagination({
-      paginationOptions: { page: 1, limit: 100 },
-      filters: { orderId: id },
-    });
-    return { order, orderDetails };
-  }
-
-  @Patch(':id')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-  })
-  @ApiOkResponse({
-    type: Order,
-  })
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(id, updateOrderDto);
-  }
-
-  @Delete(':id')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-  })
-  remove(@Param('id') id: string) {
-    return this.ordersService.remove(id);
   }
 }

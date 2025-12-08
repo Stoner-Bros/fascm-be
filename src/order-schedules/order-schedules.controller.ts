@@ -1,13 +1,12 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   Patch,
   Post,
   Query,
-  Req,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -27,6 +26,7 @@ import { infinityPagination } from '../utils/infinity-pagination';
 import { OrderSchedule } from './domain/order-schedule';
 import { CreateOrderScheduleDto } from './dto/create-order-schedule.dto';
 import { FindAllOrderSchedulesDto } from './dto/find-all-order-schedules.dto';
+import { OrderScheduleResponse } from './dto/order-schedule-response.dto';
 import { UpdateOrderScheduleStatusDto } from './dto/update-order-schedule-status.dto';
 import { UpdateOrderScheduleDto } from './dto/update-order-schedule.dto';
 import { OrderSchedulesService } from './order-schedules.service';
@@ -50,28 +50,21 @@ export class OrderSchedulesController {
   })
   create(
     @Body() createOrderScheduleDto: CreateOrderScheduleDto,
-    @Req() req: any,
+    @Request() request,
   ) {
-    return (async () => {
-      if (!createOrderScheduleDto.consignee?.id && req?.user?.id) {
-        const consignee = await this.consigneesService.findByUserId(
-          req.user.id,
-        );
-        if (consignee) {
-          createOrderScheduleDto.consignee = { id: consignee.id } as any;
-        }
-      }
-      return this.orderSchedulesService.create(createOrderScheduleDto);
-    })();
+    return this.orderSchedulesService.create(
+      createOrderScheduleDto,
+      request.user.id,
+    );
   }
 
   @Get()
   @ApiOkResponse({
-    type: InfinityPaginationResponse(OrderSchedule),
+    type: InfinityPaginationResponse(OrderScheduleResponse),
   })
   async findAll(
     @Query() query: FindAllOrderSchedulesDto,
-  ): Promise<InfinityPaginationResponseDto<OrderSchedule>> {
+  ): Promise<InfinityPaginationResponseDto<OrderScheduleResponse>> {
     const page = query?.page ?? 1;
     let limit = query?.limit ?? 10;
     if (limit > 50) {
@@ -93,6 +86,71 @@ export class OrderSchedulesController {
     );
   }
 
+  @Get('consignee/:consigneeId')
+  @ApiOkResponse({
+    type: InfinityPaginationResponse(OrderScheduleResponse),
+  })
+  async findAllByConsignee(
+    @Param('consigneeId') consigneeId: string,
+    @Query() query: FindAllOrderSchedulesDto,
+  ): Promise<InfinityPaginationResponseDto<OrderScheduleResponse>> {
+    const page = query?.page ?? 1;
+    let limit = query?.limit ?? 10;
+    if (limit > 50) {
+      limit = 50;
+    }
+    const status = query?.status;
+    const sort = query?.sort === 'asc' ? 'ASC' : 'DESC';
+
+    return infinityPagination(
+      await this.orderSchedulesService.findAllByConsigneeWithPagination({
+        consigneeId,
+        paginationOptions: {
+          page,
+          limit,
+        },
+        filters: { status },
+        sort,
+      }),
+      { page, limit },
+    );
+  }
+
+  @Get('mine')
+  @ApiOkResponse({
+    type: InfinityPaginationResponse(OrderScheduleResponse),
+  })
+  async findAllMine(
+    @Request() request,
+    @Query() query: FindAllOrderSchedulesDto,
+  ): Promise<InfinityPaginationResponseDto<OrderScheduleResponse>> {
+    const userId = request.user.id;
+    const consignee = await this.consigneesService.findByUserId(userId);
+    if (!consignee) {
+      return infinityPagination([], { page: 1, limit: 10 });
+    }
+    const page = query?.page ?? 1;
+    let limit = query?.limit ?? 10;
+    if (limit > 50) {
+      limit = 50;
+    }
+    const status = query?.status;
+    const sort = query?.sort === 'asc' ? 'ASC' : 'DESC';
+
+    return infinityPagination(
+      await this.orderSchedulesService.findAllByConsigneeWithPagination({
+        consigneeId: consignee.id,
+        paginationOptions: {
+          page,
+          limit,
+        },
+        filters: { status },
+        sort,
+      }),
+      { page, limit },
+    );
+  }
+
   @Get(':id')
   @ApiParam({
     name: 'id',
@@ -100,23 +158,10 @@ export class OrderSchedulesController {
     required: true,
   })
   @ApiOkResponse({
-    type: OrderSchedule,
+    type: OrderScheduleResponse,
   })
   findById(@Param('id') id: string) {
     return this.orderSchedulesService.findById(id);
-  }
-
-  @Get(':id/full-info')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-  })
-  @ApiOkResponse({
-    type: OrderSchedule,
-  })
-  findFullInfoById(@Param('id') id: string) {
-    return this.orderSchedulesService.findFullInfoById(id);
   }
 
   @Patch(':id')
@@ -131,19 +176,24 @@ export class OrderSchedulesController {
   update(
     @Param('id') id: string,
     @Body() updateOrderScheduleDto: UpdateOrderScheduleDto,
+    @Request() request,
   ) {
-    return this.orderSchedulesService.update(id, updateOrderScheduleDto);
+    return this.orderSchedulesService.update(
+      id,
+      updateOrderScheduleDto,
+      request.user.id,
+    );
   }
 
-  @Delete(':id')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-  })
-  remove(@Param('id') id: string) {
-    return this.orderSchedulesService.remove(id);
-  }
+  // @Delete(':id')
+  // @ApiParam({
+  //   name: 'id',
+  //   type: String,
+  //   required: true,
+  // })
+  // remove(@Param('id') id: string) {
+  //   return this.orderSchedulesService.remove(id);
+  // }
 
   @Patch(':id/status')
   @ApiParam({

@@ -2,6 +2,9 @@ import { OrderSchedule } from '../../../../domain/order-schedule';
 
 import { ConsigneeMapper } from '../../../../../consignees/infrastructure/persistence/relational/mappers/consignee.mapper';
 
+import { OrderScheduleResponse } from 'src/order-schedules/dto/order-schedule-response.dto';
+import { OrderMapper } from 'src/orders/infrastructure/persistence/relational/mappers/order.mapper';
+import { ProductMapper } from 'src/products/infrastructure/persistence/relational/mappers/product.mapper';
 import { OrderScheduleEntity } from '../entities/order-schedule.entity';
 
 export class OrderScheduleMapper {
@@ -56,5 +59,53 @@ export class OrderScheduleMapper {
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 
     return persistenceEntity;
+  }
+
+  static toResponse(raw: OrderScheduleEntity): OrderScheduleResponse {
+    const responseEntity = new OrderScheduleResponse();
+    responseEntity.address = raw.address;
+
+    responseEntity.description = raw.description;
+
+    responseEntity.status = raw.status;
+
+    responseEntity.deliveryDate = raw.deliveryDate;
+
+    if (raw.consignee) {
+      responseEntity.consignee = ConsigneeMapper.toDomain(raw.consignee);
+    } else if (raw.consignee === null) {
+      responseEntity.consignee = null;
+    }
+
+    if (raw.order) {
+      responseEntity.order = OrderMapper.toResponse(raw.order);
+      // Map harvest details if exists
+      if (raw.order.orderDetails && Array.isArray(raw.order.orderDetails)) {
+        responseEntity.orderDetails = raw.order.orderDetails.map((detail) => {
+          const detailResponse: any = {
+            id: detail.id,
+            amount: detail.amount,
+            unitPrice: detail.unitPrice,
+            quantity: detail.quantity,
+            unit: detail.unit,
+            createdAt: detail.createdAt,
+            updatedAt: detail.updatedAt,
+          };
+          if (detail.product) {
+            detailResponse.product = ProductMapper.toResponse(detail.product);
+          }
+          return detailResponse;
+        });
+      } else {
+        responseEntity.orderDetails = [];
+      }
+    }
+
+    responseEntity.id = raw.id;
+    responseEntity.reason = raw.reason;
+    responseEntity.createdAt = raw.createdAt;
+    responseEntity.updatedAt = raw.updatedAt;
+
+    return responseEntity;
   }
 }

@@ -1,3 +1,4 @@
+import { OrderScheduleResponse } from 'src/order-schedules/dto/order-schedule-response.dto';
 import { DeepPartial } from '../../../utils/types/deep-partial.type';
 import { NullableType } from '../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../utils/types/pagination-options';
@@ -18,11 +19,25 @@ export abstract class OrderScheduleRepository {
       status?: OrderSchedule['status'];
     };
     sort?: 'ASC' | 'DESC';
-  }): Promise<OrderSchedule[]>;
+  }): Promise<OrderScheduleResponse[]>;
+
+  abstract findAllByConsigneeWithPagination({
+    consigneeId,
+    paginationOptions,
+    filters,
+    sort,
+  }: {
+    consigneeId: string;
+    paginationOptions: IPaginationOptions;
+    filters?: {
+      status?: OrderSchedule['status'];
+    };
+    sort?: 'ASC' | 'DESC';
+  }): Promise<OrderScheduleResponse[]>;
 
   abstract findById(
     id: OrderSchedule['id'],
-  ): Promise<NullableType<OrderSchedule>>;
+  ): Promise<NullableType<OrderScheduleResponse>>;
 
   abstract findByIds(ids: OrderSchedule['id'][]): Promise<OrderSchedule[]>;
 

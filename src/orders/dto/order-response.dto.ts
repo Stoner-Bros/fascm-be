@@ -1,18 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ProductResponse } from 'src/products/dto/product-response.dto';
 
-export class OrderDetailResponseDto {
+export class OrderResponseDto {
   @ApiProperty({
-    type: () => Number,
+    type: () => String,
     nullable: true,
   })
-  amount?: number | null;
-
-  @ApiProperty({
-    type: () => Number,
-    nullable: true,
-  })
-  unitPrice?: number | null;
+  unit?: string | null;
 
   @ApiProperty({
     type: () => Number,
@@ -24,13 +17,13 @@ export class OrderDetailResponseDto {
     type: () => String,
     nullable: true,
   })
-  unit?: string | null;
+  orderNumber?: string | null;
 
   @ApiProperty({
-    type: () => ProductResponse,
+    type: () => String,
     nullable: true,
   })
-  product?: ProductResponse | null;
+  orderUrl?: string | null;
 
   @ApiProperty({
     type: String,

@@ -1,12 +1,12 @@
-import { ConsigneeDto } from '../../consignees/dto/consignee.dto';
-
 import {
+  Transform,
   // decorators here
   Type,
 } from 'class-transformer';
 
 import {
-  IsNotEmptyObject,
+  IsArray,
+  IsDate,
   IsOptional,
   IsString,
   // decorators here
@@ -17,6 +17,8 @@ import {
   // decorators here
   ApiProperty,
 } from '@nestjs/swagger';
+import { CreateOrderDetailDto } from 'src/order-details/dto/create-order-detail.dto';
+import { CreateOrderDto } from 'src/orders/dto/create-order.dto';
 
 export class CreateOrderScheduleDto {
   @ApiProperty({
@@ -36,13 +38,29 @@ export class CreateOrderScheduleDto {
 
   @ApiProperty({
     required: false,
-    type: () => ConsigneeDto,
+    type: () => Date,
   })
   @IsOptional()
+  @Transform(({ value }) => new Date(value))
+  @IsDate()
+  deliveryDate?: Date | null;
+
+  @ApiProperty({
+    required: true,
+    type: () => CreateOrderDto,
+  })
   @ValidateNested()
-  @Type(() => ConsigneeDto)
-  @IsNotEmptyObject()
-  consignee?: ConsigneeDto | null;
+  @Type(() => CreateOrderDto)
+  order: CreateOrderDto;
+
+  @ApiProperty({
+    required: true,
+    type: () => [CreateOrderDetailDto],
+  })
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderDetailDto)
+  @IsArray()
+  orderDetails: CreateOrderDetailDto[];
 
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

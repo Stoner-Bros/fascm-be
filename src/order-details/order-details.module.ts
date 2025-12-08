@@ -1,20 +1,13 @@
-import { ProductsModule } from '../products/products.module';
-import { forwardRef } from '@nestjs/common';
-import { OrdersModule } from '../orders/orders.module';
 import {
   // do not remove this comment
   Module,
 } from '@nestjs/common';
-import { OrderDetailsService } from './order-details.service';
-import { OrderDetailsController } from './order-details.controller';
 import { RelationalOrderDetailPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+import { OrderDetailsController } from './order-details.controller';
+import { OrderDetailsService } from './order-details.service';
 
 @Module({
   imports: [
-    ProductsModule,
-
-    forwardRef(() => OrdersModule),
-
     // do not remove this comment
     RelationalOrderDetailPersistenceModule,
   ],

@@ -71,6 +71,7 @@ export class HarvestScheduleMapper {
     responseEntity.status = raw.status;
 
     responseEntity.harvestDate = raw.harvestDate;
+    responseEntity.reason = raw.reason;
 
     // remove warehouse prop of supplier mapping
     if (raw.supplier) {
