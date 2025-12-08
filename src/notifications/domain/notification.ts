@@ -30,6 +30,12 @@ export class Notification {
     type: () => String,
     nullable: true,
   })
+  data?: string | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
   message?: string | null;
 
   @ApiProperty({

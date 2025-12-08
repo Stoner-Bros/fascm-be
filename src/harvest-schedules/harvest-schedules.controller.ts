@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   Patch,
@@ -24,13 +23,13 @@ import {
   InfinityPaginationResponseDto,
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
+import { HarvestSchedule } from './domain/harvest-schedule';
 import { CreateHarvestScheduleDto } from './dto/create-harvest-schedule.dto';
 import { FindAllHarvestSchedulesDto } from './dto/find-all-harvest-schedules.dto';
 import { HarvestScheduleResponse } from './dto/harvest-schedule-response';
 import { UpdateHarvestScheduleStatusDto } from './dto/update-harvest-schedule-status.dto';
 import { UpdateHarvestScheduleDto } from './dto/update-harvest-schedule.dto';
 import { HarvestSchedulesService } from './harvest-schedules.service';
-import { HarvestSchedule } from './domain/harvest-schedule';
 
 @ApiTags('Harvestschedules')
 @ApiBearerAuth()
@@ -186,15 +185,15 @@ export class HarvestSchedulesController {
     );
   }
 
-  @Delete(':id')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-  })
-  remove(@Param('id') id: string) {
-    return this.harvestSchedulesService.remove(id);
-  }
+  // @Delete(':id')
+  // @ApiParam({
+  //   name: 'id',
+  //   type: String,
+  //   required: true,
+  // })
+  // remove(@Param('id') id: string) {
+  //   return this.harvestSchedulesService.remove(id);
+  // }
 
   @Patch(':id/status')
   @ApiParam({
