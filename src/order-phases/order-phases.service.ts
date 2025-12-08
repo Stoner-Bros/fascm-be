@@ -18,12 +18,16 @@ import { CreateOrderPhaseDto } from './dto/create-order-phase.dto';
 import { UpdateOrderPhaseDto } from './dto/update-order-phase.dto';
 import { OrderPhaseStatusEnum } from './enum/order-phase-status.enum';
 import { OrderPhaseRepository } from './infrastructure/persistence/order-phase.repository';
+import { OrderInvoicesService } from 'src/order-invoices/order-invoices.service';
 
 @Injectable()
 export class OrderPhasesService {
   constructor(
     @Inject(forwardRef(() => ImageProofsService))
     private readonly imageProofService: ImageProofsService,
+
+    @Inject(forwardRef(() => OrderInvoicesService))
+    private readonly orderInvoiceService: OrderInvoicesService,
 
     private readonly filesCloudinaryService: FilesCloudinaryService,
 
@@ -57,17 +61,18 @@ export class OrderPhasesService {
       orderSchedule = null;
     }
 
-    return this.orderPhaseRepository.create({
-      // Do not remove comment below.
-      // <creating-property-payload />
+    const orderPhase = await this.orderPhaseRepository.create({
       description: createOrderPhaseDto.description,
-
-      // status: createOrderPhaseDto.status,
-
       phaseNumber: createOrderPhaseDto.phaseNumber,
-
       orderSchedule,
     });
+
+    const orderInvoice = await this.orderInvoiceService.create({
+      orderPhase: orderPhase,
+      ...createOrderPhaseDto.orderInvoice,
+    });
+
+    return orderInvoice;
   }
 
   findAllWithPagination({

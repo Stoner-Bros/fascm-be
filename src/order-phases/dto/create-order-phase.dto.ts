@@ -6,19 +6,19 @@ import {
 } from 'class-transformer';
 
 import {
-  // decorators here
-
-  ValidateNested,
   IsNotEmptyObject,
-  IsOptional,
   IsNumber,
+  IsOptional,
   IsString,
+  // decorators here
+  ValidateNested,
 } from 'class-validator';
 
 import {
   // decorators here
   ApiProperty,
 } from '@nestjs/swagger';
+import { CreateOrderInvoiceDto } from '../../order-invoices/dto/create-order-invoice.dto';
 
 export class CreateOrderPhaseDto {
   @ApiProperty({
@@ -28,14 +28,6 @@ export class CreateOrderPhaseDto {
   @IsOptional()
   @IsString()
   description?: string | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => String,
-  })
-  @IsOptional()
-  @IsString()
-  status?: string | null;
 
   @ApiProperty({
     required: false,
@@ -54,6 +46,16 @@ export class CreateOrderPhaseDto {
   @Type(() => OrderScheduleDto)
   @IsNotEmptyObject()
   orderSchedule?: OrderScheduleDto | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => CreateOrderInvoiceDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CreateOrderInvoiceDto)
+  @IsNotEmptyObject()
+  orderInvoice?: CreateOrderInvoiceDto | null;
 
   // Don't forget to use the class-validator decorators in the DTO properties.
 }
