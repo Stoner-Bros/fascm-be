@@ -81,4 +81,24 @@ export class ImportTicketRelationalRepository
   async remove(id: ImportTicket['id']): Promise<void> {
     await this.importTicketRepository.delete(id);
   }
+
+  async findByAreaWithPagination({
+    areaId,
+    paginationOptions,
+  }: {
+    areaId: string;
+    paginationOptions: IPaginationOptions;
+  }): Promise<ImportTicket[]> {
+    const queryBuilder = this.importTicketRepository
+      .createQueryBuilder('importTicket')
+      .where(
+        'importTicket.id IN (SELECT DISTINCT "batch"."importTicketId" FROM "batch" WHERE "batch"."areaId" = :areaId)',
+        { areaId },
+      )
+      .skip((paginationOptions.page - 1) * paginationOptions.limit)
+      .take(paginationOptions.limit);
+
+    const entities = await queryBuilder.getMany();
+    return entities.map((entity) => ImportTicketMapper.toDomain(entity));
+  }
 }

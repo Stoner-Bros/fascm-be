@@ -26,4 +26,12 @@ export abstract class ImportTicketRepository {
   ): Promise<ImportTicket | null>;
 
   abstract remove(id: ImportTicket['id']): Promise<void>;
+
+  abstract findByAreaWithPagination({
+    areaId,
+    paginationOptions,
+  }: {
+    areaId: string;
+    paginationOptions: IPaginationOptions;
+  }): Promise<ImportTicket[]>;
 }

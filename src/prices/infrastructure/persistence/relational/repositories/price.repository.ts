@@ -76,4 +76,13 @@ export class PriceRelationalRepository implements PriceRepository {
   async remove(id: Price['id']): Promise<void> {
     await this.priceRepository.delete(id);
   }
+
+  async findByProductId(productId: string): Promise<Price[]> {
+    const entities = await this.priceRepository.find({
+      where: { product: { id: productId } },
+      relations: ['product'],
+    });
+
+    return entities.map((entity) => PriceMapper.toDomain(entity));
+  }
 }

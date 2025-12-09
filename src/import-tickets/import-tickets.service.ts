@@ -178,50 +178,23 @@ export class ImportTicketsService {
     return this.importTicketRepository.findByIds(ids);
   }
 
-  // async update(
-  //   id: ImportTicket['id'],
-
-  //   updateImportTicketDto: UpdateImportTicketDto,
-  // ) {
-  //   // Do not remove comment below.
-  //   // <updating-property />
-
-  //   let inboundBatch: InboundBatch | null | undefined = undefined;
-
-  //   if (updateImportTicketDto.inboundBatch) {
-  //     const inboundBatchObject = await this.inboundBatchService.findById(
-  //       updateImportTicketDto.inboundBatch.id,
-  //     );
-  //     if (!inboundBatchObject) {
-  //       throw new UnprocessableEntityException({
-  //         status: HttpStatus.UNPROCESSABLE_ENTITY,
-  //         errors: {
-  //           inboundBatch: 'notExists',
-  //         },
-  //       });
-  //     }
-  //     inboundBatch = inboundBatchObject;
-  //   } else if (updateImportTicketDto.inboundBatch === null) {
-  //     inboundBatch = null;
-  //   }
-
-  //   return this.importTicketRepository.update(id, {
-  //     // Do not remove comment below.
-  //     // <updating-property-payload />
-  //     numberOfBatch: (updateImportTicketDto.realityQuantity || 0) / 20,
-
-  //     percent:
-  //       ((updateImportTicketDto.realityQuantity || 0) /
-  //         (inboundBatch?.quantity || 1)) *
-  //       100,
-
-  //     importDate: updateImportTicketDto.importDate,
-
-  //     inboundBatch,
-  //   });
-  // }
-
   remove(id: ImportTicket['id']) {
     return this.importTicketRepository.remove(id);
+  }
+
+  findByAreaWithPagination({
+    areaId,
+    paginationOptions,
+  }: {
+    areaId: string;
+    paginationOptions: IPaginationOptions;
+  }) {
+    return this.importTicketRepository.findByAreaWithPagination({
+      areaId,
+      paginationOptions: {
+        page: paginationOptions.page,
+        limit: paginationOptions.limit,
+      },
+    });
   }
 }

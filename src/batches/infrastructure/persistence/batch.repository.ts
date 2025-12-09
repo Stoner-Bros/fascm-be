@@ -1,3 +1,4 @@
+import { BatchResponse } from 'src/batches/dto/batch-response.dto';
 import { DeepPartial } from '../../../utils/types/deep-partial.type';
 import { NullableType } from '../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../utils/types/pagination-options';
@@ -24,4 +25,26 @@ export abstract class BatchRepository {
   ): Promise<Batch | null>;
 
   abstract remove(id: Batch['id']): Promise<void>;
+
+  abstract findByFiltersWithPagination({
+    areaId,
+    importTicketId,
+    productId,
+    paginationOptions,
+  }: {
+    areaId?: string;
+    importTicketId?: string;
+    productId?: string;
+    paginationOptions: IPaginationOptions;
+  }): Promise<BatchResponse[]>;
+
+  abstract findByFiltersGroupedByImportTicket({
+    areaId,
+    importTicketId,
+    productId,
+  }: {
+    areaId?: string;
+    importTicketId?: string;
+    productId?: string;
+  }): Promise<BatchResponse[]>;
 }
