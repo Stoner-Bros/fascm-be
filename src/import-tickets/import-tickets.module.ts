@@ -1,18 +1,20 @@
-import { InboundBatchesModule } from '../inbound-batches/inbound-batches.module';
 import {
   forwardRef,
   // do not remove this comment
   Module,
 } from '@nestjs/common';
-import { ImportTicketsService } from './import-tickets.service';
-import { ImportTicketsController } from './import-tickets.controller';
-import { RelationalImportTicketPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+import { AreasModule } from 'src/areas/areas.module';
 import { BatchesModule } from 'src/batches/batches.module';
+import { InboundBatchesModule } from '../inbound-batches/inbound-batches.module';
+import { ImportTicketsController } from './import-tickets.controller';
+import { ImportTicketsService } from './import-tickets.service';
+import { RelationalImportTicketPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 
 @Module({
   imports: [
     forwardRef(() => InboundBatchesModule),
     forwardRef(() => BatchesModule),
+    forwardRef(() => AreasModule),
 
     // do not remove this comment
     RelationalImportTicketPersistenceModule,

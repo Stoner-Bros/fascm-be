@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Supplier } from '../../suppliers/domain/supplier';
+import { HarvestPhase } from '../../harvest-phases/domain/harvest-phase';
 import { HarvestScheduleStatusEnum } from '../enum/harvest-schedule-status.enum';
 
 export class HarvestSchedule {
@@ -32,6 +33,12 @@ export class HarvestSchedule {
     nullable: true,
   })
   supplier?: Supplier | null;
+
+  @ApiProperty({
+    type: () => [HarvestPhase],
+    nullable: true,
+  })
+  harvestPhases?: HarvestPhase[] | null;
 
   @ApiProperty({
     type: String,

@@ -1,5 +1,6 @@
 import { SupplierEntity } from '../../../../../suppliers/infrastructure/persistence/relational/entities/supplier.entity';
 import { HarvestTicketEntity } from '../../../../../harvest-tickets/infrastructure/persistence/relational/entities/harvest-ticket.entity';
+import { HarvestPhaseEntity } from '../../../../../harvest-phases/infrastructure/persistence/relational/entities/harvest-phase.entity';
 
 import {
   BeforeInsert,
@@ -7,6 +8,7 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
@@ -52,6 +54,15 @@ export class HarvestScheduleEntity extends EntityRelationalHelper {
     { nullable: true },
   )
   harvestTicket?: HarvestTicketEntity | null;
+
+  @OneToMany(
+    () => HarvestPhaseEntity,
+    (harvestPhase) => harvestPhase.harvestSchedule,
+    {
+      nullable: true,
+    },
+  )
+  harvestPhases?: HarvestPhaseEntity[] | null;
 
   @PrimaryColumn({
     type: String,

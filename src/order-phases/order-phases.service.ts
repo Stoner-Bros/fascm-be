@@ -175,7 +175,7 @@ export class OrderPhasesService {
   }
 
   findById(id: OrderPhase['id']) {
-    return this.orderPhaseRepository.findById(id);
+    return this.orderPhaseRepository.findFullById(id);
   }
 
   findByIds(ids: OrderPhase['id'][]) {

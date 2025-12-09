@@ -24,6 +24,7 @@ import { infinityPagination } from '../utils/infinity-pagination';
 import { ImportTicket } from './domain/import-ticket';
 import { CreateImportTicketDto } from './dto/create-import-ticket.dto';
 import { FindAllImportTicketsDto } from './dto/find-all-import-tickets.dto';
+import { FindImportTicketsByAreaDto } from './dto/find-import-tickets-by-area.dto';
 import { ImportTicketsService } from './import-tickets.service';
 
 @ApiTags('Importtickets')
@@ -105,5 +106,36 @@ export class ImportTicketsController {
   })
   remove(@Param('id') id: string) {
     return this.importTicketsService.remove(id);
+  }
+
+  @Get('by-area/:areaId')
+  @ApiParam({
+    name: 'areaId',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: InfinityPaginationResponse(ImportTicket),
+  })
+  async findByArea(
+    @Param('areaId') areaId: string,
+    @Query() query: FindImportTicketsByAreaDto,
+  ): Promise<InfinityPaginationResponseDto<ImportTicket>> {
+    const page = query?.page ?? 1;
+    let limit = query?.limit ?? 10;
+    if (limit > 50) {
+      limit = 50;
+    }
+
+    return infinityPagination(
+      await this.importTicketsService.findByAreaWithPagination({
+        areaId,
+        paginationOptions: {
+          page,
+          limit,
+        },
+      }),
+      { page, limit },
+    );
   }
 }

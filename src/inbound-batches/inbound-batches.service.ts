@@ -1,14 +1,16 @@
 import { Product } from '../products/domain/product';
+import { ImportTicket } from './../import-tickets/domain/import-ticket';
 
 import {
+  forwardRef,
   HttpStatus,
+  Inject,
   // common
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { HarvestInvoiceDetail } from 'src/harvest-invoice-details/domain/harvest-invoice-detail';
 import { HarvestInvoiceDetailsService } from 'src/harvest-invoice-details/harvest-invoice-details.service';
-import { ImportTicket } from 'src/import-tickets/domain/import-ticket';
 import { ImportTicketsService } from 'src/import-tickets/import-tickets.service';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { InboundBatch } from './domain/inbound-batch';
@@ -19,8 +21,8 @@ import { InboundBatchRepository } from './infrastructure/persistence/inbound-bat
 @Injectable()
 export class InboundBatchesService {
   constructor(
+    @Inject(forwardRef(() => ImportTicketsService))
     private readonly importTicketService: ImportTicketsService,
-
     private readonly harvestInvoiceDetailService: HarvestInvoiceDetailsService,
 
     // Dependencies here
@@ -30,26 +32,6 @@ export class InboundBatchesService {
   async create(createInboundBatchDto: CreateInboundBatchDto) {
     // Do not remove comment below.
     // <creating-property />
-
-    let importTicket: ImportTicket | null | undefined = undefined;
-
-    if (createInboundBatchDto.importTicket) {
-      const importTicketObject = await this.importTicketService.findById(
-        createInboundBatchDto.importTicket.id,
-      );
-      if (!importTicketObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            importTicket: 'notExists',
-          },
-        });
-      }
-      importTicket = importTicketObject;
-    } else if (createInboundBatchDto.importTicket === null) {
-      importTicket = null;
-    }
-
     let harvestInvoiceDetail: HarvestInvoiceDetail | null | undefined =
       undefined;
 
@@ -79,8 +61,6 @@ export class InboundBatchesService {
       unit: createInboundBatchDto.unit,
 
       batchCode: createInboundBatchDto.batchCode,
-
-      importTicket,
 
       harvestInvoiceDetail,
     });
@@ -115,25 +95,6 @@ export class InboundBatchesService {
     // Do not remove comment below.
     // <updating-property />
 
-    let importTicket: ImportTicket | null | undefined = undefined;
-
-    if (updateInboundBatchDto.importTicket) {
-      const importTicketObject = await this.importTicketService.findById(
-        updateInboundBatchDto.importTicket.id,
-      );
-      if (!importTicketObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            importTicket: 'notExists',
-          },
-        });
-      }
-      importTicket = importTicketObject;
-    } else if (updateInboundBatchDto.importTicket === null) {
-      importTicket = null;
-    }
-
     let harvestInvoiceDetail: HarvestInvoiceDetail | null | undefined =
       undefined;
     if (updateInboundBatchDto.harvestInvoiceDetail) {
@@ -152,6 +113,24 @@ export class InboundBatchesService {
       harvestInvoiceDetail = harvestInvoiceDetailObject;
     } else if (updateInboundBatchDto.harvestInvoiceDetail === null) {
       harvestInvoiceDetail = null;
+    }
+
+    let importTicket: ImportTicket | null | undefined = undefined;
+    if (updateInboundBatchDto.importTicket) {
+      const importTicketObject = await this.importTicketService.findById(
+        updateInboundBatchDto.importTicket.id,
+      );
+      if (!importTicketObject) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            importTicket: 'notExists',
+          },
+        });
+      }
+      importTicket = importTicketObject;
+    } else if (updateInboundBatchDto.importTicket === null) {
+      importTicket = null;
     }
 
     return this.inboundBatchRepository.update(id, {

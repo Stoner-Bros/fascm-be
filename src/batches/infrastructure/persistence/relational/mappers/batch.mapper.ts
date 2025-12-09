@@ -6,6 +6,7 @@ import { ProductMapper } from '../../../../../products/infrastructure/persistenc
 
 import { ImportTicketMapper } from '../../../../../import-tickets/infrastructure/persistence/relational/mappers/import-ticket.mapper';
 
+import { BatchResponse } from 'src/batches/dto/batch-response.dto';
 import { ExportTicketMapper } from 'src/export-tickets/infrastructure/persistence/relational/mappers/export-ticket.mapper';
 import { BatchEntity } from '../entities/batch.entity';
 
@@ -49,6 +50,51 @@ export class BatchMapper {
     domainEntity.updatedAt = raw.updatedAt;
 
     return domainEntity;
+  }
+
+  static toResponse(raw: BatchEntity): BatchResponse {
+    const responseEntity = new BatchResponse();
+    if (raw.exportTicket) {
+      responseEntity.exportTicket = ExportTicketMapper.toDomain(
+        raw.exportTicket,
+      );
+    } else if (raw.exportTicket === null) {
+      responseEntity.exportTicket = null;
+    }
+
+    responseEntity.volume = raw.volume;
+
+    responseEntity.quantity = raw.quantity;
+
+    responseEntity.unit = raw.unit;
+
+    responseEntity.batchCode = raw.batchCode;
+
+    if (raw.area) {
+      responseEntity.area = AreaMapper.toDomain(raw.area);
+    } else if (raw.area === null) {
+      responseEntity.area = null;
+    }
+
+    if (raw.product) {
+      responseEntity.product = ProductMapper.toResponse(raw.product);
+    } else if (raw.product === null) {
+      responseEntity.product = null;
+    }
+
+    if (raw.importTicket) {
+      responseEntity.importTicket = ImportTicketMapper.toDomain(
+        raw.importTicket,
+      );
+    } else if (raw.importTicket === null) {
+      responseEntity.importTicket = null;
+    }
+
+    responseEntity.id = raw.id;
+    responseEntity.createdAt = raw.createdAt;
+    responseEntity.updatedAt = raw.updatedAt;
+
+    return responseEntity;
   }
 
   static toPersistence(domainEntity: Batch): BatchEntity {

@@ -7,6 +7,7 @@ import { ExportTicketsModule } from 'src/export-tickets/export-tickets.module';
 import { AreasModule } from '../areas/areas.module';
 import { ImportTicketsModule } from '../import-tickets/import-tickets.module';
 import { ProductsModule } from '../products/products.module';
+import { PricesModule } from '../prices/prices.module';
 import { BatchesController } from './batches.controller';
 import { BatchesService } from './batches.service';
 import { RelationalBatchPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
@@ -16,6 +17,8 @@ import { RelationalBatchPersistenceModule } from './infrastructure/persistence/r
     AreasModule,
 
     ProductsModule,
+
+    PricesModule,
 
     forwardRef(() => ImportTicketsModule),
     forwardRef(() => ExportTicketsModule),

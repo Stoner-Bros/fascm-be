@@ -115,4 +115,8 @@ export class PricesService {
   remove(id: Price['id']) {
     return this.priceRepository.remove(id);
   }
+
+  findByProductId(productId: string) {
+    return this.priceRepository.findByProductId(productId);
+  }
 }

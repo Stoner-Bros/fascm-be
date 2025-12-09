@@ -5,6 +5,7 @@ import { ProductMapper } from '../../../../../products/infrastructure/persistenc
 import { HarvestInvoiceMapper } from '../../../../../harvest-invoices/infrastructure/persistence/relational/mappers/harvest-invoice.mapper';
 
 import { HarvestInvoiceDetailEntity } from '../entities/harvest-invoice-detail.entity';
+import { HarvestInvoiceDetailResponse } from 'src/harvest-invoice-details/dto/harvest-invoice-detail-response';
 
 export class HarvestInvoiceDetailMapper {
   static toDomain(raw: HarvestInvoiceDetailEntity): HarvestInvoiceDetail {
@@ -77,5 +78,28 @@ export class HarvestInvoiceDetailMapper {
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 
     return persistenceEntity;
+  }
+
+  static toResponse(
+    raw: HarvestInvoiceDetailEntity,
+  ): HarvestInvoiceDetailResponse {
+    const responseEntity = new HarvestInvoiceDetailResponse();
+    responseEntity.amount = raw.amount;
+    responseEntity.taxRate = raw.taxRate;
+    responseEntity.unitPrice = raw.unitPrice;
+    responseEntity.quantity = raw.quantity;
+    responseEntity.unit = raw.unit;
+
+    if (raw.product) {
+      responseEntity.product = ProductMapper.toResponse(raw.product);
+    } else if (raw.product === null) {
+      responseEntity.product = null;
+    }
+
+    responseEntity.id = raw.id;
+    responseEntity.createdAt = raw.createdAt;
+    responseEntity.updatedAt = raw.updatedAt;
+
+    return responseEntity;
   }
 }

@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
-import { BatchEntity } from '../entities/batch.entity';
+import { BatchResponse } from 'src/batches/dto/batch-response.dto';
+import { In, Repository } from 'typeorm';
 import { NullableType } from '../../../../../utils/types/nullable.type';
+import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 import { Batch } from '../../../../domain/batch';
 import { BatchRepository } from '../../batch.repository';
+import { BatchEntity } from '../entities/batch.entity';
 import { BatchMapper } from '../mappers/batch.mapper';
-import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 
 @Injectable()
 export class BatchRelationalRepository implements BatchRepository {
@@ -75,5 +76,79 @@ export class BatchRelationalRepository implements BatchRepository {
 
   async remove(id: Batch['id']): Promise<void> {
     await this.batchRepository.delete(id);
+  }
+
+  async findByFiltersWithPagination({
+    areaId,
+    importTicketId,
+    productId,
+    paginationOptions,
+  }: {
+    areaId?: string;
+    importTicketId?: string;
+    productId?: string;
+    paginationOptions: IPaginationOptions;
+  }): Promise<BatchResponse[]> {
+    const queryBuilder = this.batchRepository
+      .createQueryBuilder('batch')
+      .leftJoinAndSelect('batch.area', 'area')
+      .leftJoinAndSelect('batch.product', 'product')
+      .leftJoinAndSelect('batch.importTicket', 'importTicket');
+
+    if (areaId) {
+      queryBuilder.andWhere('area.id = :areaId', { areaId });
+    }
+
+    if (importTicketId) {
+      queryBuilder.andWhere('importTicket.id = :importTicketId', {
+        importTicketId,
+      });
+    }
+
+    if (productId) {
+      queryBuilder.andWhere('product.id = :productId', { productId });
+    }
+
+    queryBuilder
+      .skip((paginationOptions.page - 1) * paginationOptions.limit)
+      .take(paginationOptions.limit);
+
+    const entities = await queryBuilder.getMany();
+    return entities.map((entity) => BatchMapper.toResponse(entity));
+  }
+
+  async findByFiltersGroupedByImportTicket({
+    areaId,
+    importTicketId,
+    productId,
+  }: {
+    areaId?: string;
+    importTicketId?: string;
+    productId?: string;
+  }): Promise<BatchResponse[]> {
+    const queryBuilder = this.batchRepository
+      .createQueryBuilder('batch')
+      .leftJoinAndSelect('batch.area', 'area')
+      .leftJoinAndSelect('batch.product', 'product')
+      .leftJoinAndSelect('batch.importTicket', 'importTicket');
+
+    if (areaId) {
+      queryBuilder.andWhere('area.id = :areaId', { areaId });
+    }
+
+    if (importTicketId) {
+      queryBuilder.andWhere('importTicket.id = :importTicketId', {
+        importTicketId,
+      });
+    }
+
+    if (productId) {
+      queryBuilder.andWhere('product.id = :productId', { productId });
+    }
+
+    queryBuilder.orderBy('importTicket.importDate', 'DESC');
+
+    const entities = await queryBuilder.getMany();
+    return entities.map((entity) => BatchMapper.toResponse(entity));
   }
 }
