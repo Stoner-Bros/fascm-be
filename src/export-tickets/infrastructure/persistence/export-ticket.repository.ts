@@ -26,4 +26,12 @@ export abstract class ExportTicketRepository {
   ): Promise<ExportTicket | null>;
 
   abstract remove(id: ExportTicket['id']): Promise<void>;
+
+  abstract findByAreaWithPagination({
+    areaId,
+    paginationOptions,
+  }: {
+    areaId: string;
+    paginationOptions: IPaginationOptions;
+  }): Promise<ExportTicket[]>;
 }

@@ -1,13 +1,11 @@
-import { OrderInvoiceDetailDto } from './../../order-invoice-details/dto/order-invoice-detail.dto';
-
 import {
   // decorators here
   Type,
 } from 'class-transformer';
 
 import {
-  IsNotEmptyObject,
-  IsOptional,
+  IsArray,
+  IsString,
   // decorators here
   ValidateNested,
 } from 'class-validator';
@@ -17,16 +15,33 @@ import {
   ApiProperty,
 } from '@nestjs/swagger';
 
+class OrderInvoiceDetailWithBatchDto {
+  @ApiProperty({
+    required: true,
+    type: () => String,
+  })
+  @Type(() => String)
+  @IsString()
+  orderInvoiceDetailId: string;
+
+  @ApiProperty({
+    required: true,
+    type: [String],
+  })
+  @Type(() => String)
+  @IsArray()
+  batchIds: string[];
+}
+
 export class CreateExportTicketDto {
   @ApiProperty({
-    required: false,
-    type: () => OrderInvoiceDetailDto,
+    required: true,
+    type: [OrderInvoiceDetailWithBatchDto],
   })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => OrderInvoiceDetailDto)
-  @IsNotEmptyObject()
-  OrderInvoiceDetailDto?: OrderInvoiceDetailDto | null;
+  @ValidateNested({ each: true })
+  @Type(() => OrderInvoiceDetailWithBatchDto)
+  @IsArray()
+  invoiceDetails: OrderInvoiceDetailWithBatchDto[];
 
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

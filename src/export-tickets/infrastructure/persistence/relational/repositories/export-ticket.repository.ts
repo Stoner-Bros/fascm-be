@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
-import { ExportTicketEntity } from '../entities/export-ticket.entity';
+import { In, Repository } from 'typeorm';
 import { NullableType } from '../../../../../utils/types/nullable.type';
+import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 import { ExportTicket } from '../../../../domain/export-ticket';
 import { ExportTicketRepository } from '../../export-ticket.repository';
+import { ExportTicketEntity } from '../entities/export-ticket.entity';
 import { ExportTicketMapper } from '../mappers/export-ticket.mapper';
-import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 
 @Injectable()
 export class ExportTicketRelationalRepository
@@ -80,5 +80,25 @@ export class ExportTicketRelationalRepository
 
   async remove(id: ExportTicket['id']): Promise<void> {
     await this.exportTicketRepository.delete(id);
+  }
+
+  async findByAreaWithPagination({
+    areaId,
+    paginationOptions,
+  }: {
+    areaId: string;
+    paginationOptions: IPaginationOptions;
+  }): Promise<ExportTicket[]> {
+    const queryBuilder = this.exportTicketRepository
+      .createQueryBuilder('exportTicket')
+      .where(
+        'exportTicket.id IN (SELECT DISTINCT "batch"."exportTicketId" FROM "batch" WHERE "batch"."areaId" = :areaId)',
+        { areaId },
+      )
+      .skip((paginationOptions.page - 1) * paginationOptions.limit)
+      .take(paginationOptions.limit);
+
+    const entities = await queryBuilder.getMany();
+    return entities.map((entity) => ExportTicketMapper.toDomain(entity));
   }
 }

@@ -1,15 +1,21 @@
-import { OrderDetailsModule } from '../order-details/order-details.module';
 import {
+  forwardRef,
   // do not remove this comment
   Module,
 } from '@nestjs/common';
+import { AreasModule } from 'src/areas/areas.module';
+import { BatchesModule } from 'src/batches/batches.module';
+import { OrderInvoiceDetailsModule } from 'src/order-invoice-details/order-invoice-details.module';
 import { ExportTicketsService } from './export-tickets.service';
-import { ExportTicketsController } from './export-tickets.controller';
+import { ExportTicketsController } from './infrastructure/persistence/export-tickets.controller';
 import { RelationalExportTicketPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 
 @Module({
   imports: [
-    OrderDetailsModule,
+    OrderInvoiceDetailsModule,
+
+    forwardRef(() => BatchesModule),
+    AreasModule,
 
     // do not remove this comment
     RelationalExportTicketPersistenceModule,

@@ -1,26 +1,31 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   Param,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
+  ApiCreatedResponse,
   ApiOkResponse,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+import { ExportTicket } from 'src/export-tickets/domain/export-ticket';
+import { CreateExportTicketDto } from 'src/export-tickets/dto/create-export-ticket.dto';
+import { FindAllExportTicketsDto } from 'src/export-tickets/dto/find-all-export-tickets.dto';
+import { FindExportTicketsByAreaDto } from 'src/export-tickets/dto/find-export-tickets-by-area.dto';
+import { ExportTicketsService } from 'src/export-tickets/export-tickets.service';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
-} from '../utils/dto/infinity-pagination-response.dto';
-import { infinityPagination } from '../utils/infinity-pagination';
-import { ExportTicket } from './domain/export-ticket';
-import { FindAllExportTicketsDto } from './dto/find-all-export-tickets.dto';
-import { ExportTicketsService } from './export-tickets.service';
+} from 'src/utils/dto/infinity-pagination-response.dto';
+import { infinityPagination } from 'src/utils/infinity-pagination';
 
 @ApiTags('Exporttickets')
 @ApiBearerAuth()
@@ -32,21 +37,13 @@ import { ExportTicketsService } from './export-tickets.service';
 export class ExportTicketsController {
   constructor(private readonly exportTicketsService: ExportTicketsService) {}
 
-  // @Post()
-  // @ApiCreatedResponse({
-  //   type: ExportTicket,
-  // })
-  // create(@Body() createExportTicketDto: CreateExportTicketDto) {
-  //   return this.exportTicketsService.create(createExportTicketDto);
-  // }
-
-  // @Post('many')
-  // @ApiCreatedResponse({
-  //   type: [ExportTicket],
-  // })
-  // createBulk(@Body() createExportTicketDtos: CreateExportTicketDto[]) {
-  //   return this.exportTicketsService.createBulk(createExportTicketDtos);
-  // }
+  @Post()
+  @ApiCreatedResponse({
+    type: ExportTicket,
+  })
+  create(@Body() createExportTicketDto: CreateExportTicketDto) {
+    return this.exportTicketsService.create(createExportTicketDto);
+  }
 
   @Get()
   @ApiOkResponse({
@@ -109,5 +106,36 @@ export class ExportTicketsController {
   })
   remove(@Param('id') id: string) {
     return this.exportTicketsService.remove(id);
+  }
+
+  @Get('by-area/:areaId')
+  @ApiParam({
+    name: 'areaId',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: InfinityPaginationResponse(ExportTicket),
+  })
+  async findByArea(
+    @Param('areaId') areaId: string,
+    @Query() query: FindExportTicketsByAreaDto,
+  ): Promise<InfinityPaginationResponseDto<ExportTicket>> {
+    const page = query?.page ?? 1;
+    let limit = query?.limit ?? 10;
+    if (limit > 50) {
+      limit = 50;
+    }
+
+    return infinityPagination(
+      await this.exportTicketsService.findByAreaWithPagination({
+        areaId,
+        paginationOptions: {
+          page,
+          limit,
+        },
+      }),
+      { page, limit },
+    );
   }
 }
