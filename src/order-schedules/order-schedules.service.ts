@@ -2,6 +2,7 @@ import { ConsigneesService } from '../consignees/consignees.service';
 import { Consignee } from '../consignees/domain/consignee';
 import { NotificationsService } from '../notifications/notifications.service';
 import { ProductsService } from '../products/products.service';
+import { OrderDetailSelectionsService } from './../order-detail-selections/order-detail-selections.service';
 
 import {
   BadRequestException,
@@ -10,6 +11,7 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { BatchesService } from 'src/batches/batches.service';
 import { OrderDetailRepository } from 'src/order-details/infrastructure/persistence/order-detail.repository';
 import { OrderRepository } from 'src/orders/infrastructure/persistence/order.repository';
 import { Product } from 'src/products/domain/product';
@@ -29,6 +31,8 @@ export class OrderSchedulesService {
     private readonly productsService: ProductsService,
     private readonly notificationsService: NotificationsService,
     private readonly orderRepository: OrderRepository,
+    private readonly orderDetailSelectionsService: OrderDetailSelectionsService,
+    private readonly batchesService: BatchesService,
     private readonly orderDetailRepository: OrderDetailRepository,
   ) {}
 
@@ -80,7 +84,7 @@ export class OrderSchedulesService {
       if (detailDto.product) {
         product = await this.productsService.findById(detailDto.product.id);
       }
-      await this.orderDetailRepository.create({
+      const od = await this.orderDetailRepository.create({
         order: order,
         product: product ?? undefined,
         unitPrice: detailDto.unitPrice ?? undefined,
@@ -89,6 +93,25 @@ export class OrderSchedulesService {
         // amount = unitPrice * quantity
         amount: (detailDto.unitPrice ?? 0) * (detailDto.quantity ?? 0),
       });
+
+      // Create order detail selections if batchIds are provided
+      if (detailDto.batchId && detailDto.batchId.length > 0) {
+        for (const batchId of detailDto.batchId) {
+          const batch = await this.batchesService.findById(batchId);
+          if (!batch) {
+            throw new UnprocessableEntityException({
+              status: HttpStatus.UNPROCESSABLE_ENTITY,
+              errors: {
+                batch: 'notExists',
+              },
+            });
+          }
+          await this.orderDetailSelectionsService.create({
+            orderDetail: od,
+            batch: batch,
+          });
+        }
+      }
       totalQuantity += detailDto.quantity ?? 0;
     }
     order.quantity = totalQuantity;
@@ -221,6 +244,9 @@ export class OrderSchedulesService {
           );
           if (oldDetails) {
             for (const detail of oldDetails) {
+              await this.orderDetailSelectionsService.removeAllByOrderDetailId(
+                detail.id,
+              );
               await this.orderDetailRepository.remove(detail.id);
             }
           }
@@ -243,7 +269,7 @@ export class OrderSchedulesService {
               }
             }
 
-            await this.orderDetailRepository.create({
+            const od = await this.orderDetailRepository.create({
               order: existingOrder,
               product: product ?? undefined,
               unitPrice: detailDto.unitPrice ?? undefined,
@@ -251,6 +277,25 @@ export class OrderSchedulesService {
               unit: detailDto.unit ?? undefined,
               amount: (detailDto.unitPrice ?? 0) * (detailDto.quantity ?? 0),
             });
+
+            // Create order detail selections if batchIds are provided
+            if (detailDto.batchId && detailDto.batchId.length > 0) {
+              for (const batchId of detailDto.batchId) {
+                const batch = await this.batchesService.findById(batchId);
+                if (!batch) {
+                  throw new UnprocessableEntityException({
+                    status: HttpStatus.UNPROCESSABLE_ENTITY,
+                    errors: {
+                      batch: 'notExists',
+                    },
+                  });
+                }
+                await this.orderDetailSelectionsService.create({
+                  orderDetail: od,
+                  batch: batch,
+                });
+              }
+            }
             totalQuantity += detailDto.quantity ?? 0;
           }
 

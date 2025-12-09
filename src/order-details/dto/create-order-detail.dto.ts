@@ -6,6 +6,7 @@ import {
 } from 'class-transformer';
 
 import {
+  IsArray,
   IsNotEmptyObject,
   IsNumber,
   IsOptional,
@@ -53,5 +54,14 @@ export class CreateOrderDetailDto {
   @Type(() => ProductDto)
   @IsNotEmptyObject()
   product?: ProductDto | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => [String],
+  })
+  @Type(() => String)
+  @IsOptional()
+  @IsArray()
+  batchId?: string[] | null;
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

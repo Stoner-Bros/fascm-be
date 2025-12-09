@@ -3,8 +3,10 @@ import {
   Module,
 } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OrderDetailsModule } from 'src/order-details/order-details.module';
+import { BatchesModule } from 'src/batches/batches.module';
+import { OrderDetailSelectionsModule } from 'src/order-detail-selections/order-detail-selections.module';
 import { OrderDetailEntity } from 'src/order-details/infrastructure/persistence/relational/entities/order-detail.entity';
+import { OrderDetailsModule } from 'src/order-details/order-details.module';
 import { OrderInvoiceDetailEntity } from 'src/order-invoice-details/infrastructure/persistence/relational/entities/order-invoice-detail.entity';
 import { OrderPhaseEntity } from 'src/order-phases/infrastructure/persistence/relational/entities/order-phase.entity';
 import { OrdersModule } from 'src/orders/orders.module';
@@ -23,6 +25,8 @@ import { OrderScheduleValidationService } from './validators/order-schedule-vali
     NotificationsModule,
     OrdersModule,
     OrderDetailsModule,
+    BatchesModule,
+    OrderDetailSelectionsModule,
     // do not remove this comment
     RelationalOrderSchedulePersistenceModule,
     TypeOrmModule.forFeature([
