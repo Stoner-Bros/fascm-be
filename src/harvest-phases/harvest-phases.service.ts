@@ -1,5 +1,6 @@
 import { HarvestSchedule } from '../harvest-schedules/domain/harvest-schedule';
 import { HarvestSchedulesService } from '../harvest-schedules/harvest-schedules.service';
+import { HarvestScheduleValidationService } from '../harvest-schedules/validators/harvest-schedule-validation.service';
 
 import {
   BadRequestException,
@@ -15,9 +16,13 @@ import { HarvestInvoiceDetailRepository } from 'src/harvest-invoice-details/infr
 import { HarvestInvoiceRepository } from 'src/harvest-invoices/infrastructure/persistence/harvest-invoice.repository';
 import { ImageProofsService } from 'src/image-proofs/image-proofs.service';
 import { InboundBatchesService } from 'src/inbound-batches/inbound-batches.service';
+import { ProductsService } from 'src/products/products.service';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { HarvestPhase } from './domain/harvest-phase';
-import { CreateHarvestPhaseDto } from './dto/create-harvest-phase.dto';
+import {
+  CreateHarvestPhaseDto,
+  CreateMultipleHarvestPhaseDto,
+} from './dto/create-harvest-phase.dto';
 import { UpdateHarvestPhaseDto } from './dto/update-harvest-phase.dto';
 import { HarvestPhaseStatusEnum } from './enum/harvest-phase-status.enum';
 import { HarvestPhaseRepository } from './infrastructure/persistence/harvest-phase.repository';
@@ -29,13 +34,15 @@ export class HarvestPhasesService {
     private readonly imageProofService: ImageProofsService,
 
     private readonly filesCloudinaryService: FilesCloudinaryService,
+    private readonly productService: ProductsService,
     @Inject(forwardRef(() => HarvestSchedulesService))
     private readonly harvestScheduleService: HarvestSchedulesService,
 
-    @Inject(forwardRef(() => HarvestInvoiceRepository))
+    @Inject(forwardRef(() => HarvestScheduleValidationService))
+    private readonly harvestScheduleValidationService: HarvestScheduleValidationService,
+
     private readonly harvestInvoiceRepository: HarvestInvoiceRepository,
 
-    @Inject(forwardRef(() => HarvestInvoiceDetailRepository))
     private readonly harvestInvoiceDetailRepository: HarvestInvoiceDetailRepository,
 
     @Inject(forwardRef(() => InboundBatchesService))
@@ -49,36 +56,98 @@ export class HarvestPhasesService {
     // Do not remove comment below.
     // <creating-property />
 
-    let harvestSchedule: HarvestSchedule | null | undefined = undefined;
+    const hs = await this.harvestScheduleService.findById(
+      createHarvestPhaseDto.harvestSchedule.id,
+    );
+    if (!hs) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          harvestSchedule: 'notExists',
+        },
+      });
+    }
 
-    if (createHarvestPhaseDto.harvestSchedule) {
-      const harvestScheduleObject = await this.harvestScheduleService.findById(
-        createHarvestPhaseDto.harvestSchedule.id,
-      );
-      if (!harvestScheduleObject) {
+    // Validate that adding this phase won't exceed schedule limits
+    const invoiceDetailsForValidation =
+      createHarvestPhaseDto.harvestInvoiceDetails.map((hidDto) => ({
+        productId: hidDto.product.id,
+        quantity: hidDto.quantity || 0,
+      }));
+
+    await this.harvestScheduleValidationService.validatePhaseAddition(
+      createHarvestPhaseDto.harvestSchedule.id,
+      invoiceDetailsForValidation,
+    );
+
+    const hp = await this.harvestPhaseRepository.create({
+      description: createHarvestPhaseDto.description,
+      phaseNumber: createHarvestPhaseDto.phaseNumber,
+      harvestSchedule: hs,
+    });
+
+    const hi = await this.harvestInvoiceRepository.create({
+      totalPayment: 0,
+      totalAmount: 0,
+      quantity: 0,
+      unit: 'kg',
+      vatAmount: 0,
+      taxRate: createHarvestPhaseDto.harvestInvoice?.taxRate,
+      invoiceNumber: createHarvestPhaseDto.harvestInvoice?.invoiceNumber,
+      invoiceUrl: createHarvestPhaseDto.harvestInvoice?.invoiceUrl,
+      harvestPhase: hp,
+    });
+
+    let totalAmount = 0;
+    let quantity = 0;
+
+    for (const hidDto of createHarvestPhaseDto.harvestInvoiceDetails) {
+      const product = await this.productService.findById(hidDto.product.id);
+      if (!product) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            harvestSchedule: 'notExists',
+            product: 'notExists',
           },
         });
       }
-      harvestSchedule = harvestScheduleObject;
-    } else if (createHarvestPhaseDto.harvestSchedule === null) {
-      harvestSchedule = null;
+      const hid = await this.harvestInvoiceDetailRepository.create({
+        taxRate: 0,
+        amount: (hidDto.unitPrice || 0) * (hidDto.quantity || 0),
+        unitPrice: hidDto.unitPrice,
+        quantity: hidDto.quantity,
+        unit: hidDto.unit,
+        harvestInvoice: hi,
+        product: product,
+      });
+      totalAmount += hid.amount || 0;
+      quantity += hid.quantity || 0;
     }
 
-    return this.harvestPhaseRepository.create({
-      // Do not remove comment below.
-      // <creating-property-payload />
-      description: createHarvestPhaseDto.description,
+    let vatAmount = totalAmount * ((hi.taxRate || 0) / 100);
+    // Round to 2 decimal places
+    vatAmount = Math.round(vatAmount * 100) / 100;
+    const totalPayment = totalAmount + vatAmount;
 
-      // status: createHarvestPhaseDto.status,
+    hi.vatAmount = vatAmount;
+    hi.totalPayment = totalPayment;
+    hi.totalAmount = totalAmount;
+    hi.quantity = quantity;
 
-      phaseNumber: createHarvestPhaseDto.phaseNumber,
+    await this.harvestInvoiceRepository.update(hi.id, hi);
 
-      harvestSchedule,
-    });
+    return hp;
+  }
+
+  async createMultiple(
+    createMultipleHarvestPhaseDto: CreateMultipleHarvestPhaseDto,
+  ) {
+    const results: any[] = [];
+    for (const phaseDto of createMultipleHarvestPhaseDto.harvestPhases) {
+      const result = await this.create(phaseDto);
+      results.push(result);
+    }
+    return results;
   }
 
   findAllWithPagination({
@@ -94,8 +163,24 @@ export class HarvestPhasesService {
     });
   }
 
+  findAllByScheduleWithPagination({
+    harvestScheduleId,
+    paginationOptions,
+  }: {
+    harvestScheduleId: string;
+    paginationOptions: IPaginationOptions;
+  }) {
+    return this.harvestPhaseRepository.findAllByScheduleWithPagination({
+      scheduleId: harvestScheduleId,
+      paginationOptions: {
+        page: paginationOptions.page,
+        limit: paginationOptions.limit,
+      },
+    });
+  }
+
   findById(id: HarvestPhase['id']) {
-    return this.harvestPhaseRepository.findById(id);
+    return this.harvestPhaseRepository.findFullById(id);
   }
 
   findByIds(ids: HarvestPhase['id'][]) {
@@ -109,6 +194,23 @@ export class HarvestPhasesService {
   ) {
     // Do not remove comment below.
     // <updating-property />
+
+    let harvestPhase: any = await this.harvestPhaseRepository.findFullById(id);
+    if (!harvestPhase) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          id: 'notExists',
+        },
+      });
+    }
+    const harvestScheduleFromHarvestPhase =
+      await this.harvestPhaseRepository.findById(id);
+
+    harvestPhase = {
+      ...harvestPhase,
+      harvestSchedule: harvestScheduleFromHarvestPhase?.harvestSchedule,
+    };
 
     let harvestSchedule: HarvestSchedule | null | undefined = undefined;
 
@@ -127,6 +229,99 @@ export class HarvestPhasesService {
       harvestSchedule = harvestScheduleObject;
     } else if (updateHarvestPhaseDto.harvestSchedule === null) {
       harvestSchedule = null;
+    }
+
+    // Update harvest invoice if provided
+    if (updateHarvestPhaseDto.harvestInvoice && harvestPhase.harvestInvoice) {
+      const hi = harvestPhase.harvestInvoice;
+      const oldHarvestInvoiceDetails =
+        await this.harvestInvoiceDetailRepository.findByHarvestInvoiceId(hi.id);
+
+      // Remove old harvest invoice details
+      if (oldHarvestInvoiceDetails) {
+        for (const oldHid of oldHarvestInvoiceDetails) {
+          await this.harvestInvoiceDetailRepository.remove(oldHid.id);
+        }
+      }
+      // Update harvest invoice details if provided
+      if (
+        updateHarvestPhaseDto.harvestInvoiceDetails &&
+        updateHarvestPhaseDto.harvestInvoiceDetails.length > 0
+      ) {
+        // Validate that updating this phase won't exceed schedule limits
+        if (harvestPhase.harvestSchedule?.id) {
+          const invoiceDetailsForValidation =
+            updateHarvestPhaseDto.harvestInvoiceDetails.map((hidDto) => ({
+              productId: hidDto.product.id,
+              quantity: hidDto.quantity || 0,
+            }));
+
+          await this.harvestScheduleValidationService.validatePhaseAddition(
+            harvestPhase.harvestSchedule.id,
+            invoiceDetailsForValidation,
+            id, // exclude current phase from validation
+          );
+        }
+
+        let totalAmount = 0;
+        let quantity = 0;
+
+        // Create new harvest invoice details
+        for (const hidDto of updateHarvestPhaseDto.harvestInvoiceDetails) {
+          const product = await this.productService.findById(hidDto.product.id);
+          if (!product) {
+            throw new UnprocessableEntityException({
+              status: HttpStatus.UNPROCESSABLE_ENTITY,
+              errors: {
+                product: 'notExists',
+              },
+            });
+          }
+          const hid = await this.harvestInvoiceDetailRepository.create({
+            taxRate: 0,
+            amount: (hidDto.unitPrice || 0) * (hidDto.quantity || 0),
+            unitPrice: hidDto.unitPrice,
+            quantity: hidDto.quantity,
+            unit: hidDto.unit,
+            harvestInvoice: hi,
+            product: product,
+          });
+          totalAmount += hid.amount || 0;
+          quantity += hid.quantity || 0;
+        }
+
+        // Calculate VAT and total payment
+        const taxRate =
+          updateHarvestPhaseDto.harvestInvoice.taxRate ?? hi.taxRate ?? 0;
+        let vatAmount = totalAmount * (taxRate / 100);
+        // Round to 2 decimal places
+        vatAmount = Math.round(vatAmount * 100) / 100;
+        const totalPayment = totalAmount + vatAmount;
+
+        // Update harvest invoice
+        await this.harvestInvoiceRepository.update(hi.id, {
+          totalPayment: totalPayment,
+          totalAmount: totalAmount,
+          quantity: quantity,
+          vatAmount: vatAmount,
+          taxRate: taxRate,
+          invoiceNumber:
+            updateHarvestPhaseDto.harvestInvoice.invoiceNumber ??
+            hi.invoiceNumber,
+          invoiceUrl:
+            updateHarvestPhaseDto.harvestInvoice.invoiceUrl ?? hi.invoiceUrl,
+        });
+      } else {
+        // Only update invoice metadata without details
+        await this.harvestInvoiceRepository.update(hi.id, {
+          taxRate: updateHarvestPhaseDto.harvestInvoice.taxRate ?? hi.taxRate,
+          invoiceNumber:
+            updateHarvestPhaseDto.harvestInvoice.invoiceNumber ??
+            hi.invoiceNumber,
+          invoiceUrl:
+            updateHarvestPhaseDto.harvestInvoice.invoiceUrl ?? hi.invoiceUrl,
+        });
+      }
     }
 
     return this.harvestPhaseRepository.update(id, {
@@ -211,37 +406,9 @@ export class HarvestPhasesService {
       });
     }
 
-    // Validate that reason is provided when rejecting
-    // if (status === HarvestPhaseStatusEnum.REJECTED && !reason) {
-    //   throw new BadRequestException({
-    //     status: HttpStatus.BAD_REQUEST,
-    //     errors: {
-    //       reason: 'reasonRequiredForRejection',
-    //     },
-    //   });
-    // }
-
-    // if (status === HarvestPhaseStatusEnum.APPROVED) {
-    //   await this.approveNotification(id);
-    // }
-
     if (status === HarvestPhaseStatusEnum.COMPLETED) {
       await this.createInboundBatchForHarvestPhase(id);
     }
-
-    // Send notification for rejection
-    // if (status === HarvestPhaseStatusEnum.REJECTED) {
-    //   const supplier = harvestSchedule?.supplier;
-    //   if (supplier?.id) {
-    //     this.notificationsGateway.notifySupplier(supplier.id, {
-    //       type: 'harvest-rejected',
-    //       title: 'Lịch thu hoạch đã bị từ chối',
-    //       message: `Lịch thu hoạch ${harvestSchedule.id} đã bị từ chối. Lý do: ${reason}`,
-    //       data: { harvestScheduleId: harvestSchedule.id, reason },
-    //       timestamp: new Date().toISOString(),
-    //     });
-    //   }
-    // }
 
     return this.harvestPhaseRepository.update(id, {
       status,

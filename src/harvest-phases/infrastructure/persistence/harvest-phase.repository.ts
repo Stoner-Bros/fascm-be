@@ -1,3 +1,4 @@
+import { HarvestPhaseResponse } from 'src/harvest-phases/dto/harvest-phase-response.dto';
 import { DeepPartial } from '../../../utils/types/deep-partial.type';
 import { NullableType } from '../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../utils/types/pagination-options';
@@ -12,7 +13,19 @@ export abstract class HarvestPhaseRepository {
     paginationOptions,
   }: {
     paginationOptions: IPaginationOptions;
-  }): Promise<HarvestPhase[]>;
+  }): Promise<HarvestPhaseResponse[]>;
+
+  abstract findAllByScheduleWithPagination({
+    scheduleId,
+    paginationOptions,
+  }: {
+    scheduleId: string;
+    paginationOptions: IPaginationOptions;
+  }): Promise<HarvestPhaseResponse[]>;
+
+  abstract findFullById(
+    id: HarvestPhase['id'],
+  ): Promise<NullableType<HarvestPhaseResponse>>;
 
   abstract findById(
     id: HarvestPhase['id'],
