@@ -417,6 +417,11 @@ export class HarvestPhasesService {
   }
 
   async createInboundBatchForHarvestPhase(id: HarvestPhase['id']) {
+    const harvestPhase = await this.harvestPhaseRepository.findById(id);
+    if (!harvestPhase?.harvestSchedule) {
+      return;
+    }
+
     const invoice =
       await this.harvestInvoiceRepository.findByHarvestPhaseId(id);
     if (invoice) {
@@ -425,10 +430,26 @@ export class HarvestPhasesService {
           invoice.id,
         );
       if (Array.isArray(details) && details.length > 0) {
-        for (const d of details) {
+        const harvestSchedule = harvestPhase.harvestSchedule;
+        const harvestDate = harvestSchedule.harvestDate;
+        const supplier = harvestSchedule.supplier;
+
+        // Format: BATCH_SUPPLIERCODE_YYYYMMDD_INDEX
+        // Example: BATCH_SUP001_20231209_001
+        const dateStr = harvestDate
+          ? new Date(harvestDate).toISOString().split('T')[0].replace(/-/g, '')
+          : new Date().toISOString().split('T')[0].replace(/-/g, '');
+        const supplierCode = supplier?.id || 'UNKNOWN';
+
+        for (let i = 0; i < details.length; i++) {
+          const d = details[i];
+          const batchIndex = String(i + 1).padStart(3, '0');
+          const batchCode = `BATCH_${supplierCode}_${dateStr}_${batchIndex}`;
+
           await this.inboundBatchesService.create({
             quantity: d.quantity ?? undefined,
             unit: d.unit ?? undefined,
+            batchCode: batchCode,
             harvestInvoiceDetail: d.id ? { id: d.id } : undefined,
           });
         }

@@ -40,7 +40,6 @@ export class HarvestPhaseRelationalRepository
     qb.leftJoinAndSelect('harvestInvoiceDetails.product', 'product');
     qb.leftJoinAndSelect('hp.imageProof', 'imageProof');
 
-    qb.orderBy('DESC');
     qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
     qb.take(paginationOptions.limit);
 
@@ -66,6 +65,8 @@ export class HarvestPhaseRelationalRepository
 
     qb.where('hp.harvestScheduleId = :scheduleId', { scheduleId });
 
+    // order by phase number ascending
+    qb.orderBy('hp.phaseNumber', 'ASC');
     qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
     qb.take(paginationOptions.limit);
 

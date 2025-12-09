@@ -1,5 +1,3 @@
-import { ProductDto } from '../../products/dto/product.dto';
-
 import {
   // decorators here
   Type,
@@ -19,7 +17,7 @@ import {
   ApiProperty,
 } from '@nestjs/swagger';
 import { HarvestInvoiceDetailDto } from 'src/harvest-invoice-details/dto/harvest-invoice-detail.dto';
-import { ImportTicket } from 'src/import-tickets/domain/import-ticket';
+import { ImportTicketDto } from 'src/import-tickets/dto/import-ticket.dto';
 
 export class CreateInboundBatchDto {
   @ApiProperty({
@@ -48,13 +46,13 @@ export class CreateInboundBatchDto {
 
   @ApiProperty({
     required: false,
-    type: () => ProductDto,
+    type: () => ImportTicketDto,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => ImportTicket)
+  @Type(() => ImportTicketDto)
   @IsNotEmptyObject()
-  importTicket?: ImportTicket | null;
+  importTicket?: ImportTicketDto | null;
 
   @ApiProperty({
     required: false,
