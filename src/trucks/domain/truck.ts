@@ -1,8 +1,15 @@
+import { Warehouse } from '../../warehouses/domain/warehouse';
 import { IoTDevice } from '../../io-t-devices/domain/io-t-device';
 import { ApiProperty } from '@nestjs/swagger';
 import { TruckStatusEnum } from '../enum/truck-status.enum';
 
 export class Truck {
+  @ApiProperty({
+    type: () => Warehouse,
+    nullable: true,
+  })
+  warehouse?: Warehouse | null;
+
   @ApiProperty({
     enum: TruckStatusEnum,
     nullable: true,

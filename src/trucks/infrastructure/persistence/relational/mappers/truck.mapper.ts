@@ -1,4 +1,5 @@
 import { Truck } from '../../../../domain/truck';
+import { WarehouseMapper } from '../../../../../warehouses/infrastructure/persistence/relational/mappers/warehouse.mapper';
 
 import { IoTDeviceMapper } from '../../../../../io-t-devices/infrastructure/persistence/relational/mappers/io-t-device.mapper';
 
@@ -9,6 +10,12 @@ import { TruckResponse } from 'src/trucks/dto/truck-response.dto';
 export class TruckMapper {
   static toDomain(raw: TruckEntity): Truck {
     const domainEntity = new Truck();
+    if (raw.warehouse) {
+      domainEntity.warehouse = WarehouseMapper.toDomain(raw.warehouse);
+    } else if (raw.warehouse === null) {
+      domainEntity.warehouse = null;
+    }
+
     domainEntity.status = raw.status as TruckStatusEnum;
 
     domainEntity.currentLocation = raw.currentLocation;
@@ -57,6 +64,14 @@ export class TruckMapper {
 
   static toPersistence(domainEntity: Truck): TruckEntity {
     const persistenceEntity = new TruckEntity();
+    if (domainEntity.warehouse) {
+      persistenceEntity.warehouse = WarehouseMapper.toPersistence(
+        domainEntity.warehouse,
+      );
+    } else if (domainEntity.warehouse === null) {
+      persistenceEntity.warehouse = null;
+    }
+
     persistenceEntity.status = domainEntity.status as TruckStatusEnum;
 
     persistenceEntity.currentLocation = domainEntity.currentLocation;

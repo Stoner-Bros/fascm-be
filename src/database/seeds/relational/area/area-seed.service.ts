@@ -20,12 +20,12 @@ export class AreaSeedService {
       const warehouses = await this.warehouseRepository.find();
 
       if (warehouses.length > 0) {
-        const [warehouse1, warehouse2, warehouse3] = warehouses;
+        const [warehouse1, warehouse2] = warehouses;
 
         await this.areaRepository.save([
           this.areaRepository.create({
-            name: 'Khu vực A1',
-            description: 'Khu vực lưu trữ rau lá xanh',
+            name: 'Khu vực chuối',
+            description: 'Khu vực lưu trữ các loại chuối',
             location: 'Tầng 1, Phía Đông',
             unit: 'kg',
             quantity: 0,
@@ -33,8 +33,8 @@ export class AreaSeedService {
             warehouse: warehouse1,
           }),
           this.areaRepository.create({
-            name: 'Khu vực A2',
-            description: 'Khu vực lưu trữ củ quả',
+            name: 'Khu vực xoài',
+            description: 'Khu vực lưu trữ các loại xoài',
             location: 'Tầng 1, Phía Tây',
             unit: 'kg',
             quantity: 0,
@@ -42,58 +42,22 @@ export class AreaSeedService {
             warehouse: warehouse1,
           }),
           this.areaRepository.create({
-            name: 'Khu vực B1',
-            description: 'Khu vực lưu trữ trái cây nhiệt đới',
-            location: 'Tầng 2, Khu A',
+            name: 'Khu vực chuối',
+            description: 'Khu vực lưu trữ các loại chuối',
+            location: 'Tầng 1, Phía Đông',
             unit: 'kg',
             quantity: 0,
             status: 'available',
             warehouse: warehouse2,
           }),
           this.areaRepository.create({
-            name: 'Khu vực B2',
-            description: 'Khu vực lưu trữ trái cây ôn đới',
-            location: 'Tầng 2, Khu B',
+            name: 'Khu vực xoài',
+            description: 'Khu vực lưu trữ các loại xoài',
+            location: 'Tầng 1, Phía Tây',
             unit: 'kg',
             quantity: 0,
             status: 'available',
             warehouse: warehouse2,
-          }),
-          this.areaRepository.create({
-            name: 'Khu vực C1',
-            description: 'Khu vực lưu trữ lạnh',
-            location: 'Tầng hầm, Khu lạnh',
-            unit: 'kg',
-            quantity: 0,
-            status: 'available',
-            warehouse: warehouse3,
-          }),
-          this.areaRepository.create({
-            name: 'Khu vực D1',
-            description: 'Khu vực sơ chế',
-            location: 'Tầng 1, Khu sơ chế',
-            unit: 'kg',
-            quantity: 0,
-            status: 'available',
-            warehouse: warehouse1,
-          }),
-          this.areaRepository.create({
-            name: 'Khu vực E1',
-            description: 'Khu vực đóng gói',
-            location: 'Tầng 1, Khu đóng gói',
-            unit: 'kg',
-            quantity: 0,
-            status: 'available',
-            warehouse: warehouse2,
-          }),
-          this.areaRepository.create({
-            name: 'Khu vực F1',
-            description: 'Khu vực kiểm định chất lượng',
-            location: 'Tầng 2, Phòng lab',
-            unit: 'kg',
-            quantity: 0,
-            status: 'available',
-            warehouse: warehouse3,
           }),
         ]);
       }

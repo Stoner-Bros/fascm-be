@@ -97,13 +97,6 @@ export class UserSeedService {
           position: 'Quản lý kho TP.HCM',
           warehouse: warehouses[1],
         },
-        {
-          firstName: 'Lê',
-          lastName: 'Văn Cường',
-          email: 'manager3@example.com',
-          position: 'Quản lý kho miền Trung',
-          warehouse: warehouses[2],
-        },
       ];
 
       for (const managerData of managers) {
@@ -175,13 +168,6 @@ export class UserSeedService {
           position: 'Nhân viên sơ chế',
           warehouse: warehouses[1],
         },
-        {
-          firstName: 'Bùi',
-          lastName: 'Văn Hải',
-          email: 'staff5@example.com',
-          position: 'Nhân viên thu hoạch',
-          warehouse: warehouses[2],
-        },
       ];
 
       for (const staffData of staffs) {
@@ -242,13 +228,13 @@ export class UserSeedService {
           firstName: 'Lý',
           lastName: 'Văn Minh',
           email: 'deliverystaff3@example.com',
-          warehouse: warehouses[2],
+          warehouse: warehouses[0],
         },
         {
           firstName: 'Hồ',
           lastName: 'Thị Nga',
           email: 'deliverystaff4@example.com',
-          warehouse: warehouses[3],
+          warehouse: warehouses[1],
         },
       ];
 
@@ -376,25 +362,25 @@ export class UserSeedService {
           firstName: 'Trang trại',
           lastName: 'Green Farm',
           email: 'greenfarm@example.com',
-          warehouse: warehouses[2],
+          warehouse: warehouses[0],
         },
         {
           firstName: 'Công ty',
           lastName: 'TNHH Nông sản Sạch',
           email: 'nongsansach@example.com',
-          warehouse: warehouses[3],
+          warehouse: warehouses[1],
         },
         {
           firstName: 'Hợp tác xã',
           lastName: 'Rau Củ Quả Lâm Đồng',
           email: 'raucuqualamdong@example.com',
-          warehouse: warehouses[4],
+          warehouse: warehouses[0],
         },
         {
           firstName: 'Nông dân',
           lastName: 'Nguyễn Văn Tám',
           email: 'nguyenvantam@example.com',
-          warehouse: warehouses[0],
+          warehouse: warehouses[1],
         },
       ];
 

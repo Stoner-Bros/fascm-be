@@ -1,3 +1,5 @@
+import { WarehouseEntity } from '../../../../../warehouses/infrastructure/persistence/relational/entities/warehouse.entity';
+
 import { IoTDeviceEntity } from '../../../../../io-t-devices/infrastructure/persistence/relational/entities/io-t-device.entity';
 
 import {
@@ -8,6 +10,7 @@ import {
   Column,
   PrimaryColumn,
   BeforeInsert,
+  ManyToOne,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 import { TruckStatusEnum } from '../../../../enum/truck-status.enum';
@@ -16,6 +19,9 @@ import { TruckStatusEnum } from '../../../../enum/truck-status.enum';
   name: 'truck',
 })
 export class TruckEntity extends EntityRelationalHelper {
+  @ManyToOne(() => WarehouseEntity, { eager: true, nullable: true })
+  warehouse?: WarehouseEntity | null;
+
   @Column({
     nullable: true,
     type: 'enum',

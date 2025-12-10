@@ -16,34 +16,10 @@ export class CategorySeedService {
     if (!count) {
       const categories = [
         {
-          name: 'Leafy Greens',
+          name: 'Vegetables',
         },
         {
-          name: 'Root Vegetables',
-        },
-        {
-          name: 'Tropical Fruits',
-        },
-        {
-          name: 'Temperate Fruits',
-        },
-        {
-          name: 'Herbs & Spices',
-        },
-        {
-          name: 'Mushrooms',
-        },
-        {
-          name: 'Grains',
-        },
-        {
-          name: 'Legumes',
-        },
-        {
-          name: 'Dried Fruits',
-        },
-        {
-          name: 'Organic Produce',
+          name: 'Fruits',
         },
       ];
 

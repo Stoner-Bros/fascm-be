@@ -23,18 +23,6 @@ export class WarehouseSeedService {
           name: 'Kho trung tâm TP.HCM',
           address: '456 Nguyễn Văn Cừ, Quận 5, TP.HCM',
         }),
-        this.repository.create({
-          name: 'Kho miền Trung',
-          address: '789 Lê Duẩn, Hải Châu, Đà Nẵng',
-        }),
-        this.repository.create({
-          name: 'Kho phân phối Đông Anh',
-          address: 'Km 25 Quốc Lộ 1A, Đông Anh, Hà Nội',
-        }),
-        this.repository.create({
-          name: 'Kho lạnh chuyên dụng',
-          address: '321 Đường Nguyễn Trãi, Thanh Xuân, Hà Nội',
-        }),
       ]);
     }
   }

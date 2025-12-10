@@ -1,3 +1,4 @@
+import { WarehousesModule } from '../warehouses/warehouses.module';
 import { IoTDevicesModule } from '../io-t-devices/io-t-devices.module';
 import {
   // do not remove this comment
@@ -10,6 +11,8 @@ import { RelationalTruckPersistenceModule } from './infrastructure/persistence/r
 
 @Module({
   imports: [
+    WarehousesModule,
+
     forwardRef(() => IoTDevicesModule),
 
     // do not remove this comment
