@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Payment } from 'src/payments/domain/payment';
 
 export class OrderInvoiceResponse {
+  @ApiProperty({
+    type: () => Payment,
+    nullable: true,
+  })
+  payment?: Payment | null;
+
   @ApiProperty({
     type: () => Number,
     nullable: true,

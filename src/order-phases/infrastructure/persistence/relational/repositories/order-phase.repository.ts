@@ -31,6 +31,7 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
   }): Promise<OrderPhaseResponse[]> {
     const qb = this.orderPhaseRepository.createQueryBuilder('op');
     qb.leftJoinAndSelect('op.orderInvoice', 'orderInvoice');
+    qb.leftJoinAndSelect('orderInvoice.payment', 'payment');
     qb.leftJoinAndSelect(
       'orderInvoice.orderInvoiceDetails',
       'orderInvoiceDetails',
@@ -55,6 +56,7 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
   }): Promise<OrderPhaseResponse[]> {
     const qb = this.orderPhaseRepository.createQueryBuilder('op');
     qb.leftJoinAndSelect('op.orderInvoice', 'orderInvoice');
+    qb.leftJoinAndSelect('orderInvoice.payment', 'payment');
     qb.leftJoinAndSelect(
       'orderInvoice.orderInvoiceDetails',
       'orderInvoiceDetails',
@@ -76,6 +78,7 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
   ): Promise<NullableType<OrderPhaseResponse>> {
     const qb = this.orderPhaseRepository.createQueryBuilder('op');
     qb.leftJoinAndSelect('op.orderInvoice', 'orderInvoice');
+    qb.leftJoinAndSelect('orderInvoice.payment', 'payment');
     qb.leftJoinAndSelect(
       'orderInvoice.orderInvoiceDetails',
       'orderInvoiceDetails',
