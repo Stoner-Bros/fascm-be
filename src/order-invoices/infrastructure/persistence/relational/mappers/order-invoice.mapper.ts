@@ -73,6 +73,12 @@ export class OrderInvoiceMapper {
   static toResponse(raw: OrderInvoiceEntity): OrderInvoiceResponse {
     const domainEntity = new OrderInvoiceResponse();
 
+    if (raw.payment) {
+      domainEntity.payment = PaymentMapper.toDomain(raw.payment);
+    } else if (raw.payment === null) {
+      domainEntity.payment = null;
+    }
+
     domainEntity.totalPayment = raw.totalPayment;
     domainEntity.totalAmount = raw.totalAmount;
     domainEntity.quantity = raw.quantity;
