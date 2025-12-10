@@ -1,5 +1,4 @@
 import {
-  IsNumber,
   // decorators here
   IsString,
   IsNotEmpty,
@@ -13,13 +12,13 @@ import {
 export class CreatePaymentDto {
   @ApiProperty({
     required: true,
-    type: () => Number,
-    description: 'Payment amount in VND',
-    example: 100000,
+    type: () => String,
+    description: 'Order invoice ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @IsNotEmpty()
-  @IsNumber()
-  amount: number;
+  @IsString()
+  orderInvoiceId: string;
 
   @ApiProperty({
     required: true,
