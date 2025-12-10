@@ -52,7 +52,7 @@ export class PaymentRelationalRepository implements PaymentRepository {
     return entities.map((entity) => PaymentMapper.toDomain(entity));
   }
 
-  async findByPaymentCode(paymentCode: number): Promise<NullableType<Payment>> {
+  async findByPaymentCode(paymentCode: string): Promise<NullableType<Payment>> {
     const entity = await this.paymentRepository.findOne({
       where: { paymentCode },
     });

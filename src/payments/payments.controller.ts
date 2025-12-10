@@ -9,7 +9,6 @@ import {
   Patch,
   Post,
   Query,
-  Sse,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -21,8 +20,6 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
@@ -31,7 +28,6 @@ import { infinityPagination } from '../utils/infinity-pagination';
 import { Payment } from './domain/payment';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { FindAllPaymentsDto } from './dto/find-all-payments.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { PaymentsService } from './payments.service';
 
 @ApiTags('Payments')
@@ -89,19 +85,6 @@ export class PaymentsController {
     return this.paymentsService.findById(id);
   }
 
-  @Patch(':id')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-  })
-  @ApiOkResponse({
-    type: Payment,
-  })
-  update(@Param('id') id: string, @Body() updatePaymentDto: UpdatePaymentDto) {
-    return this.paymentsService.update(id, updatePaymentDto);
-  }
-
   @Delete(':id')
   @ApiParam({
     name: 'id',
@@ -116,7 +99,7 @@ export class PaymentsController {
   @ApiOperation({ summary: 'Get payment information from PayOS' })
   @ApiParam({
     name: 'paymentCode',
-    type: Number,
+    type: String,
     required: true,
     description: 'PayOS order code',
   })
@@ -124,7 +107,7 @@ export class PaymentsController {
     description: 'Payment information retrieved successfully',
   })
   getPayOSPaymentInfo(@Param('paymentCode') paymentCode: string) {
-    return this.paymentsService.getPayOSPaymentInfo(Number(paymentCode));
+    return this.paymentsService.getPayOSPaymentInfo(paymentCode);
   }
 
   @Post('payos/:paymentCode/cancel')
@@ -132,7 +115,7 @@ export class PaymentsController {
   @ApiOperation({ summary: 'Cancel a payment in PayOS' })
   @ApiParam({
     name: 'paymentCode',
-    type: Number,
+    type: String,
     required: true,
     description: 'PayOS order code',
   })
@@ -141,7 +124,7 @@ export class PaymentsController {
   })
   cancelPayment(@Param('paymentCode') paymentCode: string, @Body() body?: any) {
     return this.paymentsService.cancelPayment(
-      Number(paymentCode),
+      paymentCode,
       body?.cancellationReason,
     );
   }
@@ -151,37 +134,10 @@ export class PaymentsController {
   @ApiOperation({ summary: 'Confirm payment paid by cash' })
   @ApiParam({
     name: 'paymentCode',
-    type: Number,
+    type: String,
     required: true,
   })
   confirmPaymentPaidByCash(@Param('paymentCode') paymentCode: string) {
-    return this.paymentsService.confirmPaymentPaidByCash(Number(paymentCode));
-  }
-
-  @Sse('events/:paymentCode')
-  @ApiOperation({
-    summary:
-      'Subscribe to specific payment status updates via Server-Sent Events (SSE)',
-  })
-  @ApiParam({
-    name: 'paymentCode',
-    type: Number,
-    required: true,
-    description: 'Payment order code to monitor',
-  })
-  @ApiOkResponse({
-    description:
-      'Stream of payment updates for the specified payment code. Connection closes after final status.',
-  })
-  streamPaymentUpdates(
-    @Param('paymentCode') paymentCode: string,
-  ): Observable<MessageEvent> {
-    return this.paymentsService
-      .getPaymentUpdatesStream(Number(paymentCode))
-      .pipe(
-        map((paymentUpdate) => ({
-          data: paymentUpdate,
-        })),
-      ) as Observable<MessageEvent>;
+    return this.paymentsService.confirmPaymentPaidByCash(paymentCode);
   }
 }
