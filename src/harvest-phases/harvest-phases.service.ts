@@ -26,6 +26,7 @@ import {
 import { UpdateHarvestPhaseDto } from './dto/update-harvest-phase.dto';
 import { HarvestPhaseStatusEnum } from './enum/harvest-phase-status.enum';
 import { HarvestPhaseRepository } from './infrastructure/persistence/harvest-phase.repository';
+import { HarvestScheduleStatusEnum } from 'src/harvest-schedules/enum/harvest-schedule-status.enum';
 
 @Injectable()
 export class HarvestPhasesService {
@@ -135,6 +136,10 @@ export class HarvestPhasesService {
     hi.quantity = quantity;
 
     await this.harvestInvoiceRepository.update(hi.id, hi);
+    await this.harvestScheduleService.updateStatus(
+      hs.id,
+      HarvestScheduleStatusEnum.PROCESSING,
+    );
 
     return hp;
   }
