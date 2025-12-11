@@ -55,7 +55,11 @@ export class DeliveryRelationalRepository implements DeliveryRepository {
     qb.take(paginationOptions.limit);
 
     const entities = await qb.getMany();
-    return entities.map((entity) => DeliveryMapper.toResponse(entity));
+    return entities.map((entity) => ({
+      ...DeliveryMapper.toResponse(entity),
+      orderPhase: entity.orderPhase || null,
+      harvestPhase: entity.harvestPhase || null,
+    }));
   }
 
   async findById(id: Delivery['id']): Promise<NullableType<Delivery>> {

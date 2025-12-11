@@ -84,6 +84,15 @@ export class DeliveriesService {
       truck = null;
     }
 
+    if (truck && truck.status !== TruckStatusEnum.AVAILABLE) {
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        errors: {
+          truck: 'notAvailable',
+        },
+      });
+    }
+
     let deliveryStaff: DeliveryStaff | null | undefined = undefined;
 
     if (createDeliveryDto.deliveryStaff) {
@@ -177,6 +186,11 @@ export class DeliveriesService {
           OrderPhaseStatusEnum.PREPARING,
         );
       }
+    }
+
+    if (truck) {
+      truck.status = TruckStatusEnum.IN_USE;
+      await this.truckService.updateStatus(truck.id, TruckStatusEnum.IN_USE);
     }
 
     return this.deliveryRepository.create({

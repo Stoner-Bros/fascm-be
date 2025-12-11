@@ -30,12 +30,39 @@ export class ExportTicketRelationalRepository
   }: {
     paginationOptions: IPaginationOptions;
   }): Promise<ExportTicket[]> {
-    const entities = await this.exportTicketRepository.find({
-      skip: (paginationOptions.page - 1) * paginationOptions.limit,
-      take: paginationOptions.limit,
-    });
+    const queryBuilder = this.exportTicketRepository
+      .createQueryBuilder('exportTicket')
+      .leftJoin('batch', 'batch', 'batch.exportTicketId = exportTicket.id')
+      .leftJoin('product', 'product', 'product.id = batch.productId')
+      .leftJoin('area', 'area', 'area.id = batch.areaId')
+      .select('exportTicket.id', 'id')
+      .addSelect('exportTicket.unit', 'unit')
+      .addSelect('exportTicket.quantity', 'quantity')
+      .addSelect('exportTicket.exportDate', 'exportDate')
+      .addSelect('exportTicket.createdAt', 'createdAt')
+      .addSelect('exportTicket.updatedAt', 'updatedAt')
+      .addSelect('product.name', 'productName')
+      .addSelect('COUNT(DISTINCT batch.id)', 'numberOfBatch')
+      .addSelect('area.name', 'areaName')
+      .groupBy('exportTicket.id')
+      .addGroupBy('exportTicket.unit')
+      .addGroupBy('exportTicket.quantity')
+      .addGroupBy('exportTicket.exportDate')
+      .addGroupBy('exportTicket.createdAt')
+      .addGroupBy('exportTicket.updatedAt')
+      .addGroupBy('product.name')
+      .addGroupBy('area.name')
+      .skip((paginationOptions.page - 1) * paginationOptions.limit)
+      .take(paginationOptions.limit);
 
-    return entities.map((entity) => ExportTicketMapper.toDomain(entity));
+    const entities = await queryBuilder.getRawMany();
+
+    return entities.map((entity) => ({
+      ...ExportTicketMapper.toDomain(entity),
+      productName: entity.productName,
+      numberOfBatch: parseInt(entity.numberOfBatch) || 0,
+      areaName: entity.areaName,
+    }));
   }
 
   async findById(id: ExportTicket['id']): Promise<NullableType<ExportTicket>> {
@@ -91,14 +118,37 @@ export class ExportTicketRelationalRepository
   }): Promise<ExportTicket[]> {
     const queryBuilder = this.exportTicketRepository
       .createQueryBuilder('exportTicket')
-      .where(
-        'exportTicket.id IN (SELECT DISTINCT "batch"."exportTicketId" FROM "batch" WHERE "batch"."areaId" = :areaId)',
-        { areaId },
-      )
+      .leftJoin('batch', 'batch', 'batch.exportTicketId = exportTicket.id')
+      .leftJoin('product', 'product', 'product.id = batch.productId')
+      .leftJoin('area', 'area', 'area.id = batch.areaId')
+      .where('area.id = :areaId', { areaId })
+      .select('exportTicket.id', 'id')
+      .addSelect('exportTicket.unit', 'unit')
+      .addSelect('exportTicket.quantity', 'quantity')
+      .addSelect('exportTicket.exportDate', 'exportDate')
+      .addSelect('exportTicket.createdAt', 'createdAt')
+      .addSelect('exportTicket.updatedAt', 'updatedAt')
+      .addSelect('product.name', 'productName')
+      .addSelect('COUNT(DISTINCT batch.id)', 'numberOfBatch')
+      .addSelect('area.name', 'areaName')
+      .groupBy('exportTicket.id')
+      .addGroupBy('exportTicket.unit')
+      .addGroupBy('exportTicket.quantity')
+      .addGroupBy('exportTicket.exportDate')
+      .addGroupBy('exportTicket.createdAt')
+      .addGroupBy('exportTicket.updatedAt')
+      .addGroupBy('product.name')
+      .addGroupBy('area.name')
       .skip((paginationOptions.page - 1) * paginationOptions.limit)
       .take(paginationOptions.limit);
 
-    const entities = await queryBuilder.getMany();
-    return entities.map((entity) => ExportTicketMapper.toDomain(entity));
+    const entities = await queryBuilder.getRawMany();
+
+    return entities.map((entity) => ({
+      ...ExportTicketMapper.toDomain(entity),
+      productName: entity.productName,
+      numberOfBatch: parseInt(entity.numberOfBatch) || 0,
+      areaName: entity.areaName,
+    }));
   }
 }

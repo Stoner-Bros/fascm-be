@@ -29,4 +29,22 @@ export class ExportTicket {
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  productName?: string | null;
+
+  @ApiProperty({
+    type: () => Number,
+    nullable: true,
+  })
+  numberOfBatch?: number | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  areaName?: string | null;
 }
