@@ -95,6 +95,9 @@ export class BatchRelationalRepository implements BatchRepository {
       .leftJoinAndSelect('batch.product', 'product')
       .leftJoinAndSelect('batch.importTicket', 'importTicket');
 
+    // if batch.exportTicketId is not null, then do not response the batch
+    queryBuilder.andWhere('batch.exportTicketId IS NULL');
+
     if (areaId) {
       queryBuilder.andWhere('area.id = :areaId', { areaId });
     }
@@ -131,6 +134,9 @@ export class BatchRelationalRepository implements BatchRepository {
       .leftJoinAndSelect('batch.area', 'area')
       .leftJoinAndSelect('batch.product', 'product')
       .leftJoinAndSelect('batch.importTicket', 'importTicket');
+
+    // if batch.exportTicketId is not null, then do not response the batch
+    queryBuilder.andWhere('batch.exportTicketId IS NULL');
 
     if (areaId) {
       queryBuilder.andWhere('area.id = :areaId', { areaId });
