@@ -1,3 +1,5 @@
+import { WarehouseDto } from '../../warehouses/dto/warehouse.dto';
+
 import { IoTDeviceDto } from '../../io-t-devices/dto/io-t-device.dto';
 
 import {
@@ -13,6 +15,7 @@ import {
   IsOptional,
   IsNumber,
   IsString,
+  IsNotEmptyObject,
 } from 'class-validator';
 
 import {
@@ -21,6 +24,16 @@ import {
 } from '@nestjs/swagger';
 
 export class CreateTruckDto {
+  @ApiProperty({
+    required: false,
+    type: () => WarehouseDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => WarehouseDto)
+  @IsNotEmptyObject()
+  warehouse?: WarehouseDto | null;
+
   @ApiProperty({
     required: false,
     type: () => String,

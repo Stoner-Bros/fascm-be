@@ -1,25 +1,25 @@
 import { Module } from '@nestjs/common';
-import { UsersModule } from './users/users.module';
-import { FilesModule } from './files/files.module';
-import { AuthModule } from './auth/auth.module';
-import databaseConfig from './database/config/database.config';
-import authConfig from './auth/config/auth.config';
-import appConfig from './config/app.config';
-import mailConfig from './mail/config/mail.config';
-import fileConfig from './files/config/file.config';
-import googleConfig from './auth-google/config/google.config';
-import path from 'path';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthGoogleModule } from './auth-google/auth-google.module';
 import { HeaderResolver, I18nModule } from 'nestjs-i18n';
-import { TypeOrmConfigService } from './database/typeorm-config.service';
-import { MailModule } from './mail/mail.module';
-import { HomeModule } from './home/home.module';
+import path from 'path';
 import { DataSource, DataSourceOptions } from 'typeorm';
+import { AuthGoogleModule } from './auth-google/auth-google.module';
+import googleConfig from './auth-google/config/google.config';
+import { AuthModule } from './auth/auth.module';
+import authConfig from './auth/config/auth.config';
+import appConfig from './config/app.config';
 import { AllConfigType } from './config/config.type';
-import { SessionModule } from './session/session.module';
+import databaseConfig from './database/config/database.config';
+import { TypeOrmConfigService } from './database/typeorm-config.service';
+import fileConfig from './files/config/file.config';
+import { FilesModule } from './files/files.module';
+import { HomeModule } from './home/home.module';
+import mailConfig from './mail/config/mail.config';
+import { MailModule } from './mail/mail.module';
 import { MailerModule } from './mailer/mailer.module';
+import { SessionModule } from './session/session.module';
+import { UsersModule } from './users/users.module';
 
 const infrastructureDatabaseModule = TypeOrmModule.forRootAsync({
   useClass: TypeOrmConfigService,
@@ -76,10 +76,10 @@ import { TrucksModule } from './trucks/trucks.module';
 
 import { DeliveriesModule } from './deliveries/deliveries.module';
 
-import { ExportTicketsModule } from './export-tickets/export-tickets.module';
-import { TruckSettingsModule } from './truck-settings/truck-settings.module';
-import { TruckAlertsModule } from './truck-alerts/truck-alerts.module';
 import corsConfig from './config/cors.config';
+import { ExportTicketsModule } from './export-tickets/export-tickets.module';
+import { TruckAlertsModule } from './truck-alerts/truck-alerts.module';
+import { TruckSettingsModule } from './truck-settings/truck-settings.module';
 
 import { ImageProofsModule } from './image-proofs/image-proofs.module';
 
@@ -97,6 +97,7 @@ import { OrderPhasesModule } from './order-phases/order-phases.module';
 
 import { OrderInvoicesModule } from './order-invoices/order-invoices.module';
 
+import { OrderDetailSelectionsModule } from './order-detail-selections/order-detail-selections.module';
 import { OrderInvoiceDetailsModule } from './order-invoice-details/order-invoice-details.module';
 
 @Module({
@@ -182,6 +183,7 @@ import { OrderInvoiceDetailsModule } from './order-invoice-details/order-invoice
     OrderPhasesModule,
     HarvestInvoiceDetailsModule,
     HarvestInvoicesModule,
+    OrderDetailSelectionsModule,
   ],
 })
 export class AppModule {}

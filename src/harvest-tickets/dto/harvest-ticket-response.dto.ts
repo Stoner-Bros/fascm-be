@@ -25,12 +25,6 @@ export class HarvestTicketResponse {
   ticketUrl?: string | null;
 
   @ApiProperty({
-    type: () => String,
-    nullable: true,
-  })
-  harvestScheduleId?: string | null;
-
-  @ApiProperty({
     type: String,
   })
   id: string;

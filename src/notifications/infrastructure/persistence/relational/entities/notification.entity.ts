@@ -33,6 +33,12 @@ export class NotificationEntity extends EntityRelationalHelper {
     nullable: true,
     type: String,
   })
+  data?: string | null;
+
+  @Column({
+    nullable: true,
+    type: String,
+  })
   type?: string | null;
 
   @Column({

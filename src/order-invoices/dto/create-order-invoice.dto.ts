@@ -1,69 +1,9 @@
-import { PaymentDto } from '../../payments/dto/payment.dto';
-
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Type } from 'class-transformer';
-import {
-  IsNotEmptyObject,
-  IsNumber,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
-import { OrderPhaseDto } from 'src/order-phases/dto/order-phase.dto';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateOrderInvoiceDto {
-  @ApiProperty({
-    required: false,
-    type: () => PaymentDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => PaymentDto)
-  @IsNotEmptyObject()
-  payment?: PaymentDto | null;
-
   // Don't forget to use the class-validator decorators in the DTO properties.
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  totalPayment?: number | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  totalAmount?: number | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  quantity?: number | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => String,
-  })
-  @IsOptional()
-  @IsString()
-  unit?: string | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  vatAmount?: number | null;
-
   @ApiProperty({
     required: false,
     type: () => Number,
@@ -87,14 +27,4 @@ export class CreateOrderInvoiceDto {
   @IsOptional()
   @IsString()
   invoiceUrl?: string | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => OrderPhaseDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => OrderPhaseDto)
-  @IsNotEmptyObject()
-  orderPhase?: OrderPhaseDto | null;
 }

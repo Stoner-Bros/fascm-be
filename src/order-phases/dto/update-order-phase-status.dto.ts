@@ -1,5 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum } from 'class-validator';
 import { OrderPhaseStatusEnum } from '../enum/order-phase-status.enum';
 
 export class UpdateOrderPhaseStatusDto {
@@ -9,12 +9,4 @@ export class UpdateOrderPhaseStatusDto {
   })
   @IsEnum(OrderPhaseStatusEnum)
   status: OrderPhaseStatusEnum;
-
-  @ApiPropertyOptional({
-    type: String,
-    description: 'Reason for rejection (required when status is REJECTED)',
-  })
-  @IsOptional()
-  @IsString()
-  reason?: string;
 }

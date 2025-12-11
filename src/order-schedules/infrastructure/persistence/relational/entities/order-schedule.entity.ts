@@ -1,11 +1,15 @@
 import { ConsigneeEntity } from '../../../../../consignees/infrastructure/persistence/relational/entities/consignee.entity';
 
+import { OrderEntity } from 'src/orders/infrastructure/persistence/relational/entities/order.entity';
+import { OrderPhaseEntity } from 'src/order-phases/infrastructure/persistence/relational/entities/order-phase.entity';
 import {
   BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
+  OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -43,6 +47,16 @@ export class OrderScheduleEntity extends EntityRelationalHelper {
 
   @ManyToOne(() => ConsigneeEntity, { eager: true, nullable: true })
   consignee?: ConsigneeEntity | null;
+
+  @OneToOne(() => OrderEntity, (order) => order.orderSchedule, {
+    nullable: true,
+  })
+  order?: OrderEntity | null;
+
+  @OneToMany(() => OrderPhaseEntity, (orderPhase) => orderPhase.orderSchedule, {
+    nullable: true,
+  })
+  orderPhases?: OrderPhaseEntity[] | null;
 
   @PrimaryColumn({
     type: String,

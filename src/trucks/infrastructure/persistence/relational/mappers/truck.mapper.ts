@@ -1,13 +1,21 @@
 import { Truck } from '../../../../domain/truck';
+import { WarehouseMapper } from '../../../../../warehouses/infrastructure/persistence/relational/mappers/warehouse.mapper';
 
 import { IoTDeviceMapper } from '../../../../../io-t-devices/infrastructure/persistence/relational/mappers/io-t-device.mapper';
 
 import { TruckEntity } from '../entities/truck.entity';
 import { TruckStatusEnum } from '../../../../enum/truck-status.enum';
+import { TruckResponse } from 'src/trucks/dto/truck-response.dto';
 
 export class TruckMapper {
   static toDomain(raw: TruckEntity): Truck {
     const domainEntity = new Truck();
+    if (raw.warehouse) {
+      domainEntity.warehouse = WarehouseMapper.toDomain(raw.warehouse);
+    } else if (raw.warehouse === null) {
+      domainEntity.warehouse = null;
+    }
+
     domainEntity.status = raw.status as TruckStatusEnum;
 
     domainEntity.currentLocation = raw.currentLocation;
@@ -35,8 +43,35 @@ export class TruckMapper {
     return domainEntity;
   }
 
+  static toResponse(raw: TruckEntity): TruckResponse {
+    const responseEntity = new TruckResponse();
+    responseEntity.status = raw.status as TruckStatusEnum;
+
+    responseEntity.currentLocation = raw.currentLocation;
+
+    responseEntity.model = raw.model;
+
+    responseEntity.licensePhoto = raw.licensePhoto;
+
+    responseEntity.licensePlate = raw.licensePlate;
+    responseEntity.capacity = raw.capacity;
+
+    responseEntity.id = raw.id;
+    responseEntity.createdAt = raw.createdAt;
+    responseEntity.updatedAt = raw.updatedAt;
+    return responseEntity;
+  }
+
   static toPersistence(domainEntity: Truck): TruckEntity {
     const persistenceEntity = new TruckEntity();
+    if (domainEntity.warehouse) {
+      persistenceEntity.warehouse = WarehouseMapper.toPersistence(
+        domainEntity.warehouse,
+      );
+    } else if (domainEntity.warehouse === null) {
+      persistenceEntity.warehouse = null;
+    }
+
     persistenceEntity.status = domainEntity.status as TruckStatusEnum;
 
     persistenceEntity.currentLocation = domainEntity.currentLocation;

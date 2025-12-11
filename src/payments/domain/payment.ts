@@ -8,10 +8,10 @@ export class Payment {
   qrCode?: string | null;
 
   @ApiProperty({
-    type: () => Number,
+    type: () => String,
     nullable: true,
   })
-  paymentCode?: number | null;
+  paymentCode?: string | null;
 
   @ApiProperty({
     type: () => String,

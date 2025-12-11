@@ -1,6 +1,7 @@
 import { AreasService } from '../areas/areas.service';
 import { Area } from '../areas/domain/area';
 
+import { PricesService } from '../prices/prices.service';
 import { Product } from '../products/domain/product';
 import { ProductsService } from '../products/products.service';
 
@@ -32,6 +33,8 @@ export class BatchesService {
     private readonly areaService: AreasService,
 
     private readonly productService: ProductsService,
+
+    private readonly pricesService: PricesService,
 
     @Inject(forwardRef(() => ImportTicketsService))
     private readonly importTicketService: ImportTicketsService,
@@ -267,5 +270,100 @@ export class BatchesService {
 
   remove(id: Batch['id']) {
     return this.batchRepository.remove(id);
+  }
+
+  findByFiltersWithPagination({
+    areaId,
+    importTicketId,
+    productId,
+    paginationOptions,
+  }: {
+    areaId?: string;
+    importTicketId?: string;
+    productId?: string;
+    paginationOptions: IPaginationOptions;
+  }) {
+    return this.batchRepository.findByFiltersWithPagination({
+      areaId,
+      importTicketId,
+      productId,
+      paginationOptions: {
+        page: paginationOptions.page,
+        limit: paginationOptions.limit,
+      },
+    });
+  }
+
+  async findGroupedByImportTicket({
+    areaId,
+    importTicketId,
+    productId,
+  }: {
+    areaId?: string;
+    importTicketId?: string;
+    productId?: string;
+  }) {
+    const batches =
+      await this.batchRepository.findByFiltersGroupedByImportTicket({
+        areaId,
+        importTicketId,
+        productId,
+      });
+
+    // Group batches by import ticket
+    const groupedMap = new Map<
+      string,
+      {
+        importTicketId: string;
+        product: any;
+        batch: Record<string, number>;
+        batchCode: string;
+        expiredAt: Date | null;
+        importDate: Date | null;
+        prices: Record<string, number>;
+      }
+    >();
+
+    for (const batch of batches) {
+      const ticketId = batch.importTicket?.id || 'NO_TICKET';
+
+      if (!groupedMap.has(ticketId)) {
+        groupedMap.set(ticketId, {
+          importTicketId: ticketId,
+          product: batch.product || null,
+          batch: {},
+          batchCode: batch.batchCode || '',
+          expiredAt: batch.importTicket?.expiredAt || null,
+          importDate: batch.importTicket?.importDate || null,
+          prices: {},
+        });
+      }
+
+      const group = groupedMap.get(ticketId)!;
+
+      // Add or increment count for this weight
+      const weightKey = `${batch.quantity}kg`;
+      group.batch[weightKey] = (group.batch[weightKey] || 0) + 1;
+    }
+
+    // Fetch prices for each product
+    const results = Array.from(groupedMap.values());
+    for (const result of results) {
+      if (result.product?.id) {
+        const prices = await this.pricesService.findByProductId(
+          result.product.id,
+        );
+
+        // Convert prices array to object with quantity as key
+        for (const priceItem of prices) {
+          if (priceItem.quantity && priceItem.price) {
+            const priceKey = `${priceItem.quantity}kg`;
+            result.prices[priceKey] = priceItem.price;
+          }
+        }
+      }
+    }
+
+    return results;
   }
 }

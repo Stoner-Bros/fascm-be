@@ -1,4 +1,5 @@
 import {
+  forwardRef,
   // do not remove this comment
   Module,
 } from '@nestjs/common';
@@ -10,7 +11,7 @@ import { RelationalInboundBatchPersistenceModule } from './infrastructure/persis
 
 @Module({
   imports: [
-    ImportTicketsModule,
+    forwardRef(() => ImportTicketsModule),
     HarvestInvoiceDetailsModule,
     // do not remove this comment
     RelationalInboundBatchPersistenceModule,

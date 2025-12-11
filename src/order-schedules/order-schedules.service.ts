@@ -1,18 +1,20 @@
 import { ConsigneesService } from '../consignees/consignees.service';
 import { Consignee } from '../consignees/domain/consignee';
+import { NotificationsService } from '../notifications/notifications.service';
+import { ProductsService } from '../products/products.service';
+import { OrderDetailSelectionsService } from './../order-detail-selections/order-detail-selections.service';
 
 import {
   BadRequestException,
   HttpStatus,
-  Inject,
   // common
   Injectable,
   UnprocessableEntityException,
-  forwardRef,
 } from '@nestjs/common';
-import { OrderDetailsService } from 'src/order-details/order-details.service';
-import { OrdersService } from 'src/orders/orders.service';
-import { NotificationsGateway } from '../notifications/notifications.gateway';
+import { BatchesService } from 'src/batches/batches.service';
+import { OrderDetailRepository } from 'src/order-details/infrastructure/persistence/order-detail.repository';
+import { OrderRepository } from 'src/orders/infrastructure/persistence/order.repository';
+import { Product } from 'src/products/domain/product';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { OrderSchedule } from './domain/order-schedule';
 import { CreateOrderScheduleDto } from './dto/create-order-schedule.dto';
@@ -23,29 +25,25 @@ import { OrderScheduleRepository } from './infrastructure/persistence/order-sche
 @Injectable()
 export class OrderSchedulesService {
   constructor(
-    @Inject(forwardRef(() => OrdersService))
-    private readonly orderService: OrdersService,
-
-    @Inject(forwardRef(() => OrderDetailsService))
-    private readonly orderDetailService: OrderDetailsService,
-
-    private readonly consigneeService: ConsigneesService,
-
     // Dependencies here
     private readonly orderScheduleRepository: OrderScheduleRepository,
-    private readonly notificationsGateway: NotificationsGateway,
+    private readonly consigneeService: ConsigneesService,
+    private readonly productsService: ProductsService,
+    private readonly notificationsService: NotificationsService,
+    private readonly orderRepository: OrderRepository,
+    private readonly orderDetailSelectionsService: OrderDetailSelectionsService,
+    private readonly batchesService: BatchesService,
+    private readonly orderDetailRepository: OrderDetailRepository,
   ) {}
 
-  async create(createOrderScheduleDto: CreateOrderScheduleDto) {
+  async create(createOrderScheduleDto: CreateOrderScheduleDto, userId: number) {
     // Do not remove comment below.
     // <creating-property />
 
-    let consignee: Consignee | null | undefined = undefined;
+    let consignee: Consignee;
 
-    if (createOrderScheduleDto.consignee) {
-      const consigneeObject = await this.consigneeService.findById(
-        createOrderScheduleDto.consignee.id,
-      );
+    if (userId) {
+      const consigneeObject = await this.consigneeService.findByUserId(userId);
       if (!consigneeObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -55,11 +53,9 @@ export class OrderSchedulesService {
         });
       }
       consignee = consigneeObject;
-    } else if (createOrderScheduleDto.consignee === null) {
-      consignee = null;
     }
 
-    return this.orderScheduleRepository.create({
+    const os = await this.orderScheduleRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
 
@@ -69,8 +65,61 @@ export class OrderSchedulesService {
 
       status: OrderScheduleStatusEnum.PENDING,
 
-      consignee,
+      deliveryDate: createOrderScheduleDto.deliveryDate,
+
+      consignee: consignee!,
     });
+
+    const order = await this.orderRepository.create({
+      orderSchedule: os,
+      orderNumber: createOrderScheduleDto.order.orderNumber,
+      orderUrl: createOrderScheduleDto.order.orderUrl,
+      unit: 'kg',
+      quantity: 0,
+    });
+
+    let totalQuantity = 0;
+    for (const detailDto of createOrderScheduleDto.orderDetails) {
+      let product: Product | null = null;
+      if (detailDto.product) {
+        product = await this.productsService.findById(detailDto.product.id);
+      }
+      const od = await this.orderDetailRepository.create({
+        order: order,
+        product: product ?? undefined,
+        unitPrice: detailDto.unitPrice ?? undefined,
+        quantity: detailDto.quantity ?? undefined,
+        unit: detailDto.unit ?? undefined,
+        // amount = unitPrice * quantity
+        amount: (detailDto.unitPrice ?? 0) * (detailDto.quantity ?? 0),
+      });
+
+      // Create order detail selections if batchIds are provided
+      if (detailDto.batchId && detailDto.batchId.length > 0) {
+        for (const batchId of detailDto.batchId) {
+          const batch = await this.batchesService.findById(batchId);
+          if (!batch) {
+            throw new UnprocessableEntityException({
+              status: HttpStatus.UNPROCESSABLE_ENTITY,
+              errors: {
+                batch: 'notExists',
+              },
+            });
+          }
+          await this.orderDetailSelectionsService.create({
+            orderDetail: od,
+            batch: batch,
+          });
+        }
+      }
+      totalQuantity += detailDto.quantity ?? 0;
+    }
+    order.quantity = totalQuantity;
+    await this.orderRepository.update(order.id, {
+      quantity: order.quantity,
+    });
+
+    return os;
   }
 
   findAllWithPagination({
@@ -79,12 +128,32 @@ export class OrderSchedulesService {
     sort,
   }: {
     paginationOptions: IPaginationOptions;
-    filters?: {
-      status?: OrderSchedule['status'];
-    };
+    filters?: { status?: OrderScheduleStatusEnum };
     sort?: 'ASC' | 'DESC';
   }) {
     return this.orderScheduleRepository.findAllWithPagination({
+      paginationOptions: {
+        page: paginationOptions.page,
+        limit: paginationOptions.limit,
+      },
+      filters,
+      sort,
+    });
+  }
+
+  findAllByConsigneeWithPagination({
+    consigneeId,
+    paginationOptions,
+    filters,
+    sort,
+  }: {
+    consigneeId: string;
+    paginationOptions: IPaginationOptions;
+    filters?: { status?: OrderScheduleStatusEnum };
+    sort?: 'ASC' | 'DESC';
+  }) {
+    return this.orderScheduleRepository.findAllByConsigneeWithPagination({
+      consigneeId,
       paginationOptions: {
         page: paginationOptions.page,
         limit: paginationOptions.limit,
@@ -104,19 +173,26 @@ export class OrderSchedulesService {
 
   async update(
     id: OrderSchedule['id'],
-
     updateOrderScheduleDto: UpdateOrderScheduleDto,
+    userId: number,
   ) {
-    // Do not remove comment below.
-    // <updating-property />
+    // Check if order schedule exists
+    const existingOrderSchedule =
+      await this.orderScheduleRepository.findById(id);
+    if (!existingOrderSchedule) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          id: 'notExists',
+        },
+      });
+    }
 
-    let consignee: Consignee | null | undefined = undefined;
-
-    if (updateOrderScheduleDto.consignee) {
-      const consigneeObject = await this.consigneeService.findById(
-        updateOrderScheduleDto.consignee.id,
-      );
-      if (!consigneeObject) {
+    // Verify user owns this order schedule
+    let consignee: Consignee | null = null;
+    if (userId) {
+      consignee = await this.consigneeService.findByUserId(userId);
+      if (!consignee) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
@@ -124,83 +200,119 @@ export class OrderSchedulesService {
           },
         });
       }
-      consignee = consigneeObject;
-    } else if (updateOrderScheduleDto.consignee === null) {
-      consignee = null;
+
+      if (existingOrderSchedule.consignee?.id !== consignee.id) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            user: 'notAuthorized',
+          },
+        });
+      }
     }
 
-    return this.orderScheduleRepository.update(id, {
-      // Do not remove comment below.
-      // <updating-property-payload />
+    // Update order schedule basic info
+    const updateData: Partial<OrderSchedule> = {};
+    if (updateOrderScheduleDto.address !== undefined) {
+      updateData.address = updateOrderScheduleDto.address;
+    }
+    if (updateOrderScheduleDto.description !== undefined) {
+      updateData.description = updateOrderScheduleDto.description;
+    }
+    if (updateOrderScheduleDto.deliveryDate !== undefined) {
+      updateData.deliveryDate = updateOrderScheduleDto.deliveryDate;
+    }
 
-      address: updateOrderScheduleDto.address,
+    if (Object.keys(updateData).length > 0) {
+      await this.orderScheduleRepository.update(id, updateData);
+    }
 
-      description: updateOrderScheduleDto.description,
+    // Update order if provided
+    if (updateOrderScheduleDto.order) {
+      const existingOrder = await this.orderRepository.findByOSId(id);
+      if (existingOrder) {
+        await this.orderRepository.update(existingOrder.id, {
+          orderNumber: updateOrderScheduleDto.order.orderNumber,
+          orderUrl: updateOrderScheduleDto.order.orderUrl,
+        });
 
-      status: OrderScheduleStatusEnum.PENDING,
+        // Update order details if provided
+        if (updateOrderScheduleDto.orderDetails) {
+          // Delete old details
+          const oldDetails = await this.orderDetailRepository.findByOrderId(
+            existingOrder.id,
+          );
+          if (oldDetails) {
+            for (const detail of oldDetails) {
+              await this.orderDetailSelectionsService.removeAllByOrderDetailId(
+                detail.id,
+              );
+              await this.orderDetailRepository.remove(detail.id);
+            }
+          }
 
-      consignee,
-    });
+          // Create new details
+          let totalQuantity = 0;
+          for (const detailDto of updateOrderScheduleDto.orderDetails) {
+            let product: Product | null = null;
+            if (detailDto.product) {
+              product = await this.productsService.findById(
+                detailDto.product.id,
+              );
+              if (!product) {
+                throw new UnprocessableEntityException({
+                  status: HttpStatus.UNPROCESSABLE_ENTITY,
+                  errors: {
+                    product: 'notExists',
+                  },
+                });
+              }
+            }
+
+            const od = await this.orderDetailRepository.create({
+              order: existingOrder,
+              product: product ?? undefined,
+              unitPrice: detailDto.unitPrice ?? undefined,
+              quantity: detailDto.quantity ?? undefined,
+              unit: detailDto.unit ?? undefined,
+              amount: (detailDto.unitPrice ?? 0) * (detailDto.quantity ?? 0),
+            });
+
+            // Create order detail selections if batchIds are provided
+            if (detailDto.batchId && detailDto.batchId.length > 0) {
+              for (const batchId of detailDto.batchId) {
+                const batch = await this.batchesService.findById(batchId);
+                if (!batch) {
+                  throw new UnprocessableEntityException({
+                    status: HttpStatus.UNPROCESSABLE_ENTITY,
+                    errors: {
+                      batch: 'notExists',
+                    },
+                  });
+                }
+                await this.orderDetailSelectionsService.create({
+                  orderDetail: od,
+                  batch: batch,
+                });
+              }
+            }
+            totalQuantity += detailDto.quantity ?? 0;
+          }
+
+          // Update order quantity
+          await this.orderRepository.update(existingOrder.id, {
+            quantity: totalQuantity,
+          });
+        }
+      }
+    }
+
+    return this.orderScheduleRepository.findById(id);
   }
 
-  async approveNotification(id: OrderSchedule['id']) {
-    const schedule = await this.orderScheduleRepository.findById(id);
-    if (!schedule) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: { id: 'notExists' },
-      });
-    }
-    const updated = await this.orderScheduleRepository.update(id, {
-      status: OrderScheduleStatusEnum.APPROVED,
-    });
-    const consigneeId = updated?.consignee?.id;
-    if (consigneeId) {
-      this.notificationsGateway.notifyConsignee(consigneeId, {
-        type: 'order-approved',
-        title: 'Đơn hàng đã được duyệt',
-        message: `Đơn hàng ${updated.id} đã được duyệt`,
-        data: { orderScheduleId: updated.id },
-        timestamp: new Date().toISOString(),
-      });
-    }
-    return updated;
-  }
-
-  async findFullInfoById(id: OrderSchedule['id']) {
-    const os = await this.orderScheduleRepository.findById(id);
-    if (!os) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: { id: 'notExists' },
-      });
-    }
-
-    const order = await this.orderService.findOrderByOSId(id);
-    if (!order) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: { id: 'notExists' },
-      });
-    }
-
-    const orderDetail = await this.orderDetailService.findByOrderId(order.id);
-    if (!orderDetail) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: { id: 'notExists' },
-      });
-    }
-
-    return {
-      ...os,
-      orderDetail,
-    };
-  }
-
-  remove(id: OrderSchedule['id']) {
-    return this.orderScheduleRepository.remove(id);
-  }
+  // remove(id: OrderSchedule['id']) {
+  //   return this.orderScheduleRepository.remove(id);
+  // }
 
   async updateStatus(
     id: OrderSchedule['id'],
@@ -237,18 +349,6 @@ export class OrderSchedulesService {
         OrderScheduleStatusEnum.COMPLETED,
         OrderScheduleStatusEnum.CANCELED,
       ],
-      // preparing: [
-      //   OrderScheduleStatusEnum.DELIVERING,
-      //   OrderScheduleStatusEnum.CANCELED,
-      // ],
-      // delivering: [
-      //   OrderScheduleStatusEnum.DELIVERED,
-      //   OrderScheduleStatusEnum.CANCELED,
-      // ],
-      // delivered: [
-      //   OrderScheduleStatusEnum.COMPLETED,
-      //   OrderScheduleStatusEnum.CANCELED,
-      // ],
       completed: [],
     };
 
@@ -278,21 +378,22 @@ export class OrderSchedulesService {
     }
 
     if (status === OrderScheduleStatusEnum.APPROVED) {
-      await this.approveNotification(id);
+      await this.approveNotification(orderSchedule);
     }
 
     // Send notification for rejection
     if (status === OrderScheduleStatusEnum.REJECTED) {
-      const consigneeId = orderSchedule?.consignee?.id;
-      if (consigneeId) {
-        this.notificationsGateway.notifyConsignee(consigneeId, {
-          type: 'order-rejected',
-          title: 'Đơn hàng đã bị từ chối',
-          message: `Đơn hàng ${orderSchedule.id} đã bị từ chối. Lý do: ${reason}`,
-          data: { orderScheduleId: orderSchedule.id, reason },
-          timestamp: new Date().toISOString(),
-        });
-      }
+      await this.rejectNotification(orderSchedule, reason ?? '');
+    }
+
+    // Send notification for rejection
+    if (status === OrderScheduleStatusEnum.COMPLETED) {
+      await this.completeNotification(orderSchedule);
+    }
+
+    // Send notification for rejection
+    if (status === OrderScheduleStatusEnum.CANCELED) {
+      await this.cancelNotification(orderSchedule);
     }
 
     return this.orderScheduleRepository.update(id, {
@@ -302,23 +403,59 @@ export class OrderSchedulesService {
     });
   }
 
-  //upload img proof for order schedule
-  // async uploadImgProof(
-  //   id: OrderSchedule['id'],
-  //   file: Express.Multer.File,
-  // ): Promise<{ path: string }> {
-  //   const orderSchedule = await this.orderScheduleRepository.findById(id);
-  //   if (!orderSchedule) {
-  //     throw new UnprocessableEntityException({
-  //       status: HttpStatus.UNPROCESSABLE_ENTITY,
-  //       errors: { id: 'notExists' },
-  //     });
-  //   }
-  //   const uploadedFile = await this.filesCloudinaryService.uploadFile(file);
-  //   await this.imageProofService.create({
-  //     orderSchedule: orderSchedule,
-  //     photo: uploadedFile,
-  //   });
-  //   return { path: uploadedFile.path };
-  // }
+  async approveNotification(os: OrderSchedule) {
+    const consignee = os?.consignee;
+    if (consignee?.id) {
+      await this.notificationsService.create({
+        user: { id: Number(consignee.user?.id ?? 0) },
+        isRead: false,
+        type: 'order-approved',
+        title: 'orderScheduleApproved',
+        message: `orderScheduleHasBeenApproved`,
+        data: JSON.stringify({ orderScheduleId: os.id }),
+      });
+    }
+  }
+
+  async rejectNotification(os: OrderSchedule, reason: string) {
+    const consignee = os?.consignee;
+    if (consignee?.id) {
+      await this.notificationsService.create({
+        user: { id: Number(consignee.user?.id ?? 0) },
+        isRead: false,
+        type: 'order-rejected',
+        title: 'orderScheduleRejected',
+        message: `orderScheduleHasBeenRejected`,
+        data: JSON.stringify({ orderScheduleId: os.id, reason }),
+      });
+    }
+  }
+
+  async completeNotification(os: OrderSchedule) {
+    const consignee = os?.consignee;
+    if (consignee?.id) {
+      await this.notificationsService.create({
+        user: { id: Number(consignee.user?.id ?? 0) },
+        isRead: false,
+        type: 'order-completed',
+        title: 'orderScheduleCompleted',
+        message: `orderScheduleHasBeenCompleted`,
+        data: JSON.stringify({ orderScheduleId: os.id }),
+      });
+    }
+  }
+
+  async cancelNotification(os: OrderSchedule) {
+    const consignee = os?.consignee;
+    if (consignee?.id) {
+      await this.notificationsService.create({
+        user: { id: Number(consignee.user?.id ?? 0) },
+        isRead: false,
+        type: 'order-canceled',
+        title: 'orderScheduleCanceled',
+        message: `orderScheduleHasBeenCanceled`,
+        data: JSON.stringify({ orderScheduleId: os.id }),
+      });
+    }
+  }
 }

@@ -3,18 +3,25 @@ import {
   // do not remove this comment
   Module,
 } from '@nestjs/common';
+import { FilesCloudinaryModule } from 'src/files/infrastructure/uploader/cloudinary/files.module';
+import { ImageProofsModule } from 'src/image-proofs/image-proofs.module';
+import { OrderInvoiceDetailsModule } from 'src/order-invoice-details/order-invoice-details.module';
+import { OrderInvoicesModule } from 'src/order-invoices/order-invoices.module';
+import { ProductsModule } from 'src/products/products.module';
 import { OrderSchedulesModule } from '../order-schedules/order-schedules.module';
 import { RelationalOrderPhasePersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { OrderPhasesController } from './order-phases.controller';
 import { OrderPhasesService } from './order-phases.service';
-import { ImageProofsModule } from 'src/image-proofs/image-proofs.module';
-import { FilesCloudinaryModule } from 'src/files/infrastructure/uploader/cloudinary/files.module';
 
 @Module({
   imports: [
-    forwardRef(() => OrderSchedulesModule),
     forwardRef(() => ImageProofsModule),
     FilesCloudinaryModule,
+    ProductsModule,
+
+    forwardRef(() => OrderSchedulesModule),
+    OrderInvoicesModule,
+    OrderInvoiceDetailsModule,
 
     // do not remove this comment
     RelationalOrderPhasePersistenceModule,

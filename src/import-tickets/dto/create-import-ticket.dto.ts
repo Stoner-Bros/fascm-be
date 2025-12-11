@@ -1,19 +1,19 @@
 import { InboundBatchDto } from '../../inbound-batches/dto/inbound-batch.dto';
 
 import {
+  Transform,
   // decorators here
   Type,
-  Transform,
 } from 'class-transformer';
 
 import {
-  // decorators here
-
-  ValidateNested,
-  IsNotEmptyObject,
-  IsOptional,
   IsDate,
+  IsNotEmpty,
+  IsNotEmptyObject,
   IsNumber,
+  IsOptional,
+  // decorators here
+  ValidateNested,
 } from 'class-validator';
 
 import {
@@ -24,12 +24,12 @@ import { AreaDto } from 'src/areas/dto/area.dto';
 
 export class CreateImportTicketDto {
   @ApiProperty({
-    required: false,
+    required: true,
     type: () => Number,
   })
-  @IsOptional()
+  @IsNotEmpty()
   @IsNumber()
-  realityQuantity?: number | null;
+  realityQuantity: number;
 
   @ApiProperty({
     required: false,
@@ -41,24 +41,38 @@ export class CreateImportTicketDto {
   expiredAt?: Date | null;
 
   @ApiProperty({
-    required: false,
+    required: true,
     type: () => InboundBatchDto,
   })
-  @IsOptional()
   @ValidateNested()
   @Type(() => InboundBatchDto)
   @IsNotEmptyObject()
-  inboundBatch?: InboundBatchDto | null;
+  inboundBatch: InboundBatchDto;
 
   @ApiProperty({
-    required: false,
+    required: true,
     type: () => AreaDto,
   })
-  @IsOptional()
   @ValidateNested()
   @Type(() => AreaDto)
   @IsNotEmptyObject()
-  area?: AreaDto | null;
+  area: AreaDto;
+
+  @ApiProperty({
+    required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  numberOfBigBatch?: number | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  numberOfSmallBatch?: number | null;
 
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

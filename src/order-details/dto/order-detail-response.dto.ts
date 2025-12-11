@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Product } from '../../products/domain/product';
+import { ProductResponse } from 'src/products/dto/product-response.dto';
 
 export class OrderDetailResponseDto {
   @ApiProperty({
@@ -27,10 +27,10 @@ export class OrderDetailResponseDto {
   unit?: string | null;
 
   @ApiProperty({
-    type: () => Product,
+    type: () => ProductResponse,
     nullable: true,
   })
-  product?: Product | null;
+  product?: ProductResponse | null;
 
   @ApiProperty({
     type: String,

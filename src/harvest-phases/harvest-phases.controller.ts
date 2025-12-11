@@ -30,11 +30,15 @@ import {
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
 import { HarvestPhase } from './domain/harvest-phase';
-import { CreateHarvestPhaseDto } from './dto/create-harvest-phase.dto';
+import {
+  CreateHarvestPhaseDto,
+  CreateMultipleHarvestPhaseDto,
+} from './dto/create-harvest-phase.dto';
 import { FindAllHarvestPhasesDto } from './dto/find-all-harvest-phases.dto';
+import { HarvestPhaseResponse } from './dto/harvest-phase-response.dto';
+import { UpdateHarvestPhaseStatusDto } from './dto/update-harvest-phase-status.dto';
 import { UpdateHarvestPhaseDto } from './dto/update-harvest-phase.dto';
 import { HarvestPhasesService } from './harvest-phases.service';
-import { UpdateHarvestPhaseStatusDto } from './dto/update-harvest-phase-status.dto';
 
 @ApiTags('Harvestphases')
 @ApiBearerAuth()
@@ -54,9 +58,21 @@ export class HarvestPhasesController {
     return this.harvestPhasesService.create(createHarvestPhaseDto);
   }
 
+  @Post('multiple')
+  @ApiCreatedResponse({
+    type: HarvestPhase,
+  })
+  createMultiple(
+    @Body() createMultipleHarvestPhaseDto: CreateMultipleHarvestPhaseDto,
+  ) {
+    return this.harvestPhasesService.createMultiple(
+      createMultipleHarvestPhaseDto,
+    );
+  }
+
   @Get()
   @ApiOkResponse({
-    type: InfinityPaginationResponse(HarvestPhase),
+    type: InfinityPaginationResponse(HarvestPhaseResponse),
   })
   async findAll(
     @Query() query: FindAllHarvestPhasesDto,
@@ -78,6 +94,32 @@ export class HarvestPhasesController {
     );
   }
 
+  @Get('harvest-schedule/:harvestScheduleId')
+  @ApiOkResponse({
+    type: InfinityPaginationResponse(HarvestPhaseResponse),
+  })
+  async findAllBySchedule(
+    @Param('harvestScheduleId') scheduleId: string,
+    @Query() query: FindAllHarvestPhasesDto,
+  ): Promise<InfinityPaginationResponseDto<HarvestPhaseResponse>> {
+    const page = query?.page ?? 1;
+    let limit = query?.limit ?? 10;
+    if (limit > 50) {
+      limit = 50;
+    }
+
+    return infinityPagination(
+      await this.harvestPhasesService.findAllByScheduleWithPagination({
+        harvestScheduleId: scheduleId,
+        paginationOptions: {
+          page,
+          limit,
+        },
+      }),
+      { page, limit },
+    );
+  }
+
   @Get(':id')
   @ApiParam({
     name: 'id',
@@ -85,7 +127,7 @@ export class HarvestPhasesController {
     required: true,
   })
   @ApiOkResponse({
-    type: HarvestPhase,
+    type: HarvestPhaseResponse,
   })
   findById(@Param('id') id: string) {
     return this.harvestPhasesService.findById(id);
@@ -133,7 +175,6 @@ export class HarvestPhasesController {
     return this.harvestPhasesService.updateStatus(
       id,
       updateHarvestPhaseStatusDto.status,
-      // updateHarvestPhaseStatusDto.reason,
     );
   }
 

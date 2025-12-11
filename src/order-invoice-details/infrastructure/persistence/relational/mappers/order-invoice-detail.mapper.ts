@@ -1,10 +1,11 @@
-import { OrderInvoiceDetail } from '../../../../domain/order-invoice-detail';
 import { ExportTicketMapper } from '../../../../../export-tickets/infrastructure/persistence/relational/mappers/export-ticket.mapper';
+import { OrderInvoiceDetail } from '../../../../domain/order-invoice-detail';
 
 import { ProductMapper } from '../../../../../products/infrastructure/persistence/relational/mappers/product.mapper';
 
 import { OrderInvoiceMapper } from '../../../../../order-invoices/infrastructure/persistence/relational/mappers/order-invoice.mapper';
 
+import { OrderInvoiceDetailResponse } from 'src/order-invoice-details/dto/order-invoice-detail-response';
 import { OrderInvoiceDetailEntity } from '../entities/order-invoice-detail.entity';
 
 export class OrderInvoiceDetailMapper {
@@ -90,5 +91,29 @@ export class OrderInvoiceDetailMapper {
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 
     return persistenceEntity;
+  }
+
+  static toResponse(raw: OrderInvoiceDetailEntity): OrderInvoiceDetailResponse {
+    const responseEntity = new OrderInvoiceDetailResponse();
+
+    responseEntity.amount = raw.amount;
+
+    responseEntity.taxRate = raw.taxRate;
+    responseEntity.unitPrice = raw.unitPrice;
+
+    responseEntity.quantity = raw.quantity;
+
+    responseEntity.unit = raw.unit;
+
+    if (raw.product) {
+      responseEntity.product = ProductMapper.toResponse(raw.product);
+    } else if (raw.product === null) {
+      responseEntity.product = null;
+    }
+
+    responseEntity.id = raw.id;
+    responseEntity.createdAt = raw.createdAt;
+    responseEntity.updatedAt = raw.updatedAt;
+    return responseEntity;
   }
 }

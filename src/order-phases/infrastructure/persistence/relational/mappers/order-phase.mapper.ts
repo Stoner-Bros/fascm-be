@@ -3,6 +3,9 @@ import { OrderPhase } from '../../../../domain/order-phase';
 import { OrderScheduleMapper } from '../../../../../order-schedules/infrastructure/persistence/relational/mappers/order-schedule.mapper';
 
 import { ImageProofMapper } from 'src/image-proofs/infrastructure/persistence/relational/mappers/image-proof.mapper';
+import { OrderInvoiceDetailMapper } from 'src/order-invoice-details/infrastructure/persistence/relational/mappers/order-invoice-detail.mapper';
+import { OrderInvoiceMapper } from 'src/order-invoices/infrastructure/persistence/relational/mappers/order-invoice.mapper';
+import { OrderPhaseResponse } from 'src/order-phases/dto/order-phase-response.dto';
 import { OrderPhaseEntity } from '../entities/order-phase.entity';
 
 export class OrderPhaseMapper {
@@ -68,5 +71,46 @@ export class OrderPhaseMapper {
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 
     return persistenceEntity;
+  }
+
+  static toResponse(raw: OrderPhaseEntity): OrderPhaseResponse {
+    const responseEntity = new OrderPhaseResponse();
+    responseEntity.description = raw.description;
+
+    responseEntity.status = raw.status;
+
+    responseEntity.phaseNumber = raw.phaseNumber;
+
+    if (raw.imageProof) {
+      responseEntity.imageProof = raw.imageProof.map((item) =>
+        ImageProofMapper.toResponse(item),
+      );
+    } else if (raw.imageProof === null) {
+      responseEntity.imageProof = null;
+    }
+
+    if (raw.orderInvoice) {
+      responseEntity.orderInvoice = OrderInvoiceMapper.toResponse(
+        raw.orderInvoice,
+      );
+      // Map harvest details if exists
+      if (
+        raw.orderInvoice.orderInvoiceDetails &&
+        Array.isArray(raw.orderInvoice.orderInvoiceDetails)
+      ) {
+        responseEntity.orderInvoiceDetails =
+          raw.orderInvoice.orderInvoiceDetails.map((detail) =>
+            OrderInvoiceDetailMapper.toResponse(detail),
+          );
+      } else {
+        responseEntity.orderInvoiceDetails = [];
+      }
+    }
+
+    responseEntity.id = raw.id;
+    responseEntity.createdAt = raw.createdAt;
+    responseEntity.updatedAt = raw.updatedAt;
+
+    return responseEntity;
   }
 }

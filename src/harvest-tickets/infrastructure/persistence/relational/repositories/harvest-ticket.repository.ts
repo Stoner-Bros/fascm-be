@@ -18,12 +18,12 @@ export class HarvestTicketRelationalRepository
     private readonly harvestTicketRepository: Repository<HarvestTicketEntity>,
   ) {}
 
-  async create(data: HarvestTicket): Promise<HarvestTicket> {
+  async create(data: HarvestTicket): Promise<HarvestTicketResponse> {
     const persistenceModel = HarvestTicketMapper.toPersistence(data);
     const newEntity = await this.harvestTicketRepository.save(
       this.harvestTicketRepository.create(persistenceModel),
     );
-    return HarvestTicketMapper.toDomain(newEntity);
+    return HarvestTicketMapper.toResponse(newEntity);
   }
 
   async findAllWithPagination({
@@ -34,7 +34,7 @@ export class HarvestTicketRelationalRepository
     const entities = await this.harvestTicketRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
-      relations: ['harvestScheduleId'],
+      relations: ['harvestSchedule'],
     });
 
     return entities.map((entity) => HarvestTicketMapper.toResponse(entity));
@@ -64,7 +64,7 @@ export class HarvestTicketRelationalRepository
   ): Promise<HarvestTicket> {
     const entity = await this.harvestTicketRepository.findOne({
       where: { id },
-      relations: ['harvestScheduleId'],
+      relations: ['harvestSchedule'],
     });
 
     if (!entity) {

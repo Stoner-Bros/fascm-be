@@ -1,36 +1,114 @@
 import {
+  forwardRef,
+  HttpStatus,
+  Inject,
   // common
   Injectable,
+  UnprocessableEntityException,
 } from '@nestjs/common';
+import { AreasService } from 'src/areas/areas.service';
+import { BatchesService } from 'src/batches/batches.service';
+import { OrderInvoiceDetailRepository } from 'src/order-invoice-details/infrastructure/persistence/order-invoice-detail.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
+import { OrderInvoiceDetailsService } from './../order-invoice-details/order-invoice-details.service';
 import { ExportTicket } from './domain/export-ticket';
+import { CreateExportTicketDto } from './dto/create-export-ticket.dto';
 import { ExportTicketRepository } from './infrastructure/persistence/export-ticket.repository';
 
 @Injectable()
 export class ExportTicketsService {
   constructor(
-    // private readonly orderDetailService: OrderDetailsService,
+    private readonly orderInvoiceDetailsService: OrderInvoiceDetailsService,
+    private readonly orderInvoiceDetailsRepository: OrderInvoiceDetailRepository,
 
+    @Inject(forwardRef(() => BatchesService))
+    private readonly batchesService: BatchesService,
+    private readonly areasService: AreasService,
     // Dependencies here
     private readonly exportTicketRepository: ExportTicketRepository,
   ) {}
 
-  // async create(createExportTicketDto: CreateExportTicketDto) {
-  //   // Do not remove comment below.
-  //   // <creating-property />
-  //   return this.exportTicketRepository.create({
-  //     // Do not remove comment below.
-  //     // <creating-property-payload />
-  //     unit: createExportTicketDto.unit,
+  async create(createExportTicketDto: CreateExportTicketDto) {
+    // Do not remove comment below.
+    // <creating-property />
+    const ets: ExportTicket[] = [];
+    if (createExportTicketDto.invoiceDetails) {
+      for (const detail of createExportTicketDto.invoiceDetails) {
+        const orderInvoiceDetail =
+          await this.orderInvoiceDetailsService.findById(
+            detail.orderInvoiceDetailId,
+          );
+        if (!orderInvoiceDetail) {
+          throw new UnprocessableEntityException({
+            status: HttpStatus.UNPROCESSABLE_ENTITY,
+            errors: {
+              orderInvoiceDetail: 'notExists',
+            },
+          });
+        }
 
-  //     exportDate: createExportTicketDto.exportDate,
-  //   });
-  // }
+        const batchs = await this.batchesService.findByIds(detail.batchIds);
+        if (batchs.length !== detail.batchIds.length) {
+          throw new UnprocessableEntityException({
+            status: HttpStatus.UNPROCESSABLE_ENTITY,
+            errors: {
+              batchs: 'someBatchNotExists',
+            },
+          });
+        }
+        // compare product in batch and orderInvoiceDetail
+        for (const batch of batchs) {
+          if (batch?.product?.id !== orderInvoiceDetail?.product?.id) {
+            throw new UnprocessableEntityException({
+              status: HttpStatus.UNPROCESSABLE_ENTITY,
+              errors: {
+                batch: `Batch with id ${batch.id} has different product than OrderInvoiceDetail with id ${orderInvoiceDetail.id}`,
+              },
+            });
+          }
+        }
+        const areaId = batchs[0].area?.id;
+        const area = await this.areasService.findById(areaId as string);
+        if (!area) {
+          throw new UnprocessableEntityException({
+            status: HttpStatus.UNPROCESSABLE_ENTITY,
+            errors: {
+              area: `Area with id ${areaId} not found`,
+            },
+          });
+        }
 
-  // async createBulk(createExportTicketDtos: CreateExportTicketDto[]) {
-  //   const tasks = createExportTicketDtos.map((dto) => this.create(dto));
-  //   return Promise.all(tasks);
-  // }
+        const exportTicket = await this.exportTicketRepository.create({
+          // Do not remove comment below.
+          // <creating-property-payload />
+          exportDate: new Date(),
+          unit: orderInvoiceDetail.unit,
+          quantity: orderInvoiceDetail.quantity,
+        });
+
+        orderInvoiceDetail.exportTicket = exportTicket;
+        await this.orderInvoiceDetailsRepository.update(
+          orderInvoiceDetail.id,
+          orderInvoiceDetail,
+        );
+
+        for (const batch of batchs) {
+          batch.exportTicket = exportTicket;
+          await this.batchesService.update(batch.id, batch);
+        }
+
+        if (area) {
+          area.quantity =
+            (area.quantity || 0) - (orderInvoiceDetail.quantity || 0);
+          await this.areasService.update(area.id, area);
+        }
+
+        ets.push(exportTicket);
+      }
+    }
+
+    return ets;
+  }
 
   findAllWithPagination({
     paginationOptions,
@@ -93,5 +171,21 @@ export class ExportTicketsService {
 
   remove(id: ExportTicket['id']) {
     return this.exportTicketRepository.remove(id);
+  }
+
+  findByAreaWithPagination({
+    areaId,
+    paginationOptions,
+  }: {
+    areaId: string;
+    paginationOptions: IPaginationOptions;
+  }) {
+    return this.exportTicketRepository.findByAreaWithPagination({
+      areaId,
+      paginationOptions: {
+        page: paginationOptions.page,
+        limit: paginationOptions.limit,
+      },
+    });
   }
 }

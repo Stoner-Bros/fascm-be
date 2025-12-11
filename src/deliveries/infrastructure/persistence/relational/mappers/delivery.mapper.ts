@@ -2,6 +2,7 @@ import { Delivery } from '../../../../domain/delivery';
 
 import { TruckMapper } from '../../../../../trucks/infrastructure/persistence/relational/mappers/truck.mapper';
 
+import { DeliveryResponse } from 'src/deliveries/dto/delivery-response.dto';
 import { DeliveryStaffMapper } from 'src/delivery-staffs/infrastructure/persistence/relational/mappers/delivery-staff.mapper';
 import { HarvestPhaseMapper } from 'src/harvest-phases/infrastructure/persistence/relational/mappers/harvest-phase.mapper';
 import { OrderPhaseMapper } from 'src/order-phases/infrastructure/persistence/relational/mappers/order-phase.mapper';
@@ -59,6 +60,63 @@ export class DeliveryMapper {
     domainEntity.updatedAt = raw.updatedAt;
 
     return domainEntity;
+  }
+
+  static toResponse(raw: DeliveryEntity): DeliveryResponse {
+    const responseEntity = new DeliveryResponse();
+    responseEntity.endLng = raw.endLng;
+
+    responseEntity.endLat = raw.endLat;
+
+    responseEntity.startLng = raw.startLng;
+
+    responseEntity.startLat = raw.startLat;
+
+    responseEntity.endAddress = raw.endAddress;
+
+    responseEntity.startAddress = raw.startAddress;
+
+    responseEntity.status = raw.status;
+
+    responseEntity.endTime = raw.endTime;
+
+    responseEntity.startTime = raw.startTime;
+
+    if (raw.truck) {
+      responseEntity.truck = TruckMapper.toResponse(raw.truck);
+    } else if (raw.truck === null) {
+      responseEntity.truck = null;
+    }
+
+    if (raw.deliveryStaff) {
+      responseEntity.deliveryStaff = DeliveryStaffMapper.toDomain(
+        raw.deliveryStaff,
+      );
+    } else if (raw.deliveryStaff === null) {
+      responseEntity.deliveryStaff = null;
+    }
+
+    if (raw.harvestPhase) {
+      const hp = HarvestPhaseMapper.toDomain(raw.harvestPhase);
+      responseEntity.harvestPhaseId = hp.id;
+      responseEntity.harvestScheduleId = hp.harvestSchedule
+        ? hp.harvestSchedule.id
+        : null;
+    }
+
+    if (raw.orderPhase) {
+      const op = OrderPhaseMapper.toDomain(raw.orderPhase);
+      responseEntity.orderPhaseId = op.id;
+      responseEntity.orderScheduleId = op.orderSchedule
+        ? op.orderSchedule.id
+        : null;
+    }
+
+    responseEntity.id = raw.id;
+    responseEntity.createdAt = raw.createdAt;
+    responseEntity.updatedAt = raw.updatedAt;
+
+    return responseEntity;
   }
 
   static toPersistence(domainEntity: Delivery): DeliveryEntity {

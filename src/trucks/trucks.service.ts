@@ -1,3 +1,6 @@
+import { WarehousesService } from '../warehouses/warehouses.service';
+import { Warehouse } from '../warehouses/domain/warehouse';
+
 import { IoTDevice } from '../io-t-devices/domain/io-t-device';
 import { IoTDevicesService } from '../io-t-devices/io-t-devices.service';
 
@@ -20,6 +23,8 @@ import { TruckRepository } from './infrastructure/persistence/truck.repository';
 @Injectable()
 export class TrucksService {
   constructor(
+    private readonly warehouseService: WarehousesService,
+
     @Inject(forwardRef(() => IoTDevicesService))
     private readonly ioTDeviceService: IoTDevicesService,
 
@@ -30,6 +35,24 @@ export class TrucksService {
   async create(createTruckDto: CreateTruckDto) {
     // Do not remove comment below.
     // <creating-property />
+    let warehouse: Warehouse | null | undefined = undefined;
+
+    if (createTruckDto.warehouse) {
+      const warehouseObject = await this.warehouseService.findById(
+        createTruckDto.warehouse.id,
+      );
+      if (!warehouseObject) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            warehouse: 'notExists',
+          },
+        });
+      }
+      warehouse = warehouseObject;
+    } else if (createTruckDto.warehouse === null) {
+      warehouse = null;
+    }
 
     let iotDevice: IoTDevice[] | null | undefined = undefined;
 
@@ -53,6 +76,8 @@ export class TrucksService {
     return this.truckRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
+      warehouse,
+
       status: TruckStatusEnum.AVAILABLE,
 
       currentLocation: createTruckDto.currentLocation,
@@ -97,6 +122,24 @@ export class TrucksService {
   ) {
     // Do not remove comment below.
     // <updating-property />
+    let warehouse: Warehouse | null | undefined = undefined;
+
+    if (updateTruckDto.warehouse) {
+      const warehouseObject = await this.warehouseService.findById(
+        updateTruckDto.warehouse.id,
+      );
+      if (!warehouseObject) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            warehouse: 'notExists',
+          },
+        });
+      }
+      warehouse = warehouseObject;
+    } else if (updateTruckDto.warehouse === null) {
+      warehouse = null;
+    }
 
     let iotDevice: IoTDevice[] | null | undefined = undefined;
 
@@ -120,6 +163,8 @@ export class TrucksService {
     return this.truckRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
+      warehouse,
+
       currentLocation: updateTruckDto.currentLocation,
 
       model: updateTruckDto.model,

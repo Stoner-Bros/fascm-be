@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
-import { HarvestPhaseEntity } from '../entities/harvest-phase.entity';
+import { HarvestPhaseResponse } from 'src/harvest-phases/dto/harvest-phase-response.dto';
+import { In, Repository } from 'typeorm';
 import { NullableType } from '../../../../../utils/types/nullable.type';
+import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 import { HarvestPhase } from '../../../../domain/harvest-phase';
 import { HarvestPhaseRepository } from '../../harvest-phase.repository';
+import { HarvestPhaseEntity } from '../entities/harvest-phase.entity';
 import { HarvestPhaseMapper } from '../mappers/harvest-phase.mapper';
-import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 
 @Injectable()
 export class HarvestPhaseRelationalRepository
@@ -29,10 +30,71 @@ export class HarvestPhaseRelationalRepository
     paginationOptions,
   }: {
     paginationOptions: IPaginationOptions;
-  }): Promise<HarvestPhase[]> {
+  }): Promise<HarvestPhaseResponse[]> {
+    const qb = this.harvestPhaseRepository.createQueryBuilder('hp');
+    qb.leftJoinAndSelect('hp.harvestInvoice', 'harvestInvoice');
+    qb.leftJoinAndSelect(
+      'harvestInvoice.harvestInvoiceDetails',
+      'harvestInvoiceDetails',
+    );
+    qb.leftJoinAndSelect('harvestInvoiceDetails.product', 'product');
+    qb.leftJoinAndSelect('hp.imageProof', 'imageProof');
+
+    qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
+    qb.take(paginationOptions.limit);
+
+    const entities = await qb.getMany();
+    return entities.map((entity) => HarvestPhaseMapper.toResponse(entity));
+  }
+
+  async findAllByScheduleWithPagination({
+    scheduleId,
+    paginationOptions,
+  }: {
+    scheduleId: string;
+    paginationOptions: IPaginationOptions;
+  }): Promise<HarvestPhaseResponse[]> {
+    const qb = this.harvestPhaseRepository.createQueryBuilder('hp');
+    qb.leftJoinAndSelect('hp.harvestInvoice', 'harvestInvoice');
+    qb.leftJoinAndSelect(
+      'harvestInvoice.harvestInvoiceDetails',
+      'harvestInvoiceDetails',
+    );
+    qb.leftJoinAndSelect('harvestInvoiceDetails.product', 'product');
+    qb.leftJoinAndSelect('hp.imageProof', 'imageProof');
+
+    qb.where('hp.harvestScheduleId = :scheduleId', { scheduleId });
+
+    // order by phase number ascending
+    qb.orderBy('hp.phaseNumber', 'ASC');
+    qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
+    qb.take(paginationOptions.limit);
+
+    const entities = await qb.getMany();
+    return entities.map((entity) => HarvestPhaseMapper.toResponse(entity));
+  }
+
+  async findFullById(
+    id: HarvestPhase['id'],
+  ): Promise<NullableType<HarvestPhaseResponse>> {
+    const qb = this.harvestPhaseRepository.createQueryBuilder('hp');
+    qb.leftJoinAndSelect('hp.harvestInvoice', 'harvestInvoice');
+    qb.leftJoinAndSelect(
+      'harvestInvoice.harvestInvoiceDetails',
+      'harvestInvoiceDetails',
+    );
+    qb.leftJoinAndSelect('harvestInvoiceDetails.product', 'product');
+    qb.leftJoinAndSelect('hp.imageProof', 'imageProof');
+
+    qb.where('hp.id = :id', { id });
+
+    const entities = await qb.getOne();
+    return entities ? HarvestPhaseMapper.toResponse(entities) : null;
+  }
+
+  async findByIds(ids: HarvestPhase['id'][]): Promise<HarvestPhase[]> {
     const entities = await this.harvestPhaseRepository.find({
-      skip: (paginationOptions.page - 1) * paginationOptions.limit,
-      take: paginationOptions.limit,
+      where: { id: In(ids) },
     });
 
     return entities.map((entity) => HarvestPhaseMapper.toDomain(entity));
@@ -42,16 +104,10 @@ export class HarvestPhaseRelationalRepository
     const entity = await this.harvestPhaseRepository.findOne({
       where: { id },
     });
-
-    return entity ? HarvestPhaseMapper.toDomain(entity) : null;
-  }
-
-  async findByIds(ids: HarvestPhase['id'][]): Promise<HarvestPhase[]> {
-    const entities = await this.harvestPhaseRepository.find({
-      where: { id: In(ids) },
-    });
-
-    return entities.map((entity) => HarvestPhaseMapper.toDomain(entity));
+    if (!entity) {
+      return null;
+    }
+    return HarvestPhaseMapper.toDomain(entity);
   }
 
   async update(

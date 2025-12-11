@@ -69,8 +69,6 @@ export class HarvestTicketMapper {
 
     responseEntity.ticketUrl = entity.ticketUrl;
 
-    responseEntity.harvestScheduleId = entity.harvestSchedule?.id || null;
-
     responseEntity.id = entity.id;
 
     responseEntity.createdAt = entity.createdAt;

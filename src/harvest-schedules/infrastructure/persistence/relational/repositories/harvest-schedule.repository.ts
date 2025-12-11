@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
-import { HarvestScheduleEntity } from '../entities/harvest-schedule.entity';
+import { HarvestScheduleResponse } from 'src/harvest-schedules/dto/harvest-schedule-response';
+import { In, Repository } from 'typeorm';
 import { NullableType } from '../../../../../utils/types/nullable.type';
-import { HarvestSchedule } from '../../../../domain/harvest-schedule';
-import { HarvestScheduleRepository } from '../../harvest-schedule.repository';
-import { HarvestScheduleMapper } from '../mappers/harvest-schedule.mapper';
 import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
+import { HarvestSchedule } from '../../../../domain/harvest-schedule';
 import { HarvestScheduleStatusEnum } from '../../../../enum/harvest-schedule-status.enum';
+import { HarvestScheduleRepository } from '../../harvest-schedule.repository';
+import { HarvestScheduleEntity } from '../entities/harvest-schedule.entity';
+import { HarvestScheduleMapper } from '../mappers/harvest-schedule.mapper';
 
 @Injectable()
 export class HarvestScheduleRelationalRepository
@@ -34,9 +35,13 @@ export class HarvestScheduleRelationalRepository
     paginationOptions: IPaginationOptions;
     filters?: { status?: HarvestScheduleStatusEnum };
     sort?: 'ASC' | 'DESC';
-  }): Promise<HarvestSchedule[]> {
+  }): Promise<HarvestScheduleResponse[]> {
     const qb = this.harvestScheduleRepository.createQueryBuilder('hs');
     qb.leftJoinAndSelect('hs.supplier', 'supplier');
+    qb.leftJoinAndSelect('hs.harvestTicket', 'harvestTicket');
+    qb.leftJoinAndSelect('harvestTicket.harvestDetails', 'harvestDetails');
+    qb.leftJoinAndSelect('harvestDetails.product', 'product');
+
     if (filters?.status) {
       qb.andWhere('hs.status = :status', { status: filters.status });
     }
@@ -46,17 +51,54 @@ export class HarvestScheduleRelationalRepository
     qb.take(paginationOptions.limit);
 
     const entities = await qb.getMany();
-    return entities.map((entity) => HarvestScheduleMapper.toDomain(entity));
+    return entities.map((entity) => HarvestScheduleMapper.toResponse(entity));
+  }
+
+  async findAllBySupplierWithPagination({
+    supplierId,
+    paginationOptions,
+    filters,
+    sort,
+  }: {
+    supplierId: string;
+    paginationOptions: IPaginationOptions;
+    filters?: { status?: HarvestScheduleStatusEnum };
+    sort?: 'ASC' | 'DESC';
+  }): Promise<HarvestScheduleResponse[]> {
+    const qb = this.harvestScheduleRepository.createQueryBuilder('hs');
+    qb.leftJoinAndSelect('hs.supplier', 'supplier');
+    qb.leftJoinAndSelect('hs.harvestTicket', 'harvestTicket');
+    qb.leftJoinAndSelect('harvestTicket.harvestDetails', 'harvestDetails');
+    qb.leftJoinAndSelect('harvestDetails.product', 'product');
+
+    qb.andWhere('supplier.id = :supplierId', { supplierId });
+    if (filters?.status) {
+      qb.andWhere('hs.status = :status', { status: filters.status });
+    }
+
+    qb.orderBy('hs.id', sort ?? 'DESC');
+    qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
+    qb.take(paginationOptions.limit);
+
+    const entities = await qb.getMany();
+    return entities.map((entity) => HarvestScheduleMapper.toResponse(entity));
   }
 
   async findById(
     id: HarvestSchedule['id'],
-  ): Promise<NullableType<HarvestSchedule>> {
-    const entity = await this.harvestScheduleRepository.findOne({
-      where: { id },
-    });
+  ): Promise<NullableType<HarvestScheduleResponse>> {
+    const qb = this.harvestScheduleRepository.createQueryBuilder('hs');
+    qb.leftJoinAndSelect('hs.supplier', 'supplier');
+    qb.leftJoinAndSelect('hs.harvestTicket', 'harvestTicket');
+    qb.leftJoinAndSelect('harvestTicket.harvestDetails', 'harvestDetails');
+    qb.leftJoinAndSelect('harvestDetails.product', 'product');
+    qb.leftJoinAndSelect('supplier.user', 'user');
+    qb.leftJoinAndSelect('supplier.warehouse', 'warehouse');
+    qb.where('hs.id = :id', { id });
 
-    return entity ? HarvestScheduleMapper.toDomain(entity) : null;
+    const entity = await qb.getOne();
+
+    return entity ? HarvestScheduleMapper.toResponse(entity) : null;
   }
 
   async findByIds(ids: HarvestSchedule['id'][]): Promise<HarvestSchedule[]> {

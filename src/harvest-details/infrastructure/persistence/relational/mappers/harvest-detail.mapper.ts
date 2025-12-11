@@ -86,15 +86,9 @@ export class HarvestDetailMapper {
     responseEntity.unit = entity.unit;
 
     if (entity.product) {
-      responseEntity.product = ProductMapper.toDomain(entity.product);
+      responseEntity.product = ProductMapper.toResponse(entity.product);
     } else if (entity.product === null) {
       responseEntity.product = null;
-    }
-
-    if (entity.harvestTicket) {
-      responseEntity.harvestTicketId = entity.harvestTicket.id;
-    } else if (entity.harvestTicket === null) {
-      responseEntity.harvestTicketId = null;
     }
 
     responseEntity.id = entity.id;

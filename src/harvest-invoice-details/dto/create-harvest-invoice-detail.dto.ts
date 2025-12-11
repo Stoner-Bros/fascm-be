@@ -1,20 +1,17 @@
 import { ProductDto } from '../../products/dto/product.dto';
 
-import { HarvestInvoiceDto } from '../../harvest-invoices/dto/harvest-invoice.dto';
-
 import {
   // decorators here
   Type,
 } from 'class-transformer';
 
 import {
-  // decorators here
-
-  ValidateNested,
   IsNotEmptyObject,
+  IsNumber,
   IsOptional,
   IsString,
-  IsNumber,
+  // decorators here
+  ValidateNested,
 } from 'class-validator';
 
 import {
@@ -23,22 +20,6 @@ import {
 } from '@nestjs/swagger';
 
 export class CreateHarvestInvoiceDetailDto {
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  amount?: number | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  taxRate?: number | null;
-
   @ApiProperty({
     required: false,
     type: () => Number,
@@ -64,24 +45,12 @@ export class CreateHarvestInvoiceDetailDto {
   unit?: string | null;
 
   @ApiProperty({
-    required: false,
+    required: true,
     type: () => ProductDto,
   })
-  @IsOptional()
   @ValidateNested()
   @Type(() => ProductDto)
   @IsNotEmptyObject()
-  product?: ProductDto | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => HarvestInvoiceDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => HarvestInvoiceDto)
-  @IsNotEmptyObject()
-  harvestInvoice?: HarvestInvoiceDto | null;
-
+  product: ProductDto;
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

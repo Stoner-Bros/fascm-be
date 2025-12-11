@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class FindAllDeliveriesDto {
   @ApiPropertyOptional()
@@ -18,10 +18,10 @@ export class FindAllDeliveriesDto {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  orderScheduleId?: string;
+  orderPhaseId?: string;
 
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  harvestScheduleId?: string;
+  harvestPhaseId?: string;
 }

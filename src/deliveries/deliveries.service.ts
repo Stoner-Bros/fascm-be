@@ -212,7 +212,7 @@ export class DeliveriesService {
     filters,
   }: {
     paginationOptions: IPaginationOptions;
-    filters?: { orderScheduleId?: string; harvestScheduleId?: string };
+    filters?: { orderPhaseId?: string; harvestPhaseId?: string };
   }) {
     return this.deliveryRepository.findAllWithPagination({
       paginationOptions: {
@@ -231,13 +231,13 @@ export class DeliveriesService {
     return this.deliveryRepository.findByIds(ids);
   }
 
-  // findByOrderScheduleId(orderScheduleId: OrderSchedule['id']) {
-  //   return this.deliveryRepository.findByOrderScheduleId(orderScheduleId);
-  // }
+  findByOrderPhaseId(orderPhaseId: OrderPhase['id']) {
+    return this.deliveryRepository.findByOrderPhaseId(orderPhaseId);
+  }
 
-  // findByHarvestScheduleId(harvestScheduleId: HarvestSchedule['id']) {
-  //   return this.deliveryRepository.findByHarvestScheduleId(harvestScheduleId);
-  // }
+  findByHarvestPhaseId(harvestPhaseId: HarvestPhase['id']) {
+    return this.deliveryRepository.findByHarvestPhaseId(harvestPhaseId);
+  }
 
   async update(
     id: Delivery['id'],

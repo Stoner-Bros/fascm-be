@@ -30,12 +30,64 @@ export class ImportTicketRelationalRepository
   }: {
     paginationOptions: IPaginationOptions;
   }): Promise<ImportTicket[]> {
-    const entities = await this.importTicketRepository.find({
-      skip: (paginationOptions.page - 1) * paginationOptions.limit,
-      take: paginationOptions.limit,
-    });
+    const queryBuilder = this.importTicketRepository
+      .createQueryBuilder('importTicket')
+      .leftJoin(
+        'inbound_batch',
+        'inboundBatch',
+        '"inboundBatch"."importTicketId" = "importTicket"."id"',
+      )
+      .leftJoin(
+        'harvest_invoice_detail',
+        'harvestInvoiceDetail',
+        '"harvestInvoiceDetail"."id" = "inboundBatch"."harvestInvoiceDetailId"',
+      )
+      .leftJoin(
+        'product',
+        'product',
+        '"product"."id" = "harvestInvoiceDetail"."productId"',
+      )
+      .leftJoin(
+        '(' +
+          'SELECT "batch"."importTicketId" as "importTicketId", ' +
+          'COUNT("batch"."id") as "count", ' +
+          'MAX("area"."name") as "areaName" ' +
+          'FROM "batch" ' +
+          'LEFT JOIN "area" ON "area"."id" = "batch"."areaId" ' +
+          'GROUP BY "batch"."importTicketId"' +
+          ')',
+        'batchData',
+        '"batchData"."importTicketId" = "importTicket"."id"',
+      )
+      .select([
+        'importTicket.id',
+        'importTicket.unit',
+        'importTicket.quantity',
+        'importTicket.percent',
+        'importTicket.importDate',
+        'importTicket.expiredAt',
+        'importTicket.createdAt',
+        'importTicket.updatedAt',
+      ])
+      .addSelect('"inboundBatch"."batchCode"', 'batchCode')
+      .addSelect('"product"."name"', 'productName')
+      .addSelect('COALESCE("batchData"."count", 0)', 'numberOfBatch')
+      .addSelect('"batchData"."areaName"', 'areaName')
+      .skip((paginationOptions.page - 1) * paginationOptions.limit)
+      .take(paginationOptions.limit);
 
-    return entities.map((entity) => ImportTicketMapper.toDomain(entity));
+    const rawResults = await queryBuilder.getRawAndEntities();
+
+    return rawResults.entities.map((entity, index) => {
+      const raw = rawResults.raw[index];
+      return {
+        ...ImportTicketMapper.toDomain(entity),
+        batchCode: raw.batchCode,
+        productName: raw.productName,
+        numberOfBatch: parseInt(raw.numberOfBatch) || 0,
+        areaName: raw.areaName,
+      };
+    });
   }
 
   async findById(id: ImportTicket['id']): Promise<NullableType<ImportTicket>> {
@@ -80,5 +132,76 @@ export class ImportTicketRelationalRepository
 
   async remove(id: ImportTicket['id']): Promise<void> {
     await this.importTicketRepository.delete(id);
+  }
+
+  async findByAreaWithPagination({
+    areaId,
+    paginationOptions,
+  }: {
+    areaId: string;
+    paginationOptions: IPaginationOptions;
+  }): Promise<ImportTicket[]> {
+    const queryBuilder = this.importTicketRepository
+      .createQueryBuilder('importTicket')
+      .leftJoin(
+        'inbound_batch',
+        'inboundBatch',
+        '"inboundBatch"."importTicketId" = "importTicket"."id"',
+      )
+      .leftJoin(
+        'harvest_invoice_detail',
+        'harvestInvoiceDetail',
+        '"harvestInvoiceDetail"."id" = "inboundBatch"."harvestInvoiceDetailId"',
+      )
+      .leftJoin(
+        'product',
+        'product',
+        '"product"."id" = "harvestInvoiceDetail"."productId"',
+      )
+      .leftJoin(
+        '(' +
+          'SELECT "batch"."importTicketId" as "importTicketId", ' +
+          'COUNT("batch"."id") as "count", ' +
+          'MAX("area"."name") as "areaName" ' +
+          'FROM "batch" ' +
+          'LEFT JOIN "area" ON "area"."id" = "batch"."areaId" ' +
+          'GROUP BY "batch"."importTicketId"' +
+          ')',
+        'batchData',
+        '"batchData"."importTicketId" = "importTicket"."id"',
+      )
+      .where(
+        'importTicket.id IN (SELECT DISTINCT "batch"."importTicketId" FROM "batch" WHERE "batch"."areaId" = :areaId)',
+        { areaId },
+      )
+      .select([
+        'importTicket.id',
+        'importTicket.unit',
+        'importTicket.quantity',
+        'importTicket.percent',
+        'importTicket.importDate',
+        'importTicket.expiredAt',
+        'importTicket.createdAt',
+        'importTicket.updatedAt',
+      ])
+      .addSelect('"inboundBatch"."batchCode"', 'batchCode')
+      .addSelect('"product"."name"', 'productName')
+      .addSelect('COALESCE("batchData"."count", 0)', 'numberOfBatch')
+      .addSelect('"batchData"."areaName"', 'areaName')
+      .skip((paginationOptions.page - 1) * paginationOptions.limit)
+      .take(paginationOptions.limit);
+
+    const rawResults = await queryBuilder.getRawAndEntities();
+
+    return rawResults.entities.map((entity, index) => {
+      const raw = rawResults.raw[index];
+      return {
+        ...ImportTicketMapper.toDomain(entity),
+        batchCode: raw.batchCode,
+        productName: raw.productName,
+        numberOfBatch: parseInt(raw.numberOfBatch) || 0,
+        areaName: raw.areaName,
+      };
+    });
   }
 }

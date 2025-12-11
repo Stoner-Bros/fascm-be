@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Consignee } from '../../consignees/domain/consignee';
+import { OrderPhase } from '../../order-phases/domain/order-phase';
 import { OrderScheduleStatusEnum } from '../enum/order-schedule-status.enum';
 
 export class OrderSchedule {
@@ -32,6 +33,12 @@ export class OrderSchedule {
     nullable: true,
   })
   consignee?: Consignee | null;
+
+  @ApiProperty({
+    type: () => [OrderPhase],
+    nullable: true,
+  })
+  orderPhases?: OrderPhase[] | null;
 
   @ApiProperty({
     type: String,

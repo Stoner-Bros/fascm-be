@@ -1,3 +1,4 @@
+import { OrderPhaseResponse } from 'src/order-phases/dto/order-phase-response.dto';
 import { DeepPartial } from '../../../utils/types/deep-partial.type';
 import { NullableType } from '../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../utils/types/pagination-options';
@@ -12,7 +13,19 @@ export abstract class OrderPhaseRepository {
     paginationOptions,
   }: {
     paginationOptions: IPaginationOptions;
-  }): Promise<OrderPhase[]>;
+  }): Promise<OrderPhaseResponse[]>;
+
+  abstract findAllByScheduleWithPagination({
+    scheduleId,
+    paginationOptions,
+  }: {
+    scheduleId: string;
+    paginationOptions: IPaginationOptions;
+  }): Promise<OrderPhaseResponse[]>;
+
+  abstract findFullById(
+    id: OrderPhase['id'],
+  ): Promise<NullableType<OrderPhaseResponse>>;
 
   abstract findById(id: OrderPhase['id']): Promise<NullableType<OrderPhase>>;
 

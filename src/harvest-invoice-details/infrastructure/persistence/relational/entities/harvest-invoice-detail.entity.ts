@@ -3,14 +3,12 @@ import { ProductEntity } from '../../../../../products/infrastructure/persistenc
 import { HarvestInvoiceEntity } from '../../../../../harvest-invoices/infrastructure/persistence/relational/entities/harvest-invoice.entity';
 
 import {
+  Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-  OneToOne,
-  Column,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -48,8 +46,7 @@ export class HarvestInvoiceDetailEntity extends EntityRelationalHelper {
   })
   unit?: string | null;
 
-  @OneToOne(() => ProductEntity, { eager: true, nullable: true })
-  @JoinColumn()
+  @ManyToOne(() => ProductEntity, { eager: true, nullable: true })
   product?: ProductEntity | null;
 
   @ManyToOne(() => HarvestInvoiceEntity, { eager: true, nullable: true })

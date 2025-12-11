@@ -1,4 +1,5 @@
 import { HarvestScheduleEntity } from '../../../../../harvest-schedules/infrastructure/persistence/relational/entities/harvest-schedule.entity';
+import { HarvestInvoiceEntity } from '../../../../../harvest-invoices/infrastructure/persistence/relational/entities/harvest-invoice.entity';
 
 import {
   Column,
@@ -6,6 +7,7 @@ import {
   Entity,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -45,6 +47,15 @@ export class HarvestPhaseEntity extends EntityRelationalHelper {
 
   @ManyToOne(() => HarvestScheduleEntity, { eager: true, nullable: true })
   harvestSchedule?: HarvestScheduleEntity | null;
+
+  @OneToOne(
+    () => HarvestInvoiceEntity,
+    (harvestInvoice) => harvestInvoice.harvestPhase,
+    {
+      nullable: true,
+    },
+  )
+  harvestInvoice?: HarvestInvoiceEntity | null;
 
   @PrimaryGeneratedColumn('uuid')
   id: string;

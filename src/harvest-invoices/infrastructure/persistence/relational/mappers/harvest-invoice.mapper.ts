@@ -3,6 +3,7 @@ import { HarvestInvoice } from '../../../../domain/harvest-invoice';
 import { HarvestPhaseMapper } from '../../../../../harvest-phases/infrastructure/persistence/relational/mappers/harvest-phase.mapper';
 
 import { HarvestInvoiceEntity } from '../entities/harvest-invoice.entity';
+import { HarvestInvoiceResponse } from 'src/harvest-invoices/dto/harvest-invoice-response.dto';
 
 export class HarvestInvoiceMapper {
   static toDomain(raw: HarvestInvoiceEntity): HarvestInvoice {
@@ -81,5 +82,25 @@ export class HarvestInvoiceMapper {
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 
     return persistenceEntity;
+  }
+
+  static toResponse(raw: HarvestInvoiceEntity): HarvestInvoiceResponse {
+    const responseEntity = new HarvestInvoiceResponse();
+    responseEntity.totalPayment = raw.totalPayment;
+    responseEntity.totalAmount = raw.totalAmount;
+    responseEntity.quantity = raw.quantity;
+    responseEntity.unit = raw.unit;
+    responseEntity.vatAmount = raw.vatAmount;
+    responseEntity.taxRate = raw.taxRate;
+    responseEntity.accountNumber = raw.accountNumber;
+    responseEntity.paymentStatus = raw.paymentStatus;
+    responseEntity.paymentMethod = raw.paymentMethod;
+    responseEntity.invoiceNumber = raw.invoiceNumber;
+    responseEntity.invoiceUrl = raw.invoiceUrl;
+    responseEntity.id = raw.id;
+    responseEntity.createdAt = raw.createdAt;
+    responseEntity.updatedAt = raw.updatedAt;
+
+    return responseEntity;
   }
 }
