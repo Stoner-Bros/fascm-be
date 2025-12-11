@@ -136,10 +136,12 @@ export class HarvestPhasesService {
     hi.quantity = quantity;
 
     await this.harvestInvoiceRepository.update(hi.id, hi);
-    await this.harvestScheduleService.updateStatus(
-      hs.id,
-      HarvestScheduleStatusEnum.PROCESSING,
-    );
+    if (hs.status === HarvestScheduleStatusEnum.APPROVED) {
+      await this.harvestScheduleService.updateStatus(
+        hs.id,
+        HarvestScheduleStatusEnum.PROCESSING,
+      );
+    }
 
     return hp;
   }

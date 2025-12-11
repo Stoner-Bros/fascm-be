@@ -41,4 +41,28 @@ export class ImportTicket {
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  batchCode?: string | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  productName?: string | null;
+
+  @ApiProperty({
+    type: () => Number,
+    nullable: true,
+  })
+  numberOfBatch?: number | null;
+
+  @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  areaName?: string | null;
 }

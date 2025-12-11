@@ -15,6 +15,7 @@ import { FilesCloudinaryService } from 'src/files/infrastructure/uploader/cloudi
 import { ImageProofsService } from 'src/image-proofs/image-proofs.service';
 import { OrderInvoiceDetailRepository } from 'src/order-invoice-details/infrastructure/persistence/order-invoice-detail.repository';
 import { OrderInvoiceRepository } from 'src/order-invoices/infrastructure/persistence/order-invoice.repository';
+import { OrderScheduleStatusEnum } from 'src/order-schedules/enum/order-schedule-status.enum';
 import { ProductsService } from 'src/products/products.service';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { OrderPhase } from './domain/order-phase';
@@ -130,6 +131,13 @@ export class OrderPhasesService {
     oi.quantity = quantity;
 
     await this.orderInvoiceRepository.update(oi.id, oi);
+
+    if (os.status === OrderScheduleStatusEnum.APPROVED) {
+      await this.orderScheduleService.updateStatus(
+        os.id,
+        OrderScheduleStatusEnum.PROCESSING,
+      );
+    }
 
     return op;
   }
