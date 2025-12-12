@@ -67,6 +67,40 @@
 
 ---
 
+
+### Test Data for Authentication
+
+```
+Valid User Account:
+- Email: tiensang2801@gmail.com
+- Password: koolice_280103
+- Role: Admin
+- Status: Active
+
+Inactive User Account:
+- Email: inactive.user@fascm.com
+- Password: Test123456
+- Role: User
+- Status: Inactive
+
+Test Supplier Account:
+- Email: supplier.test@fascm.com
+- Password: Supplier123
+- Role: Supplier
+- Status: Active
+
+Test Consignee Account:
+- Email: consignee.test@fascm.com
+- Password: Consignee123
+- Role: Consignee
+- Status: Active
+
+Google OAuth Test:
+- Test Google Token: ya29.a0AfH6SMBx... (mock token for testing)
+```
+
+---
+
 ## 2. User Management Test Cases
 
 **Feature Scope:** CRUD operations for users, role-based access control (Admin/Manager/Supplier/Consignee), user status management, pagination and filtering.
@@ -93,6 +127,51 @@
 | TC_USER_018 | Create user with Consignee role | 1. Login as Admin 2. Send POST to /api/v1/users with role set to Consignee 3. Verify creation | Status 201, user created with Consignee role, appropriate permissions assigned | Admin JWT token | | | | | | | | | | |
 | TC_USER_019 | Verify role-based access control for Supplier | 1. Login as Supplier 2. Attempt to access admin-only endpoint 3. Verify rejection | Status 403, error message "Insufficient permissions" | Supplier JWT token | | | | | | | | | | |
 | TC_USER_020 | User registration with duplicate email | 1. Attempt to register new user 2. Use email that already exists 3. Verify rejection | Status 409, error message "Email already registered" | User with email exists in database | | | | | | | | | | |
+
+---
+
+
+### Test Data for User Management
+
+```
+Admin User:
+- ID: 1
+- Email: admin@fascm.com
+- Password: Admin123456
+- First Name: Admin
+- Last Name: User
+- Role: Admin
+- Status: Active
+
+Manager User:
+- ID: 2
+- Email: manager@fascm.com
+- Password: Manager123
+- First Name: Test
+- Last Name: Manager
+- Role: Manager
+- Status: Active
+
+Supplier User:
+- ID: 3
+- Email: supplier1@fascm.com
+- Password: Supplier123
+- First Name: John
+- Last Name: Supplier
+- Role: Supplier
+- Supplier ID: SUP001
+- Status: Active
+
+Consignee User:
+- ID: 4
+- Email: consignee1@fascm.com
+- Password: Consignee123
+- First Name: Jane
+- Last Name: Consignee
+- Role: Consignee
+- Consignee ID: CON001
+- Status: Active
+```
 
 ---
 
@@ -125,6 +204,49 @@
 
 ---
 
+
+### Test Data for IoT Device Management
+
+```
+IoT Device 1 (Storage Area):
+- Device ID: IOT_DEVICE_001
+- Name: Storage Warehouse A - Sensor 1
+- Location: Warehouse A, Zone 1
+- Device Type: DHT22
+- Status: Online
+- Area ID: AREA_001
+
+IoT Device 2 (Truck):
+- Device ID: IOT_DEVICE_002
+- Name: Truck 01 - Temperature Sensor
+- Location: Truck TRK001
+- Device Type: DHT22
+- Status: Online
+- Truck ID: TRK001
+
+MQTT Test Data:
+- Broker URL: mqtts://03bb100ff666407a80eaeafa79b3d9d5.s1.eu.hivemq.cloud:8883
+- Topic (Data): sensors/dht22/data
+- Topic (Status): sensors/dht22/status
+
+Sample MQTT Message:
+{
+  "deviceId": "IOT_DEVICE_001",
+  "temperature": 25.5,
+  "humidity": 65.2,
+  "timestamp": "2024-12-12T10:00:00Z"
+}
+
+Area Settings:
+- Area ID: AREA_001
+- Min Temperature: 18°C
+- Max Temperature: 25°C
+- Min Humidity: 60%
+- Max Humidity: 80%
+```
+
+---
+
 ## 4. Supplier Dashboard Test Cases
 
 **Feature Scope:** Supplier profile management, product listings, harvest management, supplier-specific data views, role-based access for supplier users.
@@ -144,6 +266,33 @@
 
 ---
 
+
+### Test Data for Supplier Dashboard
+
+```
+Supplier Profile 1:
+- Supplier ID: SUP001
+- Company Name: Fresh Fruits Farm Co.
+- Contact Person: John Supplier
+- Email: supplier1@fascm.com
+- Phone: +84 901 234 567
+- Address: 123 Farm Road, Long An Province
+- Tax ID: 0123456789
+- Status: Active
+
+Supplier Profile 2:
+- Supplier ID: SUP002
+- Company Name: Organic Harvest Ltd.
+- Contact Person: Mary Farmer
+- Email: supplier2@fascm.com
+- Phone: +84 902 345 678
+- Address: 456 Green Valley, Dong Nai Province
+- Tax ID: 9876543210
+- Status: Active
+```
+
+---
+
 ## 5. Consignee Dashboard Test Cases
 
 **Feature Scope:** Consignee profile management, order tracking, delivery management, consignee-specific views, role-based access control.
@@ -160,6 +309,33 @@
 | TC_CON_008 | Consignee access other consignee profile | 1. Login as Consignee 2. Attempt to access another consignee profile 3. Verify restriction | Status 403, access denied | Consignee JWT token | | | | | | | | | | |
 | TC_CON_009 | View consignee orders | 1. Login as Consignee 2. Request orders list for own profile 3. Verify data | Status 200, list of orders associated with consignee | Consignee JWT token, orders exist | | | | | | | | | | |
 | TC_CON_010 | Track delivery status | 1. Login as Consignee 2. Request delivery status for own order 3. Verify real-time updates | Status 200, current delivery status and location returned | Consignee JWT token, delivery in progress | | | | | | | | | | |
+
+---
+
+
+### Test Data for Consignee Dashboard
+
+```
+Consignee Profile 1:
+- Consignee ID: CON001
+- Company Name: Fresh Market Chain
+- Contact Person: Jane Consignee
+- Email: consignee1@fascm.com
+- Phone: +84 903 456 789
+- Delivery Address: 789 Market Street, Ho Chi Minh City
+- Tax ID: 1122334455
+- Status: Active
+
+Consignee Profile 2:
+- Consignee ID: CON002
+- Company Name: SuperMart Vietnam
+- Contact Person: Tom Retailer
+- Email: consignee2@fascm.com
+- Phone: +84 904 567 890
+- Delivery Address: 321 Shopping Blvd, Hanoi
+- Tax ID: 5544332211
+- Status: Active
+```
 
 ---
 
@@ -184,6 +360,38 @@
 | TC_DETECT_013 | Conveyor belt control integration | 1. Detection classifies fruit as "bad" 2. Verify control signal sent 3. Check conveyor response | Control signal sent to reject bad fruit, conveyor sorts correctly | Detection system and conveyor integrated | | | | | | | | | | |
 | TC_DETECT_014 | Real-time detection performance test | 1. Process fruits at high speed 2. Measure detection latency 3. Verify accuracy maintained | Latency <500ms per frame, accuracy >90% maintained at speed | Detection system optimized, conveyor running | | | | | | | | | | |
 | TC_DETECT_015 | Detection with poor lighting conditions | 1. Submit image with low light 2. Verify detection handles gracefully | Detection attempts classification, may flag low confidence, no crash | Detection system active | | | | | | | | | | |
+
+---
+
+
+### Test Data for Fruit Quality Detection
+
+```
+Image Proof 1 (Good Quality):
+- Image ID: IMG_001
+- File Name: mango_good_001.jpg
+- File Size: 2.5 MB
+- Classification: Good
+- Confidence Score: 0.95
+- Upload Date: 2024-12-12T09:00:00Z
+- Batch ID: BATCH_001
+
+Image Proof 2 (Bad Quality):
+- Image ID: IMG_002
+- File Name: mango_bad_001.jpg
+- File Size: 2.3 MB
+- Classification: Bad
+- Confidence Score: 0.92
+- Defects: Bruising, Discoloration
+- Upload Date: 2024-12-12T09:05:00Z
+- Batch ID: BATCH_001
+
+Detection System Configuration:
+- Model: YOLOv8 Fruit Quality Detection
+- Confidence Threshold: 0.8
+- Processing Time Target: <500ms per frame
+- Supported Formats: JPG, PNG, WebP
+```
 
 ---
 
@@ -216,6 +424,46 @@
 
 ---
 
+
+### Test Data for File Upload
+
+```
+Test Image File:
+- File Name: test_image.jpg
+- File Size: 3.2 MB
+- Format: JPEG
+- Dimensions: 1920x1080
+
+Test Document File:
+- File Name: invoice_sample.pdf
+- File Size: 1.8 MB
+- Format: PDF
+
+Large File (Exceeds Limit):
+- File Name: large_image.jpg
+- File Size: 6.5 MB
+- Format: JPEG
+
+File Upload Configuration:
+- Driver Options: local, s3, s3-presigned, cloudinary
+- Max File Size: 5 MB
+- Allowed Image Formats: jpg, jpeg, png, gif, webp
+- Allowed Document Formats: pdf, doc, docx
+
+S3 Configuration (Test):
+- Bucket: fascm-test-bucket
+- Region: ap-southeast-1
+- Access Key: AKIAIOSFODNN7EXAMPLE (test)
+- Secret Key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY (test)
+
+Cloudinary Configuration (Test):
+- Cloud Name: fascm-test-cloud
+- API Key: 123456789012345
+- API Secret: test_secret_key_example
+```
+
+---
+
 ## 8. Order Management Test Cases
 
 **Feature Scope:** Order creation, retrieval, status updates, order phases, order invoices, order details, consignee-supplier relationships.
@@ -237,6 +485,34 @@
 | TC_ORD_013 | Access order without authentication | 1. Send GET to /api/v1/orders/{id} without JWT 2. Verify rejection | Status 401, error "Unauthorized" | None | | | | | | | | | | |
 | TC_ORD_014 | Order with SQL injection in product name | 1. Attempt to create order with SQL in product name 2. Verify sanitization | Input sanitized, no SQL injection executed, order created safely or rejected | Valid JWT | | | | | | | | | | |
 | TC_ORD_015 | Concurrent order creation by same consignee | 1. Create multiple orders simultaneously 2. Verify all processed correctly | All orders created with unique IDs, no conflicts, proper transaction handling | Valid JWT, sufficient inventory | | | | | | | | | | |
+
+---
+
+
+### Test Data for Order Management
+
+```
+Order 1:
+- Order ID: ORD001
+- Consignee ID: CON001
+- Order Date: 2024-12-10T08:00:00Z
+- Status: Pending
+- Total Amount: 5,000,000 VND
+
+Order Details:
+- Product ID: PROD001, Quantity: 100 kg, Unit Price: 30,000 VND
+- Product ID: PROD002, Quantity: 50 kg, Unit Price: 40,000 VND
+
+Order 2:
+- Order ID: ORD002
+- Consignee ID: CON002
+- Order Date: 2024-12-11T10:00:00Z
+- Status: Confirmed
+- Total Amount: 3,500,000 VND
+
+Order Details:
+- Product ID: PROD003, Quantity: 70 kg, Unit Price: 50,000 VND
+```
 
 ---
 
@@ -269,6 +545,46 @@
 
 ---
 
+
+### Test Data for Delivery Management
+
+```
+Delivery 1:
+- Delivery ID: DEL001
+- Order ID: ORD001
+- Delivery Staff ID: STAFF001
+- Truck ID: TRK001
+- Status: In Progress
+- Start Time: 2024-12-12T06:00:00Z
+- Expected Delivery: 2024-12-12T14:00:00Z
+- Current Location: Lat: 10.8231, Long: 106.6297
+
+Delivery 2:
+- Delivery ID: DEL002
+- Order ID: ORD002
+- Delivery Staff ID: STAFF002
+- Truck ID: TRK002
+- Status: Completed
+- Start Time: 2024-12-11T07:00:00Z
+- Delivery Time: 2024-12-11T15:30:00Z
+
+Delivery Staff 1:
+- Staff ID: STAFF001
+- Name: Nguyen Van A
+- Phone: +84 905 678 901
+- License Number: B2-12345
+- Status: Active
+
+Delivery Staff 2:
+- Staff ID: STAFF002
+- Name: Tran Thi B
+- Phone: +84 906 789 012
+- License Number: B2-67890
+- Status: Active
+```
+
+---
+
 ## 10. Product Management Test Cases
 
 **Feature Scope:** Product catalog management, CRUD operations, product categories, pricing, inventory tracking, product filtering.
@@ -285,6 +601,40 @@
 | TC_PROD_008 | Get products filtered by category | 1. Login with valid JWT 2. Send GET with category filter 3. Verify filtered results | Status 200, only products from specified category returned | Valid JWT token, products in multiple categories | | | | | | | | | | |
 | TC_PROD_009 | Create product with negative price | 1. Login with valid JWT 2. Send POST with price < 0 3. Verify validation error | Status 400, error "Price must be positive" | Valid JWT token | | | | | | | | | | |
 | TC_PROD_010 | Access products without authentication | 1. Send GET to /api/v1/products without JWT 2. Verify rejection | Status 401, error "Unauthorized" | None | | | | | | | | | | |
+
+---
+
+
+### Test Data for Product Management
+
+```
+Product 1:
+- Product ID: PROD001
+- Product Name: Mango (Xoài Cát Hòa Lộc)
+- Category ID: CAT001
+- Unit: kg
+- Price: 30,000 VND
+- Description: Premium quality mango from Dong Thap
+- Status: Active
+
+Product 2:
+- Product ID: PROD002
+- Product Name: Dragon Fruit (Thanh Long)
+- Category ID: CAT002
+- Unit: kg
+- Price: 40,000 VND
+- Description: Fresh dragon fruit from Binh Thuan
+- Status: Active
+
+Product 3:
+- Product ID: PROD003
+- Product Name: Longan (Nhãn Lồng)
+- Category ID: CAT001
+- Unit: kg
+- Price: 50,000 VND
+- Description: Sweet longan from Hung Yen
+- Status: Active
+```
 
 ---
 
@@ -307,6 +657,33 @@
 
 ---
 
+
+### Test Data for Warehouse Management
+
+```
+Warehouse 1:
+- Warehouse ID: WH001
+- Warehouse Name: Central Storage Facility
+- Location: Thu Duc City, Ho Chi Minh
+- Capacity: 500 tons
+- Current Stock: 320 tons
+- Manager: Nguyen Van C
+- Phone: +84 907 890 123
+- Status: Active
+
+Warehouse 2:
+- Warehouse ID: WH002
+- Warehouse Name: Northern Distribution Center
+- Location: Long Bien, Hanoi
+- Capacity: 300 tons
+- Current Stock: 180 tons
+- Manager: Tran Thi D
+- Phone: +84 908 901 234
+- Status: Active
+```
+
+---
+
 ## 12. Batch Management Test Cases
 
 **Feature Scope:** Batch tracking, batch operations, weight grouping, batch filtering, batch lifecycle management.
@@ -323,6 +700,46 @@
 | TC_BATCH_008 | Get batches by warehouse | 1. Login with valid JWT 2. Filter batches by warehouse ID 3. Verify results | Status 200, only batches in specified warehouse returned | Valid JWT token, batches in multiple warehouses | | | | | | | | | | |
 | TC_BATCH_009 | Access batches without authentication | 1. Send GET to /api/v1/batches without JWT 2. Verify rejection | Status 401, error "Unauthorized" | None | | | | | | | | | | |
 | TC_BATCH_010 | Get batch details with related products | 1. Login with valid JWT 2. Get batch by ID 3. Verify product details included | Status 200, batch data includes related product information | Valid JWT token, batch with products exists | | | | | | | | | | |
+
+---
+
+
+### Test Data for Batch Management
+
+```
+Batch 1:
+- Batch ID: BATCH_001
+- Product ID: PROD001
+- Supplier ID: SUP001
+- Warehouse ID: WH001
+- Batch Date: 2024-12-10
+- Quantity: 1000 kg
+- Total Weight: 1005 kg (including packaging)
+- Quality Grade: A
+- Status: In Storage
+
+Batch 2:
+- Batch ID: BATCH_002
+- Product ID: PROD002
+- Supplier ID: SUP002
+- Warehouse ID: WH001
+- Batch Date: 2024-12-11
+- Quantity: 500 kg
+- Total Weight: 503 kg (including packaging)
+- Quality Grade: A+
+- Status: Ready for Delivery
+
+Batch 3:
+- Batch ID: BATCH_003
+- Product ID: PROD003
+- Supplier ID: SUP001
+- Warehouse ID: WH002
+- Batch Date: 2024-12-09
+- Quantity: 750 kg
+- Total Weight: 753 kg (including packaging)
+- Quality Grade: B
+- Status: In Transit
+```
 
 ---
 
@@ -345,6 +762,41 @@
 
 ---
 
+
+### Test Data for Notification Management
+
+```
+Notification 1:
+- Notification ID: NOTIF001
+- User ID: 4 (Consignee)
+- Type: Order Status
+- Title: Order Confirmed
+- Message: Your order ORD001 has been confirmed and will be delivered soon.
+- Status: Unread
+- Created At: 2024-12-12T08:00:00Z
+
+Notification 2:
+- Notification ID: NOTIF002
+- User ID: 3 (Supplier)
+- Type: Harvest Alert
+- Title: Harvest Schedule Reminder
+- Message: Harvest schedule HS001 is due tomorrow at 6:00 AM.
+- Status: Read
+- Created At: 2024-12-11T18:00:00Z
+
+Notification 3:
+- Notification ID: NOTIF003
+- User ID: 1 (Admin)
+- Type: System Alert
+- Title: Temperature Alert
+- Message: Storage area AREA_001 temperature exceeded threshold (27°C).
+- Status: Unread
+- Priority: High
+- Created At: 2024-12-12T09:30:00Z
+```
+
+---
+
 ## 14. Ticket Management Test Cases
 
 **Feature Scope:** Harvest tickets, import tickets, export tickets - ticket creation, tracking, status management.
@@ -361,6 +813,50 @@
 | TC_TICKET_008 | Track ticket status changes | 1. Login with valid JWT 2. Update ticket status 3. Verify status history | Status changes tracked with timestamps, audit trail maintained | Valid JWT token, ticket exists | | | | | | | | | | |
 | TC_TICKET_009 | Access tickets without authentication | 1. Send GET to /api/v1/harvest-tickets without JWT 2. Verify rejection | Status 401, error "Unauthorized" | None | | | | | | | | | | |
 | TC_TICKET_010 | Get tickets filtered by date range | 1. Login with valid JWT 2. Send GET with date filter 3. Verify results | Status 200, only tickets within date range returned | Valid JWT token, tickets from various dates exist | | | | | | | | | | |
+
+---
+
+
+### Test Data for Ticket Management
+
+```
+Harvest Ticket 1:
+- Ticket ID: HT001
+- Harvest Phase ID: HP001
+- Supplier ID: SUP001
+- Product ID: PROD001
+- Harvest Date: 2024-12-10
+- Quantity: 1000 kg
+- Status: Completed
+
+Import Ticket 1:
+- Ticket ID: IT001
+- Warehouse ID: WH001
+- Area ID: AREA_001
+- Batch ID: BATCH_001
+- Import Date: 2024-12-10T14:00:00Z
+- Quantity: 1000 kg
+- Inspector: Nguyen Van E
+- Status: Approved
+
+Import Ticket 2:
+- Ticket ID: IT002
+- Warehouse ID: WH002
+- Area ID: AREA_002
+- Batch ID: BATCH_003
+- Import Date: 2024-12-09T15:30:00Z
+- Quantity: 750 kg
+- Inspector: Tran Thi F
+- Status: Approved
+
+Export Ticket 1:
+- Ticket ID: ET001
+- Warehouse ID: WH001
+- Order ID: ORD001
+- Export Date: 2024-12-12T06:00:00Z
+- Quantity: 150 kg
+- Status: In Progress
+```
 
 ---
 
@@ -383,6 +879,41 @@
 
 ---
 
+
+### Test Data for Payment Management
+
+```
+Payment 1:
+- Payment ID: PAY001
+- Order ID: ORD001
+- Amount: 5,000,000 VND
+- Payment Method: Bank Transfer
+- Payment Date: 2024-12-10T10:00:00Z
+- Status: Completed
+- Transaction ID: TXN202412100001
+- Bank: Vietcombank
+
+Payment 2:
+- Payment ID: PAY002
+- Order ID: ORD002
+- Amount: 3,500,000 VND
+- Payment Method: Cash on Delivery
+- Payment Date: 2024-12-11T15:30:00Z
+- Status: Pending
+- Transaction ID: -
+
+Payment 3:
+- Payment ID: PAY003
+- Harvest Invoice ID: HI001
+- Amount: 8,000,000 VND
+- Payment Method: E-Wallet (MoMo)
+- Payment Date: 2024-12-09T16:00:00Z
+- Status: Completed
+- Transaction ID: MOMO202412090001
+```
+
+---
+
 ## 16. Truck & Transportation Management Test Cases
 
 **Feature Scope:** Truck registration, truck settings, truck alerts, temperature monitoring during transport, route tracking.
@@ -399,6 +930,46 @@
 | TC_TRUCK_008 | Acknowledge truck alert | 1. Login with valid JWT 2. Update alert status to acknowledged 3. Verify update | Status 200, alert marked as acknowledged, timestamp recorded | Valid JWT token, active alert exists | | | | | | | | | | |
 | TC_TRUCK_009 | Delete truck | 1. Login with valid JWT 2. Send DELETE to /api/v1/trucks/{id} 3. Verify deletion | Status 204, truck removed or soft deleted | Valid JWT token, truck exists | | | | | | | | | | |
 | TC_TRUCK_010 | Track truck location during delivery | 1. Truck updates GPS coordinates 2. Verify location stored 3. Check real-time updates | Location data saved with timestamps, available for tracking | Truck assigned to delivery, GPS enabled | | | | | | | | | | |
+
+---
+
+
+### Test Data for Truck & Transportation Management
+
+```
+Truck 1:
+- Truck ID: TRK001
+- License Plate: 51H-12345
+- Model: Hino XZU730L
+- Capacity: 3.5 tons
+- Status: In Service
+- Driver: Nguyen Van A (STAFF001)
+
+Truck 2:
+- Truck ID: TRK002
+- License Plate: 29C-67890
+- Model: Isuzu QKR77HE4
+- Capacity: 2.5 tons
+- Status: In Service
+- Driver: Tran Thi B (STAFF002)
+
+Truck Settings:
+- Truck ID: TRK001
+- Min Temperature: 15°C
+- Max Temperature: 20°C
+- Alert Threshold: 22°C
+- Monitoring Interval: 5 minutes
+
+Truck Alert 1:
+- Alert ID: TALERT001
+- Truck ID: TRK001
+- Delivery ID: DEL001
+- Alert Type: Temperature
+- Severity: High
+- Message: Temperature exceeded 22°C (Current: 24°C)
+- Status: Active
+- Created At: 2024-12-12T08:15:00Z
+```
 
 ---
 
@@ -421,6 +992,50 @@
 
 ---
 
+
+### Test Data for Area Management & Monitoring
+
+```
+Storage Area 1:
+- Area ID: AREA_001
+- Warehouse ID: WH001
+- Area Name: Cold Storage Zone A
+- Area Type: Refrigerated
+- Capacity: 100 tons
+- Current Stock: 65 tons
+- Status: Active
+
+Storage Area 2:
+- Area ID: AREA_002
+- Warehouse ID: WH002
+- Area Name: Ambient Storage Zone B
+- Area Type: Ambient
+- Capacity: 150 tons
+- Current Stock: 90 tons
+- Status: Active
+
+Area Settings:
+- Area ID: AREA_001
+- IoT Device ID: IOT_DEVICE_001
+- Min Temperature: 18°C
+- Max Temperature: 22°C
+- Min Humidity: 65%
+- Max Humidity: 75%
+- Check Interval: 10 minutes
+
+Area Alert 1:
+- Alert ID: AALERT001
+- Area ID: AREA_001
+- Alert Type: Humidity
+- Severity: Medium
+- Message: Humidity below minimum threshold (Current: 60%)
+- Status: Acknowledged
+- Created At: 2024-12-12T07:00:00Z
+- Acknowledged By: Manager User (ID: 2)
+```
+
+---
+
 ## 18. Harvest Management Test Cases
 
 **Feature Scope:** Harvest scheduling, harvest phases, harvest invoices, harvest details tracking, supplier harvest management.
@@ -437,6 +1052,49 @@
 | TC_HARV_008 | Get harvest invoice by ID | 1. Login with valid JWT 2. Send GET to /api/v1/harvest-invoices/{id} 3. Verify details | Status 200, complete invoice with line items, totals, taxes | Valid JWT token, invoice exists | | | | | | | | | | |
 | TC_HARV_009 | Add harvest details | 1. Login with valid JWT 2. Send POST to /api/v1/harvest-details 3. Include quantity, quality grade 4. Verify creation | Status 201, harvest details recorded, linked to phase | Valid JWT token, harvest phase exists | | | | | | | | | | |
 | TC_HARV_010 | Get harvest details by phase | 1. Login with valid JWT 2. Request details for specific phase 3. Verify data | Status 200, all details for phase including quantities, grades | Valid JWT token, phase with details exists | | | | | | | | | | |
+
+---
+
+
+### Test Data for Harvest Management
+
+```
+Harvest Schedule 1:
+- Schedule ID: HS001
+- Supplier ID: SUP001
+- Product ID: PROD001
+- Scheduled Date: 2024-12-13
+- Estimated Quantity: 1200 kg
+- Location: Farm Plot A
+- Status: Scheduled
+
+Harvest Phase 1:
+- Phase ID: HP001
+- Schedule ID: HS001
+- Phase Name: Harvesting
+- Start Date: 2024-12-10T06:00:00Z
+- End Date: 2024-12-10T12:00:00Z
+- Actual Quantity: 1000 kg
+- Status: Completed
+
+Harvest Invoice 1:
+- Invoice ID: HI001
+- Harvest Phase ID: HP001
+- Supplier ID: SUP001
+- Invoice Date: 2024-12-10
+- Total Amount: 8,000,000 VND
+- Payment Status: Paid
+- Payment ID: PAY003
+
+Harvest Details 1:
+- Detail ID: HD001
+- Harvest Phase ID: HP001
+- Product ID: PROD001
+- Quantity: 1000 kg
+- Quality Grade: A
+- Unit Price: 8,000 VND/kg
+- Subtotal: 8,000,000 VND
+```
 
 ---
 
@@ -459,6 +1117,53 @@
 
 ---
 
+
+### Test Data for Staff & Manager Management
+
+```
+Staff Member 1 (Warehouse):
+- Staff ID: STAFF003
+- Name: Le Van G
+- Email: staff.warehouse@fascm.com
+- Phone: +84 909 012 345
+- Role: Warehouse Staff
+- Department: Warehouse Operations
+- Warehouse ID: WH001
+- Status: Active
+
+Staff Member 2 (Quality Control):
+- Staff ID: STAFF004
+- Name: Pham Thi H
+- Email: staff.qc@fascm.com
+- Phone: +84 910 123 456
+- Role: QC Inspector
+- Department: Quality Control
+- Status: Active
+
+Manager 1:
+- Manager ID: MGR001
+- User ID: 2
+- Name: Test Manager
+- Email: manager@fascm.com
+- Phone: +84 911 234 567
+- Department: Operations
+- Supervised Staff: [STAFF001, STAFF002, STAFF003]
+- Authority Level: Regional
+- Status: Active
+
+Manager 2:
+- Manager ID: MGR002
+- Name: Senior Manager
+- Email: senior.manager@fascm.com
+- Phone: +84 912 345 678
+- Department: Logistics
+- Supervised Staff: [STAFF004]
+- Authority Level: National
+- Status: Active
+```
+
+---
+
 ## 20. Category & Pricing Management Test Cases
 
 **Feature Scope:** Product category management, price management, pricing history, category hierarchy, price updates.
@@ -478,6 +1183,57 @@
 
 ---
 
+
+### Test Data for Category & Pricing Management
+
+```
+Category 1:
+- Category ID: CAT001
+- Category Name: Tropical Fruits
+- Description: Fresh tropical fruits including mango, longan, lychee
+- Parent Category: null
+- Status: Active
+
+Category 2:
+- Category ID: CAT002
+- Category Name: Exotic Fruits
+- Description: Exotic fruits including dragon fruit, passion fruit
+- Parent Category: null
+- Status: Active
+
+Category 3 (Sub-category):
+- Category ID: CAT003
+- Category Name: Organic Tropical Fruits
+- Description: Certified organic tropical fruits
+- Parent Category: CAT001
+- Status: Active
+
+Price Record 1:
+- Price ID: PRICE001
+- Product ID: PROD001
+- Price: 30,000 VND/kg
+- Effective Date: 2024-12-01
+- End Date: null
+- Status: Active
+
+Price Record 2 (Historical):
+- Price ID: PRICE002
+- Product ID: PROD001
+- Price: 28,000 VND/kg
+- Effective Date: 2024-11-01
+- End Date: 2024-11-30
+- Status: Archived
+
+Price Record 3:
+- Price ID: PRICE003
+- Product ID: PROD002
+- Price: 40,000 VND/kg
+- Effective Date: 2024-12-01
+- End Date: null
+- Status: Active
+```
+
+---
 
 ### General Testing Guidelines
 
