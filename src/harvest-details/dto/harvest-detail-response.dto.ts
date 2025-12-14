@@ -21,6 +21,12 @@ export class HarvestDetailResponse {
   finalUnitPrice?: number | null;
 
   @ApiProperty({
+    type: () => Boolean,
+    nullable: true,
+  })
+  finalUnitPriceAccepted?: boolean | null;
+
+  @ApiProperty({
     type: () => Number,
     nullable: true,
   })

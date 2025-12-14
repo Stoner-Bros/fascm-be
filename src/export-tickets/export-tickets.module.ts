@@ -9,10 +9,12 @@ import { OrderInvoiceDetailsModule } from 'src/order-invoice-details/order-invoi
 import { ExportTicketsService } from './export-tickets.service';
 import { ExportTicketsController } from './infrastructure/persistence/export-tickets.controller';
 import { RelationalExportTicketPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+import { OrderInvoicesModule } from 'src/order-invoices/order-invoices.module';
 
 @Module({
   imports: [
     OrderInvoiceDetailsModule,
+    OrderInvoicesModule,
 
     forwardRef(() => OrderDetailSelectionsModule),
     AreasModule,

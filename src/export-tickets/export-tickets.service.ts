@@ -10,6 +10,7 @@ import { AreasService } from 'src/areas/areas.service';
 import { OrderDetailSelectionRepository } from 'src/order-detail-selections/infrastructure/persistence/order-detail-selection.repository';
 import { OrderDetailSelectionsService } from 'src/order-detail-selections/order-detail-selections.service';
 import { OrderInvoiceDetailRepository } from 'src/order-invoice-details/infrastructure/persistence/order-invoice-detail.repository';
+import { OrderInvoicesService } from 'src/order-invoices/order-invoices.service';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { OrderInvoiceDetailsService } from './../order-invoice-details/order-invoice-details.service';
 import { ExportTicket } from './domain/export-ticket';
@@ -21,6 +22,7 @@ export class ExportTicketsService {
   constructor(
     private readonly orderInvoiceDetailsService: OrderInvoiceDetailsService,
     private readonly orderInvoiceDetailsRepository: OrderInvoiceDetailRepository,
+    private readonly orderInvoicesService: OrderInvoicesService,
 
     @Inject(forwardRef(() => OrderDetailSelectionsService))
     private readonly orderDetailSelectionsService: OrderDetailSelectionsService,
@@ -94,13 +96,8 @@ export class ExportTicketsService {
           quantity: orderInvoiceDetail.quantity,
         });
 
-        orderInvoiceDetail.exportTicket = exportTicket;
-        await this.orderInvoiceDetailsRepository.update(
-          orderInvoiceDetail.id,
-          orderInvoiceDetail,
-        );
-
         let amountSelected = 0;
+        let amountMoney = 0;
         for (const selectionBatch of selectionBatches) {
           selectionBatch.exportTicket = exportTicket;
           await this.orderDetailSelectionsRepository.update(
@@ -108,13 +105,26 @@ export class ExportTicketsService {
             selectionBatch,
           );
           amountSelected += selectionBatch.quantity || 0;
+          amountMoney +=
+            (selectionBatch.quantity || 0) * (selectionBatch.unitPrice || 0);
         }
-
+        orderInvoiceDetail.exportTicket = exportTicket;
+        orderInvoiceDetail.amount = amountMoney;
         orderInvoiceDetail.quantity = amountSelected;
         await this.orderInvoiceDetailsRepository.update(
           orderInvoiceDetail.id,
           orderInvoiceDetail,
         );
+
+        const invoice = await this.orderInvoicesService.findById(
+          orderInvoiceDetail.orderInvoice?.id as string,
+        );
+        if (invoice) {
+          invoice.totalAmount =
+            orderInvoiceDetail.amount! + (invoice.totalAmount || 0);
+          await this.orderInvoicesService.update(invoice.id, invoice);
+          await this.orderInvoicesService.recalculateAmount(invoice.id);
+        }
 
         if (area) {
           area.quantity =

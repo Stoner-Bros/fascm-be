@@ -9,13 +9,13 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { ExportTicket } from 'src/export-tickets/domain/export-ticket';
+import { ExportTicketsService } from 'src/export-tickets/export-tickets.service';
 import { OrderDetail } from 'src/order-details/domain/order-detail';
 import { OrderDetailsService } from '../order-details/order-details.service';
 import { OrderDetailSelection } from './domain/order-detail-selection';
 import { CreateOrderDetailSelectionDto } from './dto/create-order-detail-selection.dto';
 import { OrderDetailSelectionRepository } from './infrastructure/persistence/order-detail-selection.repository';
-import { ExportTicketsService } from 'src/export-tickets/export-tickets.service';
-import { ExportTicket } from 'src/export-tickets/domain/export-ticket';
 
 @Injectable()
 export class OrderDetailSelectionsService {
@@ -99,6 +99,10 @@ export class OrderDetailSelectionsService {
       batch,
 
       orderDetail,
+
+      unit: createOrderDetailSelectionDto.unit,
+      quantity: createOrderDetailSelectionDto.quantity,
+      unitPrice: createOrderDetailSelectionDto.unitPrice,
     });
   }
 

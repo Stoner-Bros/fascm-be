@@ -25,6 +25,12 @@ export class HarvestDetailEntity extends EntityRelationalHelper {
 
   @Column({
     nullable: true,
+    type: Boolean,
+  })
+  finalUnitPriceAccepted?: boolean | null;
+
+  @Column({
+    nullable: true,
     type: Number,
   })
   amount?: number | null;

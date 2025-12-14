@@ -12,6 +12,7 @@ export class HarvestDetailMapper {
   static toDomain(raw: HarvestDetailEntity): HarvestDetail {
     const domainEntity = new HarvestDetail();
     domainEntity.finalUnitPrice = raw.finalUnitPrice;
+    domainEntity.finalUnitPriceAccepted = raw.finalUnitPriceAccepted;
 
     domainEntity.amount = raw.amount;
 
@@ -45,6 +46,8 @@ export class HarvestDetailMapper {
   static toPersistence(domainEntity: HarvestDetail): HarvestDetailEntity {
     const persistenceEntity = new HarvestDetailEntity();
     persistenceEntity.finalUnitPrice = domainEntity.finalUnitPrice;
+    persistenceEntity.finalUnitPriceAccepted =
+      domainEntity.finalUnitPriceAccepted;
 
     persistenceEntity.amount = domainEntity.amount;
 
@@ -85,6 +88,7 @@ export class HarvestDetailMapper {
 
     responseEntity.expectedUnitPrice = entity.expectedUnitPrice;
     responseEntity.finalUnitPrice = entity.finalUnitPrice;
+    responseEntity.finalUnitPriceAccepted = entity.finalUnitPriceAccepted;
 
     responseEntity.quantity = entity.quantity;
 
