@@ -100,6 +100,8 @@ import { OrderInvoicesModule } from './order-invoices/order-invoices.module';
 import { OrderDetailSelectionsModule } from './order-detail-selections/order-detail-selections.module';
 import { OrderInvoiceDetailsModule } from './order-invoice-details/order-invoice-details.module';
 
+import { DebtsModule } from './debts/debts.module';
+
 @Module({
   imports: [
     HomeModule,
@@ -184,6 +186,7 @@ import { OrderInvoiceDetailsModule } from './order-invoice-details/order-invoice
     HarvestInvoiceDetailsModule,
     HarvestInvoicesModule,
     OrderDetailSelectionsModule,
+    DebtsModule,
   ],
 })
 export class AppModule {}

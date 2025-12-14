@@ -1,9 +1,17 @@
+import { DebtEntity } from 'src/debts/infrastructure/persistence/relational/entities/debt.entity';
 import {
+  PaymentMethod,
+  PaymentStatus,
+  PaymentType,
+} from 'src/payments/enums/payment-status.enum';
+import {
+  Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  Column,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -11,6 +19,17 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
   name: 'payment',
 })
 export class PaymentEntity extends EntityRelationalHelper {
+  @ManyToOne(() => DebtEntity, { eager: true, nullable: true })
+  @JoinColumn()
+  debt?: DebtEntity | null;
+
+  @Column({
+    nullable: true,
+    type: 'enum',
+    enum: PaymentType,
+  })
+  paymentType?: PaymentType | null;
+
   @Column({
     nullable: true,
     type: String,
@@ -25,9 +44,10 @@ export class PaymentEntity extends EntityRelationalHelper {
 
   @Column({
     nullable: true,
-    type: String,
+    type: 'enum',
+    enum: PaymentStatus,
   })
-  status?: string | null;
+  status?: PaymentStatus | null;
 
   @Column({
     nullable: true,
@@ -37,9 +57,10 @@ export class PaymentEntity extends EntityRelationalHelper {
 
   @Column({
     nullable: true,
-    type: String,
+    type: 'enum',
+    enum: PaymentMethod,
   })
-  paymentMethod?: string | null;
+  paymentMethod?: PaymentMethod | null;
 
   @PrimaryGeneratedColumn('uuid')
   id: string;

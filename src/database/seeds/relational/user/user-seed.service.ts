@@ -3,6 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import bcrypt from 'bcryptjs';
 import { ConsigneeEntity } from 'src/consignees/infrastructure/persistence/relational/entities/consignee.entity';
+import { DebtEntity } from 'src/debts/infrastructure/persistence/relational/entities/debt.entity';
+import {
+  DebtStatusEnum,
+  DebtTypeEnum,
+  PartnerTypeEnum,
+} from 'src/debts/enum/debt.enum';
 import { DeliveryStaffEntity } from 'src/delivery-staffs/infrastructure/persistence/relational/entities/delivery-staff.entity';
 import { ManagerEntity } from 'src/managers/infrastructure/persistence/relational/entities/manager.entity';
 import { StaffEntity } from 'src/staffs/infrastructure/persistence/relational/entities/staff.entity';
@@ -36,6 +42,9 @@ export class UserSeedService {
 
     @InjectRepository(WarehouseEntity)
     private warehouseRepo: Repository<WarehouseEntity>,
+
+    @InjectRepository(DebtEntity)
+    private debtRepo: Repository<DebtEntity>,
   ) {}
 
   async run() {
@@ -327,9 +336,24 @@ export class UserSeedService {
           }),
         );
 
-        await this.consigneeRepo.save(
+        const consignee = await this.consigneeRepo.save(
           this.consigneeRepo.create({
             user: user,
+          }),
+        );
+
+        // Create debt for consignee
+        await this.debtRepo.save(
+          this.debtRepo.create({
+            consignee: consignee,
+            partnerType: PartnerTypeEnum.CONSIGNEE,
+            status: DebtStatusEnum.UNPAID,
+            dueDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 365 days from now
+            creditLimit: 50 * 1000 * 1000, // 50 million
+            remainingAmount: 0,
+            paidAmount: 0,
+            originalAmount: 0,
+            debtType: DebtTypeEnum.RECEIVABLE,
           }),
         );
       }
@@ -405,12 +429,27 @@ export class UserSeedService {
           }),
         );
 
-        await this.supplierRepo.save(
+        const supplier = await this.supplierRepo.save(
           this.supplierRepo.create({
             user: user,
             gardenName: `${supplierData.lastName} Garden`,
             representativeName: `${supplierData.firstName} ${supplierData.lastName}`,
             warehouse: supplierData.warehouse,
+          }),
+        );
+
+        // Create debt for supplier
+        await this.debtRepo.save(
+          this.debtRepo.create({
+            supplier: supplier,
+            partnerType: PartnerTypeEnum.SUPPLIER,
+            status: DebtStatusEnum.UNPAID,
+            dueDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 365 days from now
+            creditLimit: 50 * 1000 * 1000, // 50 million
+            remainingAmount: 0,
+            paidAmount: 0,
+            originalAmount: 0,
+            debtType: DebtTypeEnum.PAYABLE,
           }),
         );
       }

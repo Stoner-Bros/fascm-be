@@ -1,34 +1,49 @@
 import {
-  // decorators here
-  IsString,
+  IsEnum,
   IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
 } from 'class-validator';
 
 import {
   // decorators here
   ApiProperty,
 } from '@nestjs/swagger';
+import { PaymentMethod } from '../enums/payment-status.enum';
 
 export class CreatePaymentDto {
   @ApiProperty({
     required: true,
-    type: () => String,
-    description: 'Order invoice ID',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    type: () => Number,
+    default: 100,
   })
   @IsNotEmpty()
-  @IsString()
-  orderInvoiceId: string;
+  @IsNumber()
+  amount: number;
 
   @ApiProperty({
-    required: true,
-    type: () => String,
-    description: 'Payment method: transfer, cash, etc.',
-    example: 'transfer',
+    enum: PaymentMethod,
+    default: PaymentMethod.CASH,
   })
-  @IsNotEmpty()
+  @IsEnum(PaymentMethod)
+  paymentMethod: PaymentMethod;
+
+  @ApiProperty({
+    required: false,
+    type: () => String,
+  })
   @IsString()
-  paymentMethod: string;
+  @IsOptional()
+  supplierId?: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => String,
+  })
+  @IsString()
+  @IsOptional()
+  consigneeId?: string | null;
 
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

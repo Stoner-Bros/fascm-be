@@ -463,4 +463,18 @@ export class HarvestPhasesService {
       }
     }
   }
+
+  async getTotalPaymentByPhaseId(phaseId: string): Promise<number> {
+    const harvestInvoice =
+      await this.harvestInvoiceRepository.findByHarvestPhaseId(phaseId);
+    if (!harvestInvoice) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          phaseId: 'harvestInvoiceNotFound',
+        },
+      });
+    }
+    return harvestInvoice.totalPayment || 0;
+  }
 }

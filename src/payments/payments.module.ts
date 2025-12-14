@@ -2,18 +2,18 @@ import {
   // do not remove this comment
   Module,
 } from '@nestjs/common';
-import { PaymentsService } from './payments.service';
-import { PaymentsController } from './payments.controller';
+import { DebtsModule } from 'src/debts/debts.module';
 import { RelationalPaymentPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
-import { PayosWebhookController } from './payos-webhook.controller';
-import { OrderInvoicesModule } from '../order-invoices/order-invoices.module';
+import { PaymentsController } from './payments.controller';
 import { PaymentsGateway } from './payments.gateway';
+import { PaymentsService } from './payments.service';
+import { PayosWebhookController } from './payos-webhook.controller';
 
 @Module({
   imports: [
+    DebtsModule,
     // do not remove this comment
     RelationalPaymentPersistenceModule,
-    OrderInvoicesModule,
   ],
   controllers: [PaymentsController, PayosWebhookController],
   providers: [PaymentsService, PaymentsGateway],

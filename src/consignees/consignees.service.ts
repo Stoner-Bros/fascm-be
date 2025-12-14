@@ -6,6 +6,8 @@ import {
   Injectable,
   HttpStatus,
   UnprocessableEntityException,
+  forwardRef,
+  Inject,
 } from '@nestjs/common';
 import { CreateConsigneeDto } from './dto/create-consignee.dto';
 import { UpdateConsigneeDto } from './dto/update-consignee.dto';
@@ -14,12 +16,16 @@ import { IPaginationOptions } from '../utils/types/pagination-options';
 import { Consignee } from './domain/consignee';
 import { AuthService } from 'src/auth/auth.service';
 import { RoleEnum } from 'src/roles/roles.enum';
+import { DebtsService } from 'src/debts/debts.service';
 
 @Injectable()
 export class ConsigneesService {
   constructor(
     private readonly userService: UsersService,
     private readonly authService: AuthService,
+
+    @Inject(forwardRef(() => DebtsService))
+    private readonly debtService: DebtsService,
 
     // Dependencies here
     private readonly consigneeRepository: ConsigneeRepository,
@@ -50,7 +56,7 @@ export class ConsigneesService {
       user = null;
     }
 
-    return this.consigneeRepository.create({
+    const consignee = await this.consigneeRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
       contact: createConsigneeDto.contact,
@@ -69,6 +75,10 @@ export class ConsigneesService {
 
       user,
     });
+
+    await this.debtService.initializeConsigneeDebt(consignee);
+
+    return consignee;
   }
 
   findAllWithPagination({

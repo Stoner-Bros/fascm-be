@@ -1,24 +1,31 @@
 import {
+  BadRequestException,
   // common
   Injectable,
-  BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreatePaymentDto } from './dto/create-payment.dto';
-import { PaymentRepository } from './infrastructure/persistence/payment.repository';
+import { DebtsService } from 'src/debts/debts.service';
+import { DebtStatusEnum, PartnerTypeEnum } from 'src/debts/enum/debt.enum';
 import { IPaginationOptions } from '../utils/types/pagination-options';
-import { Payment } from './domain/payment';
 import { payOS } from './config/payOS';
-import { PaymentStatus } from './enums/payment-status.enum';
-import { OrderInvoicesService } from '../order-invoices/order-invoices.service';
+import { Payment } from './domain/payment';
+import { CreatePaymentDto } from './dto/create-payment.dto';
+import {
+  PaymentMethod,
+  PaymentStatus,
+  PaymentType,
+} from './enums/payment-status.enum';
+import { PaymentRepository } from './infrastructure/persistence/payment.repository';
 import { PaymentsGateway } from './payments.gateway';
+import { DebtRepository } from 'src/debts/infrastructure/persistence/debt.repository';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     // Dependencies here
     private readonly paymentRepository: PaymentRepository,
-    private readonly orderInvoicesService: OrderInvoicesService,
+    private readonly debtService: DebtsService,
+    private readonly debtRepo: DebtRepository,
     private readonly paymentsGateway: PaymentsGateway,
   ) {}
 
@@ -33,28 +40,28 @@ export class PaymentsService {
   async create(createPaymentDto: CreatePaymentDto) {
     // Do not remove comment below.
     // <creating-property />
-
-    // Validate that the order invoice exists
-    const orderInvoice = await this.orderInvoicesService.findById(
-      createPaymentDto.orderInvoiceId,
-    );
-
-    if (!orderInvoice) {
-      throw new NotFoundException(
-        `Order invoice with id ${createPaymentDto.orderInvoiceId} not found`,
-      );
-    }
-
     // Generate unique payment code
     const paymentCode = this.generatePaymentCode();
 
     let payment: Payment;
 
-    if (createPaymentDto.paymentMethod === 'transfer') {
+    const partnerType = createPaymentDto?.consigneeId
+      ? PartnerTypeEnum.CONSIGNEE
+      : PartnerTypeEnum.SUPPLIER;
+    const partnerId = createPaymentDto.consigneeId
+      ? createPaymentDto.consigneeId
+      : createPaymentDto.supplierId;
+
+    const partnerDebt = await this.debtService.getDebtByPartnerId(
+      partnerId as string,
+      partnerType,
+    );
+
+    if (createPaymentDto.paymentMethod === PaymentMethod.BANK_TRANSFER) {
       try {
         const paymentLinkRes = await payOS.paymentRequests.create({
           orderCode: Number(paymentCode),
-          amount: orderInvoice.totalPayment ?? 0,
+          amount: createPaymentDto.amount,
           description: `FASCMPAY-${paymentCode}`,
           cancelUrl: process.env.PAYOS_CANCEL_URL ?? '',
           returnUrl: process.env.PAYOS_RETURN_URL ?? '',
@@ -62,10 +69,14 @@ export class PaymentsService {
 
         payment = await this.paymentRepository.create({
           paymentCode: paymentCode,
+          paymentType:
+            partnerType === PartnerTypeEnum.CONSIGNEE
+              ? PaymentType.IN
+              : PaymentType.OUT,
 
           status: PaymentStatus.PENDING,
 
-          amount: orderInvoice.totalPayment ?? 0,
+          amount: createPaymentDto.amount,
 
           checkoutUrl: paymentLinkRes.checkoutUrl,
 
@@ -84,18 +95,35 @@ export class PaymentsService {
         // <creating-property-payload />
         paymentCode: paymentCode,
 
+        paymentType:
+          partnerType === PartnerTypeEnum.CONSIGNEE
+            ? PaymentType.IN
+            : PaymentType.OUT,
+
         status: PaymentStatus.PENDING,
 
-        amount: orderInvoice.totalPayment ?? 0,
+        amount: createPaymentDto.amount,
 
         paymentMethod: createPaymentDto.paymentMethod,
       });
     }
 
-    // Link the payment to the order invoice
-    await this.orderInvoicesService.update(createPaymentDto.orderInvoiceId, {
-      payment: payment,
-    });
+    if (partnerDebt) {
+      partnerDebt.paidAmount =
+        (partnerDebt.paidAmount ?? 0) + createPaymentDto.amount;
+      partnerDebt.remainingAmount =
+        (partnerDebt.remainingAmount ?? 0) - createPaymentDto.amount;
+
+      if (partnerDebt.status === DebtStatusEnum.UNPAID) {
+        partnerDebt.status = DebtStatusEnum.PARTIALLY_PAID;
+      }
+
+      await this.debtRepo.update(partnerDebt.id, {
+        paidAmount: partnerDebt.paidAmount,
+        remainingAmount: partnerDebt.remainingAmount,
+        status: partnerDebt.status,
+      });
+    }
 
     return payment;
   }
@@ -151,7 +179,7 @@ export class PaymentsService {
       );
     }
 
-    if (payment.paymentMethod === 'transfer') {
+    if (payment.paymentMethod === PaymentMethod.BANK_TRANSFER) {
       try {
         const cancelResult = await payOS.paymentRequests.cancel(
           Number(paymentCode),

@@ -1,6 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Debt } from 'src/debts/domain/debt';
+import {
+  PaymentMethod,
+  PaymentStatus,
+  PaymentType,
+} from '../enums/payment-status.enum';
 
 export class Payment {
+  @ApiProperty({
+    type: () => Debt,
+    nullable: true,
+  })
+  debt?: Debt | null;
+
+  @ApiProperty({
+    nullable: true,
+    enum: PaymentType,
+  })
+  paymentType?: PaymentType | null;
+
   @ApiProperty({
     type: () => String,
     nullable: true,
@@ -14,10 +32,10 @@ export class Payment {
   paymentCode?: string | null;
 
   @ApiProperty({
-    type: () => String,
     nullable: true,
+    enum: PaymentStatus,
   })
-  status?: string | null;
+  status?: PaymentStatus | null;
 
   @ApiProperty({
     type: () => Number,
@@ -26,10 +44,10 @@ export class Payment {
   amount?: number | null;
 
   @ApiProperty({
-    type: () => String,
     nullable: true,
+    enum: PaymentMethod,
   })
-  paymentMethod?: string | null;
+  paymentMethod?: PaymentMethod | null;
 
   @ApiProperty({
     type: () => String,

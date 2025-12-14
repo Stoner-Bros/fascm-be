@@ -413,4 +413,17 @@ export class OrderPhasesService {
       updatedAt: new Date(),
     });
   }
+
+  async getTotalPaymentByPhaseId(phaseId: string): Promise<number> {
+    const orderPhase = await this.orderPhaseRepository.findFullById(phaseId);
+    if (!orderPhase || !orderPhase.orderInvoice) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          phaseId: 'notExists',
+        },
+      });
+    }
+    return orderPhase.orderInvoice.totalPayment || 0;
+  }
 }

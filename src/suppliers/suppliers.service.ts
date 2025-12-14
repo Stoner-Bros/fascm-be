@@ -9,6 +9,8 @@ import {
   Injectable,
   HttpStatus,
   UnprocessableEntityException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
@@ -18,6 +20,7 @@ import { Supplier } from './domain/supplier';
 import { AuthService } from 'src/auth/auth.service';
 import { RoleEnum } from 'src/roles/roles.enum';
 import { NullableType } from 'src/utils/types/nullable.type';
+import { DebtsService } from 'src/debts/debts.service';
 
 @Injectable()
 export class SuppliersService {
@@ -26,6 +29,9 @@ export class SuppliersService {
 
     private readonly userService: UsersService,
     private readonly authService: AuthService,
+
+    @Inject(forwardRef(() => DebtsService))
+    private readonly debtService: DebtsService,
 
     // Dependencies here
     private readonly supplierRepository: SupplierRepository,
@@ -74,7 +80,7 @@ export class SuppliersService {
       user = null;
     }
 
-    return this.supplierRepository.create({
+    const supplier = await this.supplierRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
       warehouse,
@@ -95,6 +101,9 @@ export class SuppliersService {
 
       representativeName: createSupplierDto.representativeName,
     });
+
+    await this.debtService.initializeSupplierDebt(supplier);
+    return supplier;
   }
 
   async findByUserId(userId: number): Promise<NullableType<Supplier>> {

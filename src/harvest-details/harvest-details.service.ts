@@ -29,12 +29,16 @@ export class HarvestDetailsService {
     });
   }
 
-  updateFinalUnitPriceAccepted(
+  async updateFinalUnitPriceAccepted(
     harvestDetailId: string,
     finalUnitPriceAccepted: boolean,
   ) {
+    const hd = await this.harvestDetailRepository.findById(harvestDetailId);
     return this.harvestDetailRepository.update(harvestDetailId, {
       finalUnitPriceAccepted: finalUnitPriceAccepted,
+      amount: finalUnitPriceAccepted
+        ? (hd?.finalUnitPrice || 0) * (hd?.quantity || 0)
+        : 0,
     });
   }
 }
