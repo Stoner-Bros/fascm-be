@@ -76,6 +76,54 @@ export class DeliveriesController {
     );
   }
 
+  @Get('with-harvest-phase')
+  @ApiOkResponse({
+    type: InfinityPaginationResponse(DeliveryResponse),
+  })
+  async findAllWithHarvestPhase(
+    @Query() query: FindAllDeliveriesDto,
+  ): Promise<InfinityPaginationResponseDto<DeliveryResponse>> {
+    const page = query?.page ?? 1;
+    let limit = query?.limit ?? 10;
+    if (limit > 50) {
+      limit = 50;
+    }
+
+    return infinityPagination(
+      await this.deliveriesService.findAllWithHarvestPhase({
+        paginationOptions: {
+          page,
+          limit,
+        },
+      }),
+      { page, limit },
+    );
+  }
+
+  @Get('with-order-phase')
+  @ApiOkResponse({
+    type: InfinityPaginationResponse(DeliveryResponse),
+  })
+  async findAllWithOrderPhase(
+    @Query() query: FindAllDeliveriesDto,
+  ): Promise<InfinityPaginationResponseDto<DeliveryResponse>> {
+    const page = query?.page ?? 1;
+    let limit = query?.limit ?? 10;
+    if (limit > 50) {
+      limit = 50;
+    }
+
+    return infinityPagination(
+      await this.deliveriesService.findAllWithOrderPhase({
+        paginationOptions: {
+          page,
+          limit,
+        },
+      }),
+      { page, limit },
+    );
+  }
+
   @Get(':id')
   @ApiParam({
     name: 'id',

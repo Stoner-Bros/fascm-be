@@ -100,6 +100,60 @@ export class DeliveryRelationalRepository implements DeliveryRepository {
     return entity ? DeliveryMapper.toDomain(entity) : null;
   }
 
+  async findAllWithHarvestPhase({
+    paginationOptions,
+  }: {
+    paginationOptions: IPaginationOptions;
+  }): Promise<DeliveryResponse[]> {
+    const qb = this.deliveryRepository.createQueryBuilder('delivery');
+    qb.leftJoinAndSelect('delivery.orderPhase', 'orderPhase');
+    qb.leftJoinAndSelect('delivery.truck', 'truck');
+    qb.leftJoinAndSelect('delivery.deliveryStaff', 'deliveryStaff');
+    qb.leftJoinAndSelect('delivery.harvestPhase', 'harvestPhase');
+    qb.leftJoinAndSelect('orderPhase.orderSchedule', 'orderSchedule');
+    qb.leftJoinAndSelect('harvestPhase.harvestSchedule', 'harvestSchedule');
+
+    qb.andWhere('harvestPhase.id IS NOT NULL');
+
+    qb.orderBy('delivery.id', 'DESC');
+    qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
+    qb.take(paginationOptions.limit);
+
+    const entities = await qb.getMany();
+    return entities.map((entity) => ({
+      ...DeliveryMapper.toResponse(entity),
+      orderPhase: entity.orderPhase || null,
+      harvestPhase: entity.harvestPhase || null,
+    }));
+  }
+
+  async findAllWithOrderPhase({
+    paginationOptions,
+  }: {
+    paginationOptions: IPaginationOptions;
+  }): Promise<DeliveryResponse[]> {
+    const qb = this.deliveryRepository.createQueryBuilder('delivery');
+    qb.leftJoinAndSelect('delivery.orderPhase', 'orderPhase');
+    qb.leftJoinAndSelect('delivery.truck', 'truck');
+    qb.leftJoinAndSelect('delivery.deliveryStaff', 'deliveryStaff');
+    qb.leftJoinAndSelect('delivery.harvestPhase', 'harvestPhase');
+    qb.leftJoinAndSelect('orderPhase.orderSchedule', 'orderSchedule');
+    qb.leftJoinAndSelect('harvestPhase.harvestSchedule', 'harvestSchedule');
+
+    qb.andWhere('orderPhase.id IS NOT NULL');
+
+    qb.orderBy('delivery.id', 'DESC');
+    qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
+    qb.take(paginationOptions.limit);
+
+    const entities = await qb.getMany();
+    return entities.map((entity) => ({
+      ...DeliveryMapper.toResponse(entity),
+      orderPhase: entity.orderPhase || null,
+      harvestPhase: entity.harvestPhase || null,
+    }));
+  }
+
   async update(
     id: Delivery['id'],
     payload: Partial<Delivery>,

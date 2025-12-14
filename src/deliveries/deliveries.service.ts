@@ -253,6 +253,32 @@ export class DeliveriesService {
     return this.deliveryRepository.findByHarvestPhaseId(harvestPhaseId);
   }
 
+  findAllWithHarvestPhase({
+    paginationOptions,
+  }: {
+    paginationOptions: IPaginationOptions;
+  }) {
+    return this.deliveryRepository.findAllWithHarvestPhase({
+      paginationOptions: {
+        page: paginationOptions.page,
+        limit: paginationOptions.limit,
+      },
+    });
+  }
+
+  findAllWithOrderPhase({
+    paginationOptions,
+  }: {
+    paginationOptions: IPaginationOptions;
+  }) {
+    return this.deliveryRepository.findAllWithOrderPhase({
+      paginationOptions: {
+        page: paginationOptions.page,
+        limit: paginationOptions.limit,
+      },
+    });
+  }
+
   async update(
     id: Delivery['id'],
 
