@@ -32,7 +32,12 @@ export class ExportTicketRelationalRepository
   }): Promise<ExportTicket[]> {
     const queryBuilder = this.exportTicketRepository
       .createQueryBuilder('exportTicket')
-      .leftJoin('batch', 'batch', 'batch.exportTicketId = exportTicket.id')
+      .leftJoin(
+        'order_detail_selection',
+        'ods',
+        'ods.exportTicketId = exportTicket.id',
+      )
+      .leftJoin('batch', 'batch', 'batch.id = ods.batchId')
       .leftJoin('product', 'product', 'product.id = batch.productId')
       .leftJoin('area', 'area', 'area.id = batch.areaId')
       .select('exportTicket.id', 'id')
@@ -42,7 +47,6 @@ export class ExportTicketRelationalRepository
       .addSelect('exportTicket.createdAt', 'createdAt')
       .addSelect('exportTicket.updatedAt', 'updatedAt')
       .addSelect('product.name', 'productName')
-      .addSelect('COUNT(DISTINCT batch.id)', 'numberOfBatch')
       .addSelect('area.name', 'areaName')
       .groupBy('exportTicket.id')
       .addGroupBy('exportTicket.unit')
@@ -60,7 +64,6 @@ export class ExportTicketRelationalRepository
     return entities.map((entity) => ({
       ...ExportTicketMapper.toDomain(entity),
       productName: entity.productName,
-      numberOfBatch: parseInt(entity.numberOfBatch) || 0,
       areaName: entity.areaName,
     }));
   }
@@ -118,7 +121,12 @@ export class ExportTicketRelationalRepository
   }): Promise<ExportTicket[]> {
     const queryBuilder = this.exportTicketRepository
       .createQueryBuilder('exportTicket')
-      .leftJoin('batch', 'batch', 'batch.exportTicketId = exportTicket.id')
+      .leftJoin(
+        'order_detail_selection',
+        'ods',
+        'ods.exportTicketId = exportTicket.id',
+      )
+      .leftJoin('batch', 'batch', 'batch.id = ods.batchId')
       .leftJoin('product', 'product', 'product.id = batch.productId')
       .leftJoin('area', 'area', 'area.id = batch.areaId')
       .where('area.id = :areaId', { areaId })
@@ -129,7 +137,6 @@ export class ExportTicketRelationalRepository
       .addSelect('exportTicket.createdAt', 'createdAt')
       .addSelect('exportTicket.updatedAt', 'updatedAt')
       .addSelect('product.name', 'productName')
-      .addSelect('COUNT(DISTINCT batch.id)', 'numberOfBatch')
       .addSelect('area.name', 'areaName')
       .groupBy('exportTicket.id')
       .addGroupBy('exportTicket.unit')
@@ -147,7 +154,6 @@ export class ExportTicketRelationalRepository
     return entities.map((entity) => ({
       ...ExportTicketMapper.toDomain(entity),
       productName: entity.productName,
-      numberOfBatch: parseInt(entity.numberOfBatch) || 0,
       areaName: entity.areaName,
     }));
   }
