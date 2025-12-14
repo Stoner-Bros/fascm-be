@@ -243,14 +243,10 @@ describe('MailService', () => {
         await service.userSignUp(mailData);
 
         // Assert
-        expect(mailerService.sendMail).toHaveBeenCalledWith(
-          expect.objectContaining({
-            context: expect.objectContaining({
-              url: expect.stringContaining('https://admin.example.com/auth/confirm-email'),
-              url: expect.stringContaining('hash=confirmation-hash-123'),
-            }),
-          }),
-        );
+        const callArgs = mailerService.sendMail.mock.calls[0][0];
+        expect(mailerService.sendMail).toHaveBeenCalled();
+        expect(callArgs.context.url).toContain('https://admin.example.com/auth/confirm-email');
+        expect(callArgs.context.url).toContain('hash=confirmation-hash-123');
       });
 
       it('UTC_userSignUp_03: should handle consignee role correctly', async () => {
@@ -382,15 +378,11 @@ describe('MailService', () => {
         await service.forgotPassword(mailData);
 
         // Assert
-        expect(mailerService.sendMail).toHaveBeenCalledWith(
-          expect.objectContaining({
-            context: expect.objectContaining({
-              url: expect.stringContaining('https://example.com/password-change'),
-              url: expect.stringContaining('hash=reset-hash-123'),
-              url: expect.stringContaining(`expires=${mailData.data.tokenExpires}`),
-            }),
-          }),
-        );
+        const callArgs = mailerService.sendMail.mock.calls[0][0];
+        expect(mailerService.sendMail).toHaveBeenCalled();
+        expect(callArgs.context.url).toContain('https://example.com/password-change');
+        expect(callArgs.context.url).toContain('hash=reset-hash-123');
+        expect(callArgs.context.url).toContain(`expires=${mailData.data.tokenExpires}`);
       });
     });
 
