@@ -15,6 +15,7 @@ type IotUpdatePayload = {
   temperature: number;
   humidity: number;
   timestamp?: string;
+  status?: string | null;
 };
 
 type AreaAlertPayload = {
@@ -111,6 +112,26 @@ export class IoTGateway {
       this.server.to(truckRoom).emit('iot:update', payload);
     }
     this.server.emit('iot:update', payload);
+  }
+
+  broadcastStatus(payload: {
+    deviceId: string;
+    status: string;
+    areaId?: string | null;
+    truckId?: string | null;
+    timestamp?: string;
+  }) {
+    const deviceRoom = `iot:device:${payload.deviceId}`;
+    this.server.to(deviceRoom).emit('iot:status', payload);
+    if (payload.areaId) {
+      const areaRoom = `iot:area:${payload.areaId}`;
+      this.server.to(areaRoom).emit('iot:status', payload);
+    }
+    if (payload.truckId) {
+      const truckRoom = `iot:truck:${payload.truckId}`;
+      this.server.to(truckRoom).emit('iot:status', payload);
+    }
+    this.server.emit('iot:status', payload);
   }
 
   broadcastAreaAlert(payload: AreaAlertPayload) {

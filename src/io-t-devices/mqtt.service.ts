@@ -118,6 +118,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       temperature: data.temperature,
       humidity: data.humidity,
       timestamp: new Date().toISOString(),
+      status: 'active',
     });
 
     // Check area alerts
@@ -292,8 +293,28 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
 
       if (status === 'offline') {
         await this.ioTDevicesService.setDeviceOffline(deviceId);
+        const area = await this.ioTDevicesService.findAreaByDeviceId(deviceId);
+        const truck =
+          await this.ioTDevicesService.findTruckByDeviceId(deviceId);
+        this.iotGateway.broadcastStatus({
+          deviceId,
+          status: 'inactive',
+          areaId: area?.id ?? null,
+          truckId: truck?.id ?? null,
+          timestamp: new Date().toISOString(),
+        });
       } else if (status === 'online') {
         // Device status will be set to active when first data arrives
+        const area = await this.ioTDevicesService.findAreaByDeviceId(deviceId);
+        const truck =
+          await this.ioTDevicesService.findTruckByDeviceId(deviceId);
+        this.iotGateway.broadcastStatus({
+          deviceId,
+          status: 'active',
+          areaId: area?.id ?? null,
+          truckId: truck?.id ?? null,
+          timestamp: new Date().toISOString(),
+        });
       }
     }
   }
