@@ -58,21 +58,21 @@ export class HarvestSchedulesService {
       // Do not remove comment below.
       // <creating-property-payload />
 
-      address: createHarvestScheduleDto.address,
+      address: createHarvestScheduleDto?.address ?? '',
 
-      description: createHarvestScheduleDto.description,
+      description: createHarvestScheduleDto?.description ?? '',
 
       status: HarvestScheduleStatusEnum.PENDING,
 
-      harvestDate: createHarvestScheduleDto.harvestDate,
+      harvestDate: createHarvestScheduleDto?.harvestDate ?? null,
 
       supplier: supplier!,
     });
 
     const ht = await this.harvestTicketsRepository.create({
       harvestSchedule: hs,
-      ticketNumber: createHarvestScheduleDto.harvestTicket.ticketNumber,
-      ticketUrl: createHarvestScheduleDto.harvestTicket.ticketUrl,
+      ticketNumber: createHarvestScheduleDto?.harvestTicket?.ticketNumber ?? '',
+      ticketUrl: createHarvestScheduleDto?.harvestTicket?.ticketUrl ?? '',
       unit: 'kg',
       quantity: 0,
     });
@@ -194,13 +194,13 @@ export class HarvestSchedulesService {
     // Update harvest schedule basic info
     const updateData: Partial<HarvestSchedule> = {};
     if (updateHarvestScheduleDto.address !== undefined) {
-      updateData.address = updateHarvestScheduleDto.address;
+      updateData.address = updateHarvestScheduleDto.address || '';
     }
     if (updateHarvestScheduleDto.description !== undefined) {
-      updateData.description = updateHarvestScheduleDto.description;
+      updateData.description = updateHarvestScheduleDto.description || '';
     }
     if (updateHarvestScheduleDto.harvestDate !== undefined) {
-      updateData.harvestDate = updateHarvestScheduleDto.harvestDate;
+      updateData.harvestDate = updateHarvestScheduleDto.harvestDate || null;
     }
 
     if (Object.keys(updateData).length > 0) {
@@ -213,8 +213,9 @@ export class HarvestSchedulesService {
         await this.harvestTicketsRepository.findByHarvestScheduleId(id);
       if (existingTicket) {
         await this.harvestTicketsRepository.update(existingTicket.id, {
-          ticketNumber: updateHarvestScheduleDto.harvestTicket.ticketNumber,
-          ticketUrl: updateHarvestScheduleDto.harvestTicket.ticketUrl,
+          ticketNumber:
+            updateHarvestScheduleDto?.harvestTicket?.ticketNumber ?? '',
+          ticketUrl: updateHarvestScheduleDto?.harvestTicket?.ticketUrl ?? '',
         });
 
         // Update harvest details if provided

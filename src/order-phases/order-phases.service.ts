@@ -77,8 +77,8 @@ export class OrderPhasesService {
     );
 
     const op = await this.orderPhaseRepository.create({
-      description: createOrderPhaseDto.description,
-      phaseNumber: createOrderPhaseDto.phaseNumber,
+      description: createOrderPhaseDto.description || '',
+      phaseNumber: createOrderPhaseDto.phaseNumber || 0,
       orderSchedule: os,
     });
 
@@ -88,9 +88,9 @@ export class OrderPhasesService {
       quantity: 0,
       unit: 'kg',
       vatAmount: 0,
-      taxRate: createOrderPhaseDto.orderInvoice?.taxRate,
-      invoiceNumber: createOrderPhaseDto.orderInvoice?.invoiceNumber,
-      invoiceUrl: createOrderPhaseDto.orderInvoice?.invoiceUrl,
+      taxRate: createOrderPhaseDto?.orderInvoice?.taxRate || 0,
+      invoiceNumber: createOrderPhaseDto?.orderInvoice?.invoiceNumber || 0,
+      invoiceUrl: createOrderPhaseDto?.orderInvoice?.invoiceUrl || '',
       orderPhase: op,
     });
 
@@ -309,18 +309,20 @@ export class OrderPhasesService {
           vatAmount: vatAmount,
           taxRate: taxRate,
           invoiceNumber:
-            updateOrderPhaseDto.orderInvoice.invoiceNumber ?? oi.invoiceNumber,
+            updateOrderPhaseDto?.orderInvoice?.invoiceNumber ??
+            oi.invoiceNumber,
           invoiceUrl:
-            updateOrderPhaseDto.orderInvoice.invoiceUrl ?? oi.invoiceUrl,
+            updateOrderPhaseDto?.orderInvoice?.invoiceUrl ?? oi.invoiceUrl,
         });
       } else {
         // Only update invoice metadata without details
         await this.orderInvoiceRepository.update(oi.id, {
-          taxRate: updateOrderPhaseDto.orderInvoice.taxRate ?? oi.taxRate,
+          taxRate: updateOrderPhaseDto?.orderInvoice?.taxRate ?? oi.taxRate,
           invoiceNumber:
-            updateOrderPhaseDto.orderInvoice.invoiceNumber ?? oi.invoiceNumber,
+            updateOrderPhaseDto?.orderInvoice?.invoiceNumber ??
+            oi.invoiceNumber,
           invoiceUrl:
-            updateOrderPhaseDto.orderInvoice.invoiceUrl ?? oi.invoiceUrl,
+            updateOrderPhaseDto?.orderInvoice?.invoiceUrl ?? oi.invoiceUrl,
         });
       }
     }
