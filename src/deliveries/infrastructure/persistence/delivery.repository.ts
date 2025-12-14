@@ -31,6 +31,18 @@ export abstract class DeliveryRepository {
     harvestPhaseId: HarvestPhase['id'],
   ): Promise<NullableType<Delivery>>;
 
+  abstract findAllWithHarvestPhase({
+    paginationOptions,
+  }: {
+    paginationOptions: IPaginationOptions;
+  }): Promise<DeliveryResponse[]>;
+
+  abstract findAllWithOrderPhase({
+    paginationOptions,
+  }: {
+    paginationOptions: IPaginationOptions;
+  }): Promise<DeliveryResponse[]>;
+
   abstract update(
     id: Delivery['id'],
     payload: DeepPartial<Delivery>,
