@@ -4,12 +4,13 @@ import { ProductEntity } from '../../../../../products/infrastructure/persistenc
 
 import { ImportTicketEntity } from '../../../../../import-tickets/infrastructure/persistence/relational/entities/import-ticket.entity';
 
-import { ExportTicketEntity } from 'src/export-tickets/infrastructure/persistence/relational/entities/export-ticket.entity';
+import { PriceEntity } from 'src/prices/infrastructure/persistence/relational/entities/price.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -23,13 +24,19 @@ export class BatchEntity extends EntityRelationalHelper {
     nullable: true,
     type: Number,
   })
-  volume?: number | null;
+  costPrice?: number | null;
 
   @Column({
     nullable: true,
     type: Number,
   })
   quantity?: number | null;
+
+  @Column({
+    nullable: true,
+    type: Number,
+  })
+  currentQuantity?: number | null;
 
   @Column({
     nullable: true,
@@ -43,6 +50,15 @@ export class BatchEntity extends EntityRelationalHelper {
   })
   batchCode?: string | null;
 
+  @Column({
+    nullable: true,
+    type: Date,
+  })
+  expiredAt?: Date | null;
+
+  @OneToMany(() => PriceEntity, (childEntity) => childEntity.batch)
+  price: PriceEntity[];
+
   @ManyToOne(() => AreaEntity, { eager: true, nullable: true })
   area?: AreaEntity | null;
 
@@ -51,9 +67,6 @@ export class BatchEntity extends EntityRelationalHelper {
 
   @ManyToOne(() => ImportTicketEntity, { eager: true, nullable: true })
   importTicket?: ImportTicketEntity | null;
-
-  @ManyToOne(() => ExportTicketEntity, { eager: true, nullable: true })
-  exportTicket?: ExportTicketEntity | null;
 
   @PrimaryGeneratedColumn('uuid')
   id: string;

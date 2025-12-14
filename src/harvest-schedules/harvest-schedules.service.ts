@@ -86,11 +86,11 @@ export class HarvestSchedulesService {
       await this.harvestDetailsRepository.create({
         harvestTicket: ht,
         product: product ?? undefined,
-        unitPrice: detailDto.unitPrice ?? undefined,
+        expectedUnitPrice: detailDto.expectedUnitPrice ?? undefined,
         quantity: detailDto.quantity ?? undefined,
         unit: detailDto.unit ?? undefined,
-        // amount = unitPrice * quantity
-        amount: (detailDto.unitPrice ?? 0) * (detailDto.quantity ?? 0),
+        // amount = expectedUnitPrice * quantity
+        amount: (detailDto.expectedUnitPrice ?? 0) * (detailDto.quantity ?? 0),
       });
       totalQuantity += detailDto.quantity ?? 0;
     }
@@ -249,10 +249,11 @@ export class HarvestSchedulesService {
             await this.harvestDetailsRepository.create({
               harvestTicket: existingTicket,
               product: product ?? undefined,
-              unitPrice: detailDto.unitPrice ?? undefined,
+              expectedUnitPrice: detailDto.expectedUnitPrice ?? undefined,
               quantity: detailDto.quantity ?? undefined,
               unit: detailDto.unit ?? undefined,
-              amount: (detailDto.unitPrice ?? 0) * (detailDto.quantity ?? 0),
+              amount:
+                (detailDto.expectedUnitPrice ?? 0) * (detailDto.quantity ?? 0),
             });
             totalQuantity += detailDto.quantity ?? 0;
           }

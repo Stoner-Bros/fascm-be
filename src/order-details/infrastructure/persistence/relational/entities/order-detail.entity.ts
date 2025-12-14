@@ -27,12 +27,6 @@ export class OrderDetailEntity extends EntityRelationalHelper {
     nullable: true,
     type: Number,
   })
-  unitPrice?: number | null;
-
-  @Column({
-    nullable: true,
-    type: Number,
-  })
   quantity?: number | null;
 
   @Column({

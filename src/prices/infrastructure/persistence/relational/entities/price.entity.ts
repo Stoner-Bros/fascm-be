@@ -1,12 +1,11 @@
-import { ProductEntity } from '../../../../../products/infrastructure/persistence/relational/entities/product.entity';
-
+import { BatchEntity } from 'src/batches/infrastructure/persistence/relational/entities/batch.entity';
 import {
+  Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  Column,
-  ManyToOne,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -14,11 +13,12 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
   name: 'price',
 })
 export class PriceEntity extends EntityRelationalHelper {
-  @ManyToOne(() => ProductEntity, (parentEntity) => parentEntity.price, {
-    eager: false,
-    nullable: false,
+  // Relation with BatchEntity
+  @ManyToOne(() => BatchEntity, {
+    eager: true,
+    nullable: true,
   })
-  product: ProductEntity;
+  batch?: BatchEntity | null;
 
   @Column({
     nullable: true,

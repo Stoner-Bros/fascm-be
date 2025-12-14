@@ -35,21 +35,6 @@ export class ImportTicketsService {
     // Do not remove comment below.
     // <creating-property />
 
-    const totalImportedQuantity =
-      (createImportTicketDto.numberOfBigBatch || 0) * 20 +
-      (createImportTicketDto.numberOfSmallBatch || 0) * 10;
-
-    if (totalImportedQuantity > createImportTicketDto.realityQuantity) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          numberOfBigBatch: 'exceedsRealityQuantity',
-          numberOfSmallBatch: 'exceedsRealityQuantity',
-          message: `Total quantity ${totalImportedQuantity} from batches exceeds reality quantity ${createImportTicketDto.realityQuantity}`,
-        },
-      });
-    }
-
     const inboundBatch = await this.inboundBatchService.findById(
       createImportTicketDto.inboundBatch.id,
     );
@@ -115,41 +100,17 @@ export class ImportTicketsService {
     const product =
       await this.inboundBatchService.getProductOfInboundBatch(inboundBatch);
 
-    let remainingQuantity = importTicket.quantity || 0;
-    for (let i = 0; i < (createImportTicketDto.numberOfBigBatch || 0); i++) {
-      await this.batchesService.create({
-        quantity: 20,
-        unit: 'kg',
-        batchCode: inboundBatch.batchCode,
-        importTicket: { id: importTicket.id },
-        area: area ? { id: createImportTicketDto.area!.id } : null,
-        product: product,
-      });
-      remainingQuantity -= 20;
-    }
-
-    for (let i = 0; i < (createImportTicketDto.numberOfSmallBatch || 0); i++) {
-      await this.batchesService.create({
-        quantity: 10,
-        unit: 'kg',
-        batchCode: inboundBatch.batchCode,
-        importTicket: { id: importTicket.id },
-        area: area ? { id: createImportTicketDto.area!.id } : null,
-        product: product,
-      });
-      remainingQuantity -= 10;
-    }
-
-    if (remainingQuantity > 0) {
-      await this.batchesService.create({
-        quantity: remainingQuantity,
-        unit: 'kg',
-        batchCode: inboundBatch.batchCode,
-        importTicket: { id: importTicket.id },
-        area: area ? { id: createImportTicketDto.area!.id } : null,
-        product: product,
-      });
-    }
+    await this.batchesService.create({
+      quantity: importTicket.quantity,
+      currentQuantity: importTicket.quantity,
+      expiredAt: importTicket.expiredAt,
+      unit: 'kg',
+      batchCode: inboundBatch.batchCode,
+      costPrice: inboundBatch.harvestInvoiceDetail?.amount,
+      importTicket: { id: importTicket.id },
+      area: area ? { id: createImportTicketDto.area!.id } : null,
+      product: product,
+    });
 
     area.quantity = (area.quantity || 0) + (importTicket.quantity || 0);
     await this.areasService.update(area.id, area);

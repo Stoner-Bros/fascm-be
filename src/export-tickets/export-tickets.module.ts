@@ -4,7 +4,7 @@ import {
   Module,
 } from '@nestjs/common';
 import { AreasModule } from 'src/areas/areas.module';
-import { BatchesModule } from 'src/batches/batches.module';
+import { OrderDetailSelectionsModule } from 'src/order-detail-selections/order-detail-selections.module';
 import { OrderInvoiceDetailsModule } from 'src/order-invoice-details/order-invoice-details.module';
 import { ExportTicketsService } from './export-tickets.service';
 import { ExportTicketsController } from './infrastructure/persistence/export-tickets.controller';
@@ -14,7 +14,7 @@ import { RelationalExportTicketPersistenceModule } from './infrastructure/persis
   imports: [
     OrderInvoiceDetailsModule,
 
-    forwardRef(() => BatchesModule),
+    forwardRef(() => OrderDetailSelectionsModule),
     AreasModule,
 
     // do not remove this comment

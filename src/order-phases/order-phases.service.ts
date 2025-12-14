@@ -109,8 +109,8 @@ export class OrderPhasesService {
       }
       const oid = await this.orderInvoiceDetailRepository.create({
         taxRate: 0,
-        amount: (oidDto.unitPrice || 0) * (oidDto.quantity || 0),
-        unitPrice: oidDto.unitPrice,
+        // amount: (oidDto.unitPrice || 0) * (oidDto.quantity || 0),
+        // unitPrice: oidDto.unitPrice,
         quantity: oidDto.quantity,
         unit: oidDto.unit,
         orderInvoice: oi,
@@ -282,8 +282,8 @@ export class OrderPhasesService {
           }
           const oid = await this.orderInvoiceDetailRepository.create({
             taxRate: 0,
-            amount: (oidDto.unitPrice || 0) * (oidDto.quantity || 0),
-            unitPrice: oidDto.unitPrice,
+            // amount: (oidDto.unitPrice || 0) * (oidDto.quantity || 0),
+            // unitPrice: oidDto.unitPrice,
             quantity: oidDto.quantity,
             unit: oidDto.unit,
             orderInvoice: oi,

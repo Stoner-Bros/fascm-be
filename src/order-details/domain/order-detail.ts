@@ -13,12 +13,6 @@ export class OrderDetail {
     type: () => Number,
     nullable: true,
   })
-  unitPrice?: number | null;
-
-  @ApiProperty({
-    type: () => Number,
-    nullable: true,
-  })
   quantity?: number | null;
 
   @ApiProperty({

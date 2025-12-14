@@ -1,12 +1,13 @@
-import { Product } from '../../products/domain/product';
 import { ApiProperty } from '@nestjs/swagger';
+import { Batch } from 'src/batches/domain/batch';
+import { Product } from '../../products/domain/product';
 
 export class Price {
   @ApiProperty({
     type: () => Product,
     nullable: false,
   })
-  product: Product;
+  batch: Batch;
 
   @ApiProperty({
     type: () => Number,

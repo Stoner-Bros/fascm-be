@@ -21,8 +21,6 @@ export class OrderInvoiceDetailMapper {
 
     domainEntity.taxRate = raw.taxRate;
 
-    domainEntity.unitPrice = raw.unitPrice;
-
     domainEntity.quantity = raw.quantity;
 
     domainEntity.unit = raw.unit;
@@ -62,8 +60,6 @@ export class OrderInvoiceDetailMapper {
 
     persistenceEntity.taxRate = domainEntity.taxRate;
 
-    persistenceEntity.unitPrice = domainEntity.unitPrice;
-
     persistenceEntity.quantity = domainEntity.quantity;
 
     persistenceEntity.unit = domainEntity.unit;
@@ -99,8 +95,6 @@ export class OrderInvoiceDetailMapper {
     responseEntity.amount = raw.amount;
 
     responseEntity.taxRate = raw.taxRate;
-    responseEntity.unitPrice = raw.unitPrice;
-
     responseEntity.quantity = raw.quantity;
 
     responseEntity.unit = raw.unit;

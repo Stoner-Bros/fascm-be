@@ -7,7 +7,8 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { AreasService } from 'src/areas/areas.service';
-import { BatchesService } from 'src/batches/batches.service';
+import { OrderDetailSelectionRepository } from 'src/order-detail-selections/infrastructure/persistence/order-detail-selection.repository';
+import { OrderDetailSelectionsService } from 'src/order-detail-selections/order-detail-selections.service';
 import { OrderInvoiceDetailRepository } from 'src/order-invoice-details/infrastructure/persistence/order-invoice-detail.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { OrderInvoiceDetailsService } from './../order-invoice-details/order-invoice-details.service';
@@ -21,8 +22,11 @@ export class ExportTicketsService {
     private readonly orderInvoiceDetailsService: OrderInvoiceDetailsService,
     private readonly orderInvoiceDetailsRepository: OrderInvoiceDetailRepository,
 
-    @Inject(forwardRef(() => BatchesService))
-    private readonly batchesService: BatchesService,
+    @Inject(forwardRef(() => OrderDetailSelectionsService))
+    private readonly orderDetailSelectionsService: OrderDetailSelectionsService,
+
+    @Inject(forwardRef(() => OrderDetailSelectionRepository))
+    private readonly orderDetailSelectionsRepository: OrderDetailSelectionRepository,
     private readonly areasService: AreasService,
     // Dependencies here
     private readonly exportTicketRepository: ExportTicketRepository,
@@ -47,27 +51,31 @@ export class ExportTicketsService {
           });
         }
 
-        const batchs = await this.batchesService.findByIds(detail.batchIds);
-        if (batchs.length !== detail.batchIds.length) {
+        const selectionBatches =
+          await this.orderDetailSelectionsService.findByIds(detail.selectionId);
+        if (selectionBatches.length !== detail.selectionId.length) {
           throw new UnprocessableEntityException({
             status: HttpStatus.UNPROCESSABLE_ENTITY,
             errors: {
-              batchs: 'someBatchNotExists',
+              selectionBatches: 'someSelectionNotExists',
             },
           });
         }
         // compare product in batch and orderInvoiceDetail
-        for (const batch of batchs) {
-          if (batch?.product?.id !== orderInvoiceDetail?.product?.id) {
+        for (const selectionBatch of selectionBatches) {
+          if (
+            selectionBatch.batch?.product?.id !==
+            orderInvoiceDetail?.product?.id
+          ) {
             throw new UnprocessableEntityException({
               status: HttpStatus.UNPROCESSABLE_ENTITY,
               errors: {
-                batch: `Batch with id ${batch.id} has different product than OrderInvoiceDetail with id ${orderInvoiceDetail.id}`,
+                batch: `Batch with id ${selectionBatch.batch?.id} has different product than OrderInvoiceDetail with id ${orderInvoiceDetail.id}`,
               },
             });
           }
         }
-        const areaId = batchs[0].area?.id;
+        const areaId = selectionBatches[0].batch?.area?.id;
         const area = await this.areasService.findById(areaId as string);
         if (!area) {
           throw new UnprocessableEntityException({
@@ -92,10 +100,21 @@ export class ExportTicketsService {
           orderInvoiceDetail,
         );
 
-        for (const batch of batchs) {
-          batch.exportTicket = exportTicket;
-          await this.batchesService.update(batch.id, batch);
+        let amountSelected = 0;
+        for (const selectionBatch of selectionBatches) {
+          selectionBatch.exportTicket = exportTicket;
+          await this.orderDetailSelectionsRepository.update(
+            selectionBatch.id,
+            selectionBatch,
+          );
+          amountSelected += selectionBatch.quantity || 0;
         }
+
+        orderInvoiceDetail.quantity = amountSelected;
+        await this.orderInvoiceDetailsRepository.update(
+          orderInvoiceDetail.id,
+          orderInvoiceDetail,
+        );
 
         if (area) {
           area.quantity =

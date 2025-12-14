@@ -85,7 +85,7 @@ export class OrderScheduleMapper {
           const detailResponse: any = {
             id: detail.id,
             amount: detail.amount,
-            unitPrice: detail.unitPrice,
+            // unitPrice: detail.unitPrice,
             quantity: detail.quantity,
             unit: detail.unit,
             createdAt: detail.createdAt,

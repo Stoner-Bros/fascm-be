@@ -7,25 +7,21 @@ import { ProductMapper } from '../../../../../products/infrastructure/persistenc
 import { ImportTicketMapper } from '../../../../../import-tickets/infrastructure/persistence/relational/mappers/import-ticket.mapper';
 
 import { BatchResponse } from 'src/batches/dto/batch-response.dto';
-import { ExportTicketMapper } from 'src/export-tickets/infrastructure/persistence/relational/mappers/export-ticket.mapper';
 import { BatchEntity } from '../entities/batch.entity';
 
 export class BatchMapper {
   static toDomain(raw: BatchEntity): Batch {
     const domainEntity = new Batch();
-    if (raw.exportTicket) {
-      domainEntity.exportTicket = ExportTicketMapper.toDomain(raw.exportTicket);
-    } else if (raw.exportTicket === null) {
-      domainEntity.exportTicket = null;
-    }
-
-    domainEntity.volume = raw.volume;
+    domainEntity.costPrice = raw.costPrice;
 
     domainEntity.quantity = raw.quantity;
+    domainEntity.currentQuantity = raw.currentQuantity;
 
     domainEntity.unit = raw.unit;
 
     domainEntity.batchCode = raw.batchCode;
+
+    domainEntity.expiredAt = raw.expiredAt;
 
     if (raw.area) {
       domainEntity.area = AreaMapper.toDomain(raw.area);
@@ -54,21 +50,15 @@ export class BatchMapper {
 
   static toResponse(raw: BatchEntity): BatchResponse {
     const responseEntity = new BatchResponse();
-    if (raw.exportTicket) {
-      responseEntity.exportTicket = ExportTicketMapper.toDomain(
-        raw.exportTicket,
-      );
-    } else if (raw.exportTicket === null) {
-      responseEntity.exportTicket = null;
-    }
-
-    responseEntity.volume = raw.volume;
+    responseEntity.costPrice = raw.costPrice;
 
     responseEntity.quantity = raw.quantity;
+    responseEntity.currentQuantity = raw.currentQuantity;
 
     responseEntity.unit = raw.unit;
 
     responseEntity.batchCode = raw.batchCode;
+    responseEntity.expiredAt = raw.expiredAt;
 
     if (raw.area) {
       responseEntity.area = AreaMapper.toDomain(raw.area);
@@ -99,21 +89,15 @@ export class BatchMapper {
 
   static toPersistence(domainEntity: Batch): BatchEntity {
     const persistenceEntity = new BatchEntity();
-    if (domainEntity.exportTicket) {
-      persistenceEntity.exportTicket = ExportTicketMapper.toPersistence(
-        domainEntity.exportTicket,
-      );
-    } else if (domainEntity.exportTicket === null) {
-      persistenceEntity.exportTicket = null;
-    }
-
-    persistenceEntity.volume = domainEntity.volume;
+    persistenceEntity.costPrice = domainEntity.costPrice;
 
     persistenceEntity.quantity = domainEntity.quantity;
+    persistenceEntity.currentQuantity = domainEntity.currentQuantity;
 
     persistenceEntity.unit = domainEntity.unit;
 
     persistenceEntity.batchCode = domainEntity.batchCode;
+    persistenceEntity.expiredAt = domainEntity.expiredAt;
 
     if (domainEntity.area) {
       persistenceEntity.area = AreaMapper.toPersistence(domainEntity.area);

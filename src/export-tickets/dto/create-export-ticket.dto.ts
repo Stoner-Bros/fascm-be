@@ -30,7 +30,7 @@ class OrderInvoiceDetailWithBatchDto {
   })
   @Type(() => String)
   @IsArray()
-  batchIds: string[];
+  selectionId: string[];
 }
 
 export class CreateExportTicketDto {

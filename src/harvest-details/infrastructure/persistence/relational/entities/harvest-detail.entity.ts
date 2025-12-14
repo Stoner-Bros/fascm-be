@@ -21,13 +21,19 @@ export class HarvestDetailEntity extends EntityRelationalHelper {
     nullable: true,
     type: Number,
   })
+  finalUnitPrice?: number | null;
+
+  @Column({
+    nullable: true,
+    type: Number,
+  })
   amount?: number | null;
 
   @Column({
     nullable: true,
     type: Number,
   })
-  unitPrice?: number | null;
+  expectedUnitPrice?: number | null;
 
   @Column({
     nullable: true,

@@ -12,7 +12,13 @@ export class HarvestDetailResponse {
     type: () => Number,
     nullable: true,
   })
-  unitPrice?: number | null;
+  expectedUnitPrice?: number | null;
+
+  @ApiProperty({
+    type: () => Number,
+    nullable: true,
+  })
+  finalUnitPrice?: number | null;
 
   @ApiProperty({
     type: () => Number,

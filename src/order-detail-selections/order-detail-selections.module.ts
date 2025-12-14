@@ -1,6 +1,8 @@
+import { ExportTicketsModule } from '../export-tickets/export-tickets.module';
 import { BatchesModule } from '../batches/batches.module';
 import { OrderDetailsModule } from '../order-details/order-details.module';
 import {
+  forwardRef,
   // do not remove this comment
   Module,
 } from '@nestjs/common';
@@ -10,6 +12,8 @@ import { RelationalOrderDetailSelectionPersistenceModule } from './infrastructur
 
 @Module({
   imports: [
+    forwardRef(() => ExportTicketsModule),
+
     BatchesModule,
 
     OrderDetailsModule,

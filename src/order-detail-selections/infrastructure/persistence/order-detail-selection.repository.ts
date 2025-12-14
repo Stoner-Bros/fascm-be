@@ -33,4 +33,8 @@ export abstract class OrderDetailSelectionRepository {
   abstract removeAllByOrderDetailId(
     orderDetailId: OrderDetail['id'],
   ): Promise<void>;
+
+  abstract findAllByOrderDetailId(
+    orderDetailId: OrderDetail['id'],
+  ): Promise<OrderDetailSelection[]>;
 }

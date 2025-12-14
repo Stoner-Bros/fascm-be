@@ -25,5 +25,5 @@ export abstract class PriceRepository {
 
   abstract remove(id: Price['id']): Promise<void>;
 
-  abstract findByProductId(productId: string): Promise<Price[]>;
+  abstract findByBatchId(batchId: string): Promise<Price[]>;
 }

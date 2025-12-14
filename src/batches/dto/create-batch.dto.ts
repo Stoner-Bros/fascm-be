@@ -22,7 +22,6 @@ import {
   // decorators here
   ApiProperty,
 } from '@nestjs/swagger';
-import { ExportTicketDto } from 'src/export-tickets/dto/export-ticket.dto';
 
 export class CreateBatchDto {
   @ApiProperty({
@@ -31,7 +30,7 @@ export class CreateBatchDto {
   })
   @IsOptional()
   @IsNumber()
-  volume?: number | null;
+  costPrice?: number | null;
 
   @ApiProperty({
     required: false,
@@ -40,6 +39,14 @@ export class CreateBatchDto {
   @IsOptional()
   @IsNumber()
   quantity?: number | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  currentQuantity?: number | null;
 
   @ApiProperty({
     required: false,
@@ -56,6 +63,13 @@ export class CreateBatchDto {
   @IsOptional()
   @IsString()
   batchCode?: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => Date,
+  })
+  @IsOptional()
+  expiredAt?: Date | null;
 
   @ApiProperty({
     required: false,
@@ -86,16 +100,6 @@ export class CreateBatchDto {
   @Type(() => ImportTicketDto)
   @IsNotEmptyObject()
   importTicket?: ImportTicketDto | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => ExportTicketDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => ExportTicketDto)
-  @IsNotEmptyObject()
-  exportTicket?: ExportTicketDto | null;
 
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

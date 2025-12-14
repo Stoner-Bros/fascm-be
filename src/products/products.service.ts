@@ -1,29 +1,21 @@
-import { PricesService } from '../prices/prices.service';
-import { Price } from '../prices/domain/price';
-
 import { CategoriesService } from '../categories/categories.service';
 import { Category } from '../categories/domain/category';
 
 import {
+  HttpStatus,
   // common
   Injectable,
-  HttpStatus,
   UnprocessableEntityException,
-  Inject,
-  forwardRef,
 } from '@nestjs/common';
+import { IPaginationOptions } from '../utils/types/pagination-options';
+import { Product } from './domain/product';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductRepository } from './infrastructure/persistence/product.repository';
-import { IPaginationOptions } from '../utils/types/pagination-options';
-import { Product } from './domain/product';
 
 @Injectable()
 export class ProductsService {
   constructor(
-    @Inject(forwardRef(() => PricesService))
-    private readonly priceService: PricesService,
-
     private readonly categoryService: CategoriesService,
 
     // Dependencies here
@@ -32,25 +24,7 @@ export class ProductsService {
 
   async create(createProductDto: CreateProductDto) {
     // Do not remove comment below.
-    // <creating-property />
-    let price: Price[] | null | undefined = undefined;
-
-    if (createProductDto.price) {
-      const priceObjects = await this.priceService.findByIds(
-        createProductDto.price.map((entity) => entity.id),
-      );
-      if (priceObjects.length !== createProductDto.price.length) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            price: 'notExists',
-          },
-        });
-      }
-      price = priceObjects;
-    } else if (createProductDto.price === null) {
-      price = null;
-    }
+    // <creating-property /
 
     let category: Category | null | undefined = undefined;
 
@@ -74,8 +48,6 @@ export class ProductsService {
     return this.productRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      price,
-
       image: createProductDto.image,
 
       category,
@@ -118,24 +90,6 @@ export class ProductsService {
   ) {
     // Do not remove comment below.
     // <updating-property />
-    let price: Price[] | null | undefined = undefined;
-
-    if (updateProductDto.price) {
-      const priceObjects = await this.priceService.findByIds(
-        updateProductDto.price.map((entity) => entity.id),
-      );
-      if (priceObjects.length !== updateProductDto.price.length) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            price: 'notExists',
-          },
-        });
-      }
-      price = priceObjects;
-    } else if (updateProductDto.price === null) {
-      price = null;
-    }
 
     let category: Category | null | undefined = undefined;
 
@@ -159,8 +113,6 @@ export class ProductsService {
     return this.productRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      price,
-
       image: updateProductDto.image,
 
       category,
