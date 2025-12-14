@@ -50,6 +50,13 @@ describe('FilesCloudinaryService', () => {
     resource_type: 'image',
   };
 
+  const MAX_FILE_SIZE = 5242880; // 5MB
+  const TEST_CLOUD_CONFIG = {
+    cloudName: 'test-cloud',
+    apiKey: 'test-api-key',
+    apiSecret: 'test-api-secret',
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -77,10 +84,10 @@ describe('FilesCloudinaryService', () => {
     // Setup default config mocks
     configService.getOrThrow.mockImplementation((key: string) => {
       const configs = {
-        'file.cloudinaryCloudName': 'test-cloud',
-        'file.cloudinaryApiKey': 'test-api-key',
-        'file.cloudinaryApiSecret': 'test-api-secret',
-        'file.maxFileSize': 5242880, // 5MB
+        'file.cloudinaryCloudName': TEST_CLOUD_CONFIG.cloudName,
+        'file.cloudinaryApiKey': TEST_CLOUD_CONFIG.apiKey,
+        'file.cloudinaryApiSecret': TEST_CLOUD_CONFIG.apiSecret,
+        'file.maxFileSize': MAX_FILE_SIZE,
       };
       return configs[key];
     });
@@ -151,7 +158,7 @@ describe('FilesCloudinaryService', () => {
     describe('Boundary Cases', () => {
       it('UTC_uploadFile_04: should handle file at maximum allowed size', async () => {
         // Arrange
-        const maxSizeFile = { ...mockFile, size: 5242880 }; // 5MB
+        const maxSizeFile = { ...mockFile, size: MAX_FILE_SIZE };
         (cloudinary.uploader.upload as jest.Mock).mockResolvedValue(mockUploadResult);
         fileRepository.create.mockResolvedValue(mockFileEntity);
 

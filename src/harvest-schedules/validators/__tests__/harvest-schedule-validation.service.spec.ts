@@ -19,6 +19,8 @@ describe('HarvestScheduleValidationService', () => {
   let harvestInvoiceDetailRepo: jest.Mocked<Repository<HarvestInvoiceDetailEntity>>;
   let harvestPhaseRepo: jest.Mocked<Repository<HarvestPhaseEntity>>;
 
+  // Factory function to create isolated mock query builder instances
+  // Each call returns a new object with fresh mock functions to prevent test interference
   const mockQueryBuilder = () => ({
     leftJoin: jest.fn().mockReturnThis(),
     leftJoinAndSelect: jest.fn().mockReturnThis(),

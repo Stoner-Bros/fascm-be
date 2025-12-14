@@ -15,10 +15,12 @@ All unit tests follow the **Function-based Unit Test Design** pattern with three
 
 ## Test Naming Convention
 
-Tests use the following naming pattern:
+Tests use the following naming pattern with zero-padded numbers:
 ```
 UTC_[FunctionName]_[Number]: should [expected behavior] when [condition]
 ```
+
+**Note**: Numbers should be zero-padded (01, 02, 03, etc.) to maintain consistent ordering in file listings.
 
 **Examples:**
 - `UTC_validateLogin_01: should return LoginResponseDto with tokens when credentials are valid`
