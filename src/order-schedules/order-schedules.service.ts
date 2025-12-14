@@ -59,21 +59,20 @@ export class OrderSchedulesService {
       // Do not remove comment below.
       // <creating-property-payload />
 
-      address: createOrderScheduleDto.address,
+      address: createOrderScheduleDto?.address || '',
 
-      description: createOrderScheduleDto.description,
+      description: createOrderScheduleDto?.description || '',
 
       status: OrderScheduleStatusEnum.PENDING,
 
-      deliveryDate: createOrderScheduleDto.deliveryDate,
-
+      deliveryDate: createOrderScheduleDto?.deliveryDate || null,
       consignee: consignee!,
     });
 
     const order = await this.orderRepository.create({
       orderSchedule: os,
-      orderNumber: createOrderScheduleDto.order.orderNumber,
-      orderUrl: createOrderScheduleDto.order.orderUrl,
+      orderNumber: createOrderScheduleDto?.order?.orderNumber || '',
+      orderUrl: createOrderScheduleDto?.order?.orderUrl || '',
       unit: 'kg',
       quantity: 0,
     });
@@ -227,13 +226,13 @@ export class OrderSchedulesService {
     // Update order schedule basic info
     const updateData: Partial<OrderSchedule> = {};
     if (updateOrderScheduleDto.address !== undefined) {
-      updateData.address = updateOrderScheduleDto.address;
+      updateData.address = updateOrderScheduleDto.address || '';
     }
     if (updateOrderScheduleDto.description !== undefined) {
-      updateData.description = updateOrderScheduleDto.description;
+      updateData.description = updateOrderScheduleDto.description || '';
     }
     if (updateOrderScheduleDto.deliveryDate !== undefined) {
-      updateData.deliveryDate = updateOrderScheduleDto.deliveryDate;
+      updateData.deliveryDate = updateOrderScheduleDto.deliveryDate || null;
     }
 
     if (Object.keys(updateData).length > 0) {
@@ -245,8 +244,8 @@ export class OrderSchedulesService {
       const existingOrder = await this.orderRepository.findByOSId(id);
       if (existingOrder) {
         await this.orderRepository.update(existingOrder.id, {
-          orderNumber: updateOrderScheduleDto.order.orderNumber,
-          orderUrl: updateOrderScheduleDto.order.orderUrl,
+          orderNumber: updateOrderScheduleDto?.order?.orderNumber || '',
+          orderUrl: updateOrderScheduleDto?.order?.orderUrl || '',
         });
 
         // Update order details if provided

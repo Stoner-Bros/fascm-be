@@ -82,8 +82,8 @@ export class HarvestPhasesService {
     );
 
     const hp = await this.harvestPhaseRepository.create({
-      description: createHarvestPhaseDto.description,
-      phaseNumber: createHarvestPhaseDto.phaseNumber,
+      description: createHarvestPhaseDto.description || null,
+      phaseNumber: createHarvestPhaseDto.phaseNumber || null,
       harvestSchedule: hs,
     });
 
@@ -93,9 +93,9 @@ export class HarvestPhasesService {
       quantity: 0,
       unit: 'kg',
       vatAmount: 0,
-      taxRate: createHarvestPhaseDto.harvestInvoice?.taxRate,
-      invoiceNumber: createHarvestPhaseDto.harvestInvoice?.invoiceNumber,
-      invoiceUrl: createHarvestPhaseDto.harvestInvoice?.invoiceUrl,
+      taxRate: createHarvestPhaseDto?.harvestInvoice?.taxRate || 0,
+      invoiceNumber: createHarvestPhaseDto?.harvestInvoice?.invoiceNumber || 0,
+      invoiceUrl: createHarvestPhaseDto?.harvestInvoice?.invoiceUrl || '',
       harvestPhase: hp,
     });
 
@@ -313,20 +313,20 @@ export class HarvestPhasesService {
           vatAmount: vatAmount,
           taxRate: taxRate,
           invoiceNumber:
-            updateHarvestPhaseDto.harvestInvoice.invoiceNumber ??
+            updateHarvestPhaseDto?.harvestInvoice?.invoiceNumber ??
             hi.invoiceNumber,
           invoiceUrl:
-            updateHarvestPhaseDto.harvestInvoice.invoiceUrl ?? hi.invoiceUrl,
+            updateHarvestPhaseDto?.harvestInvoice?.invoiceUrl ?? hi.invoiceUrl,
         });
       } else {
         // Only update invoice metadata without details
         await this.harvestInvoiceRepository.update(hi.id, {
-          taxRate: updateHarvestPhaseDto.harvestInvoice.taxRate ?? hi.taxRate,
+          taxRate: updateHarvestPhaseDto?.harvestInvoice?.taxRate ?? hi.taxRate,
           invoiceNumber:
-            updateHarvestPhaseDto.harvestInvoice.invoiceNumber ??
+            updateHarvestPhaseDto?.harvestInvoice?.invoiceNumber ??
             hi.invoiceNumber,
           invoiceUrl:
-            updateHarvestPhaseDto.harvestInvoice.invoiceUrl ?? hi.invoiceUrl,
+            updateHarvestPhaseDto?.harvestInvoice?.invoiceUrl ?? hi.invoiceUrl,
         });
       }
     }
