@@ -20,7 +20,6 @@ import {
 import { infinityPagination } from '../utils/infinity-pagination';
 import { BatchesService } from './batches.service';
 import { Batch } from './domain/batch';
-import { BatchGroupedByWeightDto } from './dto/batch-grouped-by-weight.dto';
 import { BatchResponse } from './dto/batch-response.dto';
 import { FindBatchesByFilterDto } from './dto/find-batches-by-filter.dto';
 
@@ -84,17 +83,17 @@ export class BatchesController {
     );
   }
 
-  @Get('grouped/by-weight')
-  @ApiOkResponse({
-    type: [BatchGroupedByWeightDto],
-  })
-  async findGroupedByWeight(
-    @Query() query: FindBatchesByFilterDto,
-  ): Promise<any[]> {
-    return await this.batchesService.findGroupedByImportTicket({
-      areaId: query.areaId,
-      importTicketId: query.importTicketId,
-      productId: query.productId,
-    });
-  }
+  // @Get('grouped/by-weight')
+  // @ApiOkResponse({
+  //   type: [BatchGroupedByWeightDto],
+  // })
+  // async findGroupedByWeight(
+  //   @Query() query: FindBatchesByFilterDto,
+  // ): Promise<any[]> {
+  //   return await this.batchesService.findGroupedByImportTicket({
+  //     areaId: query.areaId,
+  //     importTicketId: query.importTicketId,
+  //     productId: query.productId,
+  //   });
+  // }
 }

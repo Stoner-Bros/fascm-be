@@ -16,8 +16,6 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { ExportTicket } from 'src/export-tickets/domain/export-ticket';
-import { ExportTicketsService } from 'src/export-tickets/export-tickets.service';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { Batch } from './domain/batch';
 import { CreateBatchDto } from './dto/create-batch.dto';
@@ -27,9 +25,6 @@ import { BatchRepository } from './infrastructure/persistence/batch.repository';
 @Injectable()
 export class BatchesService {
   constructor(
-    @Inject(forwardRef(() => ExportTicketsService))
-    private readonly exportTicketService: ExportTicketsService,
-
     private readonly areaService: AreasService,
 
     private readonly productService: ProductsService,
@@ -46,25 +41,6 @@ export class BatchesService {
   async create(createBatchDto: CreateBatchDto) {
     // Do not remove comment below.
     // <creating-property />
-    let exportTicket: ExportTicket | null | undefined = undefined;
-
-    if (createBatchDto.exportTicket) {
-      const exportTicketObject = await this.exportTicketService.findById(
-        createBatchDto.exportTicket.id,
-      );
-      if (!exportTicketObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            exportTicket: 'notExists',
-          },
-        });
-      }
-      exportTicket = exportTicketObject;
-    } else if (createBatchDto.exportTicket === null) {
-      exportTicket = null;
-    }
-
     let area: Area | null | undefined = undefined;
 
     if (createBatchDto.area) {
@@ -125,15 +101,16 @@ export class BatchesService {
     return this.batchRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      exportTicket,
-
-      volume: createBatchDto.volume,
+      costPrice: createBatchDto.costPrice,
 
       quantity: createBatchDto.quantity,
+
+      currentQuantity: createBatchDto.currentQuantity,
 
       unit: createBatchDto.unit,
 
       batchCode: createBatchDto.batchCode,
+      expiredAt: createBatchDto.expiredAt,
 
       area,
 
@@ -171,24 +148,6 @@ export class BatchesService {
   ) {
     // Do not remove comment below.
     // <updating-property />
-    let exportTicket: ExportTicket | null | undefined = undefined;
-
-    if (updateBatchDto.exportTicket) {
-      const exportTicketObject = await this.exportTicketService.findById(
-        updateBatchDto.exportTicket.id,
-      );
-      if (!exportTicketObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            exportTicket: 'notExists',
-          },
-        });
-      }
-      exportTicket = exportTicketObject;
-    } else if (updateBatchDto.exportTicket === null) {
-      exportTicket = null;
-    }
 
     let area: Area | null | undefined = undefined;
 
@@ -250,15 +209,14 @@ export class BatchesService {
     return this.batchRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      exportTicket,
-
-      volume: updateBatchDto.volume,
-
+      costPrice: updateBatchDto.costPrice,
       quantity: updateBatchDto.quantity,
+      currentQuantity: updateBatchDto.currentQuantity,
 
       unit: updateBatchDto.unit,
 
       batchCode: updateBatchDto.batchCode,
+      expiredAt: updateBatchDto.expiredAt,
 
       area,
 
@@ -294,76 +252,76 @@ export class BatchesService {
     });
   }
 
-  async findGroupedByImportTicket({
-    areaId,
-    importTicketId,
-    productId,
-  }: {
-    areaId?: string;
-    importTicketId?: string;
-    productId?: string;
-  }) {
-    const batches =
-      await this.batchRepository.findByFiltersGroupedByImportTicket({
-        areaId,
-        importTicketId,
-        productId,
-      });
+  // async findGroupedByImportTicket({
+  //   areaId,
+  //   importTicketId,
+  //   productId,
+  // }: {
+  //   areaId?: string;
+  //   importTicketId?: string;
+  //   productId?: string;
+  // }) {
+  //   const batches =
+  //     await this.batchRepository.findByFiltersGroupedByImportTicket({
+  //       areaId,
+  //       importTicketId,
+  //       productId,
+  //     });
 
-    // Group batches by import ticket
-    const groupedMap = new Map<
-      string,
-      {
-        importTicketId: string;
-        product: any;
-        batch: Record<string, number>;
-        batchCode: string;
-        expiredAt: Date | null;
-        importDate: Date | null;
-        prices: Record<string, number>;
-      }
-    >();
+  //   // Group batches by import ticket
+  //   const groupedMap = new Map<
+  //     string,
+  //     {
+  //       importTicketId: string;
+  //       product: any;
+  //       batch: Record<string, number>;
+  //       batchCode: string;
+  //       expiredAt: Date | null;
+  //       importDate: Date | null;
+  //       prices: Record<string, number>;
+  //     }
+  //   >();
 
-    for (const batch of batches) {
-      const ticketId = batch.importTicket?.id || 'NO_TICKET';
+  //   for (const batch of batches) {
+  //     const ticketId = batch.importTicket?.id || 'NO_TICKET';
 
-      if (!groupedMap.has(ticketId)) {
-        groupedMap.set(ticketId, {
-          importTicketId: ticketId,
-          product: batch.product || null,
-          batch: {},
-          batchCode: batch.batchCode || '',
-          expiredAt: batch.importTicket?.expiredAt || null,
-          importDate: batch.importTicket?.importDate || null,
-          prices: {},
-        });
-      }
+  //     if (!groupedMap.has(ticketId)) {
+  //       groupedMap.set(ticketId, {
+  //         importTicketId: ticketId,
+  //         product: batch.product || null,
+  //         batch: {},
+  //         batchCode: batch.batchCode || '',
+  //         expiredAt: batch.importTicket?.expiredAt || null,
+  //         importDate: batch.importTicket?.importDate || null,
+  //         prices: {},
+  //       });
+  //     }
 
-      const group = groupedMap.get(ticketId)!;
+  //     const group = groupedMap.get(ticketId)!;
 
-      // Add or increment count for this weight
-      const weightKey = `${batch.quantity}kg`;
-      group.batch[weightKey] = (group.batch[weightKey] || 0) + 1;
-    }
+  //     // Add or increment count for this weight
+  //     const weightKey = `${batch.quantity}kg`;
+  //     group.batch[weightKey] = (group.batch[weightKey] || 0) + 1;
+  //   }
 
-    // Fetch prices for each product
-    const results = Array.from(groupedMap.values());
-    for (const result of results) {
-      if (result.product?.id) {
-        const prices = await this.pricesService.findByProductId(
-          result.product.id,
-        );
+  //   // Fetch prices for each product
+  //   const results = Array.from(groupedMap.values());
+  //   for (const result of results) {
+  //     if (result.product?.id) {
+  //       const prices = await this.pricesService.findByProductId(
+  //         result.product.id,
+  //       );
 
-        // Convert prices array to object with quantity as key
-        for (const priceItem of prices) {
-          if (priceItem.quantity && priceItem.price) {
-            const priceKey = `${priceItem.quantity}kg`;
-            result.prices[priceKey] = priceItem.price;
-          }
-        }
-      }
-    }
+  //       // Convert prices array to object with quantity as key
+  //       for (const priceItem of prices) {
+  //         if (priceItem.quantity && priceItem.price) {
+  //           const priceKey = `${priceItem.quantity}kg`;
+  //           result.prices[priceKey] = priceItem.price;
+  //         }
+  //       }
+  //     }
+  //   }
 
-    return results;
-  }
+  //   return results;
+  // }
 }

@@ -1,4 +1,3 @@
-import { PriceMapper } from '../../../../../prices/infrastructure/persistence/relational/mappers/price.mapper';
 import { Product } from '../../../../domain/product';
 
 import { CategoryMapper } from '../../../../../categories/infrastructure/persistence/relational/mappers/category.mapper';
@@ -9,11 +8,6 @@ import { ProductEntity } from '../entities/product.entity';
 export class ProductMapper {
   static toDomain(raw: ProductEntity): Product {
     const domainEntity = new Product();
-    if (raw.price) {
-      domainEntity.price = raw.price.map((item) => PriceMapper.toDomain(item));
-    } else if (raw.price === null) {
-      domainEntity.price = null;
-    }
 
     domainEntity.image = raw.image;
 
@@ -38,13 +32,6 @@ export class ProductMapper {
 
   static toPersistence(domainEntity: Product): ProductEntity {
     const persistenceEntity = new ProductEntity();
-    if (domainEntity.price) {
-      persistenceEntity.price = domainEntity.price.map((item) =>
-        PriceMapper.toPersistence(item),
-      );
-    } else if (domainEntity.price === null) {
-      persistenceEntity.price = null;
-    }
 
     persistenceEntity.image = domainEntity.image;
 

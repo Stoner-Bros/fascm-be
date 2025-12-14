@@ -26,7 +26,15 @@ export class CreateHarvestDetailDto {
   })
   @IsOptional()
   @IsNumber()
-  unitPrice?: number | null;
+  finalUnitPrice?: number | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  expectedUnitPrice?: number | null;
 
   @ApiProperty({
     required: false,

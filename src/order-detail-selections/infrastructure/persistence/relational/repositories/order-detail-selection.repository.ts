@@ -98,4 +98,16 @@ export class OrderDetailSelectionRelationalRepository
       orderDetail: { id: orderDetailId },
     });
   }
+
+  async findAllByOrderDetailId(
+    orderDetailId: OrderDetail['id'],
+  ): Promise<OrderDetailSelection[]> {
+    const entities = await this.orderDetailSelectionRepository.find({
+      where: { orderDetail: { id: orderDetailId } },
+    });
+
+    return entities.map((entity) =>
+      OrderDetailSelectionMapper.toDomain(entity),
+    );
+  }
 }

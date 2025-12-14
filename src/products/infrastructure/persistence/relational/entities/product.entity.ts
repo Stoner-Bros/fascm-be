@@ -1,16 +1,13 @@
-import { PriceEntity } from '../../../../../prices/infrastructure/persistence/relational/entities/price.entity';
-
 import { CategoryEntity } from '../../../../../categories/infrastructure/persistence/relational/entities/category.entity';
 
 import {
+  BeforeInsert,
+  Column,
   CreateDateColumn,
   Entity,
-  UpdateDateColumn,
-  Column,
   ManyToOne,
   PrimaryColumn,
-  BeforeInsert,
-  OneToMany,
+  UpdateDateColumn,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
@@ -18,12 +15,6 @@ import { EntityRelationalHelper } from '../../../../../utils/relational-entity-h
   name: 'product',
 })
 export class ProductEntity extends EntityRelationalHelper {
-  @OneToMany(() => PriceEntity, (childEntity) => childEntity.product, {
-    eager: true,
-    nullable: true,
-  })
-  price?: PriceEntity[] | null;
-
   @Column({
     nullable: true,
     type: String,

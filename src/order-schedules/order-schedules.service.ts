@@ -81,23 +81,23 @@ export class OrderSchedulesService {
     let totalQuantity = 0;
     for (const detailDto of createOrderScheduleDto.orderDetails) {
       let product: Product | null = null;
+      let amount = 0;
       if (detailDto.product) {
         product = await this.productsService.findById(detailDto.product.id);
       }
       const od = await this.orderDetailRepository.create({
         order: order,
         product: product ?? undefined,
-        unitPrice: detailDto.unitPrice ?? undefined,
         quantity: detailDto.quantity ?? undefined,
         unit: detailDto.unit ?? undefined,
         // amount = unitPrice * quantity
-        amount: (detailDto.unitPrice ?? 0) * (detailDto.quantity ?? 0),
+        // amount: (detailDto.unitPrice ?? 0) * (detailDto.quantity ?? 0),
       });
 
-      // Create order detail selections if batchIds are provided
-      if (detailDto.batchId && detailDto.batchId.length > 0) {
-        for (const batchId of detailDto.batchId) {
-          const batch = await this.batchesService.findById(batchId);
+      // Create order detail selections if batchInfo are provided
+      if (detailDto.batchInfo && detailDto.batchInfo.length > 0) {
+        for (const batchInfo of detailDto.batchInfo) {
+          const batch = await this.batchesService.findById(batchInfo.batchId);
           if (!batch) {
             throw new UnprocessableEntityException({
               status: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -109,9 +109,22 @@ export class OrderSchedulesService {
           await this.orderDetailSelectionsService.create({
             orderDetail: od,
             batch: batch,
+            unit: batchInfo.unit ?? undefined,
+            quantity: batchInfo.quantity ?? undefined,
+            unitPrice: batchInfo.unitPrice ?? undefined,
           });
+          amount += (batchInfo.unitPrice ?? 0) * (batchInfo.quantity ?? 0);
+          if (batch.currentQuantity) {
+            batch.currentQuantity -= batchInfo.quantity ?? 0;
+            await this.batchesService.update(batch.id, {
+              currentQuantity: batch.currentQuantity,
+            });
+          }
         }
       }
+      await this.orderDetailRepository.update(od.id, {
+        amount: amount,
+      });
       totalQuantity += detailDto.quantity ?? 0;
     }
     order.quantity = totalQuantity;
@@ -244,9 +257,32 @@ export class OrderSchedulesService {
           );
           if (oldDetails) {
             for (const detail of oldDetails) {
+              const select =
+                await this.orderDetailSelectionsService.findAllByOrderDetailId(
+                  detail.id,
+                );
+
+              // Restore batch quantities
+              if (select && select.length > 0) {
+                for (const s of select) {
+                  if (s.batch && s.quantity) {
+                    const batch = await this.batchesService.findById(
+                      s.batch.id,
+                    );
+                    if (batch && batch.currentQuantity) {
+                      batch.currentQuantity += s.quantity;
+                      await this.batchesService.update(batch.id, {
+                        currentQuantity: batch.currentQuantity,
+                      });
+                    }
+                  }
+                }
+              }
+
               await this.orderDetailSelectionsService.removeAllByOrderDetailId(
                 detail.id,
               );
+              // Remove order detail selections
               await this.orderDetailRepository.remove(detail.id);
             }
           }
@@ -255,6 +291,7 @@ export class OrderSchedulesService {
           let totalQuantity = 0;
           for (const detailDto of updateOrderScheduleDto.orderDetails) {
             let product: Product | null = null;
+            let amount = 0;
             if (detailDto.product) {
               product = await this.productsService.findById(
                 detailDto.product.id,
@@ -272,16 +309,18 @@ export class OrderSchedulesService {
             const od = await this.orderDetailRepository.create({
               order: existingOrder,
               product: product ?? undefined,
-              unitPrice: detailDto.unitPrice ?? undefined,
+              // unitPrice: detailDto.unitPrice ?? undefined,
               quantity: detailDto.quantity ?? undefined,
               unit: detailDto.unit ?? undefined,
-              amount: (detailDto.unitPrice ?? 0) * (detailDto.quantity ?? 0),
+              // amount: (detailDto.unitPrice ?? 0) * (detailDto.quantity ?? 0),
             });
 
             // Create order detail selections if batchIds are provided
-            if (detailDto.batchId && detailDto.batchId.length > 0) {
-              for (const batchId of detailDto.batchId) {
-                const batch = await this.batchesService.findById(batchId);
+            if (detailDto.batchInfo && detailDto.batchInfo.length > 0) {
+              for (const batchInfo of detailDto.batchInfo) {
+                const batch = await this.batchesService.findById(
+                  batchInfo.batchId,
+                );
                 if (!batch) {
                   throw new UnprocessableEntityException({
                     status: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -293,9 +332,23 @@ export class OrderSchedulesService {
                 await this.orderDetailSelectionsService.create({
                   orderDetail: od,
                   batch: batch,
+                  unit: batchInfo.unit ?? undefined,
+                  quantity: batchInfo.quantity ?? undefined,
+                  unitPrice: batchInfo.unitPrice ?? undefined,
                 });
+                amount +=
+                  (batchInfo.unitPrice ?? 0) * (batchInfo.quantity ?? 0);
+                if (batch.currentQuantity) {
+                  batch.currentQuantity -= batchInfo.quantity ?? 0;
+                  await this.batchesService.update(batch.id, {
+                    currentQuantity: batch.currentQuantity,
+                  });
+                }
               }
             }
+            await this.orderDetailRepository.update(od.id, {
+              amount: amount,
+            });
             totalQuantity += detailDto.quantity ?? 0;
           }
 

@@ -26,14 +26,6 @@ export class CreateOrderInvoiceDetailDto {
   })
   @IsOptional()
   @IsNumber()
-  unitPrice?: number | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
   quantity?: number | null;
 
   @ApiProperty({

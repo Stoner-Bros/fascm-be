@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
-import { PriceEntity } from '../entities/price.entity';
+import { In, Repository } from 'typeorm';
 import { NullableType } from '../../../../../utils/types/nullable.type';
+import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 import { Price } from '../../../../domain/price';
 import { PriceRepository } from '../../price.repository';
+import { PriceEntity } from '../entities/price.entity';
 import { PriceMapper } from '../mappers/price.mapper';
-import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 
 @Injectable()
 export class PriceRelationalRepository implements PriceRepository {
@@ -77,10 +77,10 @@ export class PriceRelationalRepository implements PriceRepository {
     await this.priceRepository.delete(id);
   }
 
-  async findByProductId(productId: string): Promise<Price[]> {
+  async findByBatchId(batchId: string): Promise<Price[]> {
     const entities = await this.priceRepository.find({
-      where: { product: { id: productId } },
-      relations: ['product'],
+      where: { batch: { id: batchId } },
+      relations: ['batch'],
     });
 
     return entities.map((entity) => PriceMapper.toDomain(entity));

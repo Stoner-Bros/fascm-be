@@ -22,4 +22,19 @@ export class HarvestDetailsService {
   findByHarvestTicketId(harvestTicketId: string) {
     return this.harvestDetailRepository.findByHarvestTicketId(harvestTicketId);
   }
+
+  updateFinalPrice(harvestDetailId: string, finalPrice: number) {
+    return this.harvestDetailRepository.update(harvestDetailId, {
+      finalUnitPrice: finalPrice,
+    });
+  }
+
+  updateFinalUnitPriceAccepted(
+    harvestDetailId: string,
+    finalUnitPriceAccepted: boolean,
+  ) {
+    return this.harvestDetailRepository.update(harvestDetailId, {
+      finalUnitPriceAccepted: finalUnitPriceAccepted,
+    });
+  }
 }

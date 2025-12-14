@@ -1,18 +1,14 @@
-import { PricesModule } from '../prices/prices.module';
-import { CategoriesModule } from '../categories/categories.module';
 import {
   // do not remove this comment
   Module,
-  forwardRef,
 } from '@nestjs/common';
-import { ProductsService } from './products.service';
-import { ProductsController } from './products.controller';
+import { CategoriesModule } from '../categories/categories.module';
 import { RelationalProductPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+import { ProductsController } from './products.controller';
+import { ProductsService } from './products.service';
 
 @Module({
   imports: [
-    forwardRef(() => PricesModule),
-
     CategoriesModule,
 
     // do not remove this comment

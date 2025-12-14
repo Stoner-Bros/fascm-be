@@ -12,8 +12,6 @@ export class OrderDetailMapper {
     const domainEntity = new OrderDetail();
     domainEntity.amount = raw.amount;
 
-    domainEntity.unitPrice = raw.unitPrice;
-
     domainEntity.quantity = raw.quantity;
 
     domainEntity.unit = raw.unit;
@@ -41,8 +39,6 @@ export class OrderDetailMapper {
     const domainEntity = new OrderDetailResponseDto();
     domainEntity.amount = raw.amount;
 
-    domainEntity.unitPrice = raw.unitPrice;
-
     domainEntity.quantity = raw.quantity;
 
     domainEntity.unit = raw.unit;
@@ -63,8 +59,6 @@ export class OrderDetailMapper {
   static toPersistence(domainEntity: OrderDetail): OrderDetailEntity {
     const persistenceEntity = new OrderDetailEntity();
     persistenceEntity.amount = domainEntity.amount;
-
-    persistenceEntity.unitPrice = domainEntity.unitPrice;
 
     persistenceEntity.quantity = domainEntity.quantity;
 

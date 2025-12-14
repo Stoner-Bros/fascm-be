@@ -1,13 +1,10 @@
-import { ProductDto } from '../../products/dto/product.dto';
-
 import {
-  // decorators here
-
-  IsString,
-  IsOptional,
-  IsNumber,
-  ValidateNested,
   IsNotEmptyObject,
+  IsNumber,
+  IsOptional,
+  // decorators here
+  IsString,
+  ValidateNested,
 } from 'class-validator';
 
 import {
@@ -19,16 +16,17 @@ import {
   // decorators here
   Type,
 } from 'class-transformer';
+import { BatchDto } from 'src/batches/dto/batch.dto';
 
 export class CreatePriceDto {
   @ApiProperty({
     required: true,
-    type: () => ProductDto,
+    type: () => BatchDto,
   })
   @ValidateNested()
-  @Type(() => ProductDto)
+  @Type(() => BatchDto)
   @IsNotEmptyObject()
-  product: ProductDto;
+  batch: BatchDto;
 
   @ApiProperty({
     required: false,

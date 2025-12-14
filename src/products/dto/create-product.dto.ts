@@ -1,5 +1,3 @@
-import { PriceDto } from '../../prices/dto/price.dto';
-
 import { CategoryDto } from '../../categories/dto/category.dto';
 
 import {
@@ -8,7 +6,6 @@ import {
   // decorators here
   IsString,
   ValidateNested,
-  IsArray,
 } from 'class-validator';
 
 import {
@@ -22,16 +19,6 @@ import {
 } from 'class-transformer';
 
 export class CreateProductDto {
-  @ApiProperty({
-    required: false,
-    type: () => [PriceDto],
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => PriceDto)
-  @IsArray()
-  price?: PriceDto[] | null;
-
   @ApiProperty({
     required: false,
     type: () => String,

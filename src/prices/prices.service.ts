@@ -1,19 +1,19 @@
 import { ProductsService } from '../products/products.service';
-import { Product } from '../products/domain/product';
 
 import {
+  HttpStatus,
+  Inject,
   // common
   Injectable,
-  HttpStatus,
   UnprocessableEntityException,
-  Inject,
   forwardRef,
 } from '@nestjs/common';
+import { Batch } from 'src/batches/domain/batch';
+import { IPaginationOptions } from '../utils/types/pagination-options';
+import { Price } from './domain/price';
 import { CreatePriceDto } from './dto/create-price.dto';
 import { UpdatePriceDto } from './dto/update-price.dto';
 import { PriceRepository } from './infrastructure/persistence/price.repository';
-import { IPaginationOptions } from '../utils/types/pagination-options';
-import { Price } from './domain/price';
 
 @Injectable()
 export class PricesService {
@@ -29,7 +29,7 @@ export class PricesService {
     // Do not remove comment below.
     // <creating-property />
     const productObject = await this.productService.findById(
-      createPriceDto.product.id,
+      createPriceDto.batch.id,
     );
     if (!productObject) {
       throw new UnprocessableEntityException({
@@ -39,12 +39,12 @@ export class PricesService {
         },
       });
     }
-    const product = productObject;
+    const batch = productObject;
 
     return this.priceRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      product,
+      batch,
 
       price: createPriceDto.price,
 
@@ -82,27 +82,27 @@ export class PricesService {
   ) {
     // Do not remove comment below.
     // <updating-property />
-    let product: Product | undefined = undefined;
+    let batch: Batch | undefined = undefined;
 
-    if (updatePriceDto.product) {
-      const productObject = await this.productService.findById(
-        updatePriceDto.product.id,
+    if (updatePriceDto.batch) {
+      const batchObject = await this.productService.findById(
+        updatePriceDto.batch.id,
       );
-      if (!productObject) {
+      if (!batchObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            product: 'notExists',
+            batch: 'notExists',
           },
         });
       }
-      product = productObject;
+      batch = batchObject;
     }
 
     return this.priceRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      product,
+      batch,
 
       price: updatePriceDto.price,
 
@@ -116,7 +116,7 @@ export class PricesService {
     return this.priceRepository.remove(id);
   }
 
-  findByProductId(productId: string) {
-    return this.priceRepository.findByProductId(productId);
+  findByBatchId(batchId: string) {
+    return this.priceRepository.findByBatchId(batchId);
   }
 }

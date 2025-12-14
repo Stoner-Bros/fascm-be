@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ExportTicket } from 'src/export-tickets/domain/export-ticket';
 import { ProductResponse } from 'src/products/dto/product-response.dto';
 import { Area } from '../../areas/domain/area';
 import { ImportTicket } from '../../import-tickets/domain/import-ticket';
@@ -9,13 +8,19 @@ export class BatchResponse {
     type: () => Number,
     nullable: true,
   })
-  volume?: number | null;
+  costPrice?: number | null;
 
   @ApiProperty({
     type: () => Number,
     nullable: true,
   })
   quantity?: number | null;
+
+  @ApiProperty({
+    type: () => Number,
+    nullable: true,
+  })
+  currentQuantity?: number | null;
 
   @ApiProperty({
     type: () => String,
@@ -28,6 +33,12 @@ export class BatchResponse {
     nullable: true,
   })
   batchCode?: string | null;
+
+  @ApiProperty({
+    type: () => Date,
+    nullable: true,
+  })
+  expiredAt?: Date | null;
 
   @ApiProperty({
     type: () => Area,
@@ -46,12 +57,6 @@ export class BatchResponse {
     nullable: true,
   })
   importTicket?: ImportTicket | null;
-
-  @ApiProperty({
-    type: () => ExportTicket,
-    nullable: true,
-  })
-  exportTicket?: ExportTicket | null;
 
   @ApiProperty({
     type: String,

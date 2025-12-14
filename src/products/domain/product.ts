@@ -1,14 +1,7 @@
-import { Price } from '../../prices/domain/price';
-import { Category } from '../../categories/domain/category';
 import { ApiProperty } from '@nestjs/swagger';
+import { Category } from '../../categories/domain/category';
 
 export class Product {
-  @ApiProperty({
-    type: () => [Price],
-    nullable: true,
-  })
-  price?: Price[] | null;
-
   @ApiProperty({
     type: () => String,
     nullable: true,

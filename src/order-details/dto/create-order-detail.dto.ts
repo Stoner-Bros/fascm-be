@@ -27,14 +27,6 @@ export class CreateOrderDetailDto {
   })
   @IsOptional()
   @IsNumber()
-  unitPrice?: number | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => Number,
-  })
-  @IsOptional()
-  @IsNumber()
   quantity?: number | null;
 
   @ApiProperty({
@@ -57,11 +49,45 @@ export class CreateOrderDetailDto {
 
   @ApiProperty({
     required: false,
-    type: () => [String],
+    type: () => [BatchInfo],
   })
-  @Type(() => String)
+  @Type(() => BatchInfo)
   @IsOptional()
   @IsArray()
-  batchId?: string[] | null;
+  @ValidateNested({ each: true })
+  batchInfo?: BatchInfo[] | null;
   // Don't forget to use the class-validator decorators in the DTO properties.
+}
+
+class BatchInfo {
+  @ApiProperty({
+    required: true,
+    type: () => String,
+  })
+  @IsString()
+  batchId: string;
+
+  @ApiProperty({
+    required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  quantity?: number | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => String,
+  })
+  @IsOptional()
+  @IsString()
+  unit?: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  unitPrice?: number | null;
 }
