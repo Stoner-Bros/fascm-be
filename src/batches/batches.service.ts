@@ -232,18 +232,15 @@ export class BatchesService {
 
   findByFiltersWithPagination({
     areaId,
-    importTicketId,
     productId,
     paginationOptions,
   }: {
     areaId?: string;
-    importTicketId?: string;
     productId?: string;
     paginationOptions: IPaginationOptions;
   }) {
     return this.batchRepository.findByFiltersWithPagination({
       areaId,
-      importTicketId,
       productId,
       paginationOptions: {
         page: paginationOptions.page,

@@ -80,32 +80,20 @@ export class BatchRelationalRepository implements BatchRepository {
 
   async findByFiltersWithPagination({
     areaId,
-    importTicketId,
     productId,
     paginationOptions,
   }: {
     areaId?: string;
-    importTicketId?: string;
     productId?: string;
     paginationOptions: IPaginationOptions;
   }): Promise<BatchResponse[]> {
     const queryBuilder = this.batchRepository
       .createQueryBuilder('batch')
       .leftJoinAndSelect('batch.area', 'area')
-      .leftJoinAndSelect('batch.product', 'product')
-      .leftJoinAndSelect('batch.importTicket', 'importTicket');
-
-    // if batch.exportTicketId is not null, then do not response the batch
-    queryBuilder.andWhere('batch.exportTicketId IS NULL');
+      .leftJoinAndSelect('batch.product', 'product');
 
     if (areaId) {
       queryBuilder.andWhere('area.id = :areaId', { areaId });
-    }
-
-    if (importTicketId) {
-      queryBuilder.andWhere('importTicket.id = :importTicketId', {
-        importTicketId,
-      });
     }
 
     if (productId) {

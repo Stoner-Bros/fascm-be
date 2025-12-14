@@ -353,12 +353,16 @@ export class HarvestSchedulesService {
 
     // Send notification for rejection
     if (status === HarvestScheduleStatusEnum.CANCELED) {
-      await this.cancelNotification(harvestSchedule);
+      await this.cancelNotification(harvestSchedule, reason ?? '');
     }
 
     return this.harvestScheduleRepository.update(id, {
       status,
-      reason: status === HarvestScheduleStatusEnum.REJECTED ? reason : null,
+      reason:
+        status === HarvestScheduleStatusEnum.REJECTED ||
+        status === HarvestScheduleStatusEnum.CANCELED
+          ? reason
+          : null,
       updatedAt: new Date(),
     });
   }
@@ -405,7 +409,7 @@ export class HarvestSchedulesService {
     }
   }
 
-  async cancelNotification(hs: HarvestSchedule) {
+  async cancelNotification(hs: HarvestSchedule, reason: string) {
     const supplier = hs?.supplier;
     if (supplier?.id) {
       await this.notificationsService.create({
@@ -414,7 +418,7 @@ export class HarvestSchedulesService {
         type: 'harvest-canceled',
         title: 'harvestScheduleCanceled',
         message: `harvestScheduleHasBeenCanceled`,
-        data: JSON.stringify({ harvestScheduleId: hs.id }),
+        data: JSON.stringify({ harvestScheduleId: hs.id, reason }),
       });
     }
   }

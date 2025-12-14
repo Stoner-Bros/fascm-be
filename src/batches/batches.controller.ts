@@ -72,7 +72,6 @@ export class BatchesController {
     return infinityPagination(
       await this.batchesService.findByFiltersWithPagination({
         areaId: query.areaId,
-        importTicketId: query.importTicketId,
         productId: query.productId,
         paginationOptions: {
           page,
@@ -82,18 +81,4 @@ export class BatchesController {
       { page, limit },
     );
   }
-
-  // @Get('grouped/by-weight')
-  // @ApiOkResponse({
-  //   type: [BatchGroupedByWeightDto],
-  // })
-  // async findGroupedByWeight(
-  //   @Query() query: FindBatchesByFilterDto,
-  // ): Promise<any[]> {
-  //   return await this.batchesService.findGroupedByImportTicket({
-  //     areaId: query.areaId,
-  //     importTicketId: query.importTicketId,
-  //     productId: query.productId,
-  //   });
-  // }
 }

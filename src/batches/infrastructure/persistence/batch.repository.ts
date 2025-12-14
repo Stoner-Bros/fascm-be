@@ -28,23 +28,11 @@ export abstract class BatchRepository {
 
   abstract findByFiltersWithPagination({
     areaId,
-    importTicketId,
     productId,
     paginationOptions,
   }: {
     areaId?: string;
-    importTicketId?: string;
     productId?: string;
     paginationOptions: IPaginationOptions;
-  }): Promise<BatchResponse[]>;
-
-  abstract findByFiltersGroupedByImportTicket({
-    areaId,
-    importTicketId,
-    productId,
-  }: {
-    areaId?: string;
-    importTicketId?: string;
-    productId?: string;
   }): Promise<BatchResponse[]>;
 }

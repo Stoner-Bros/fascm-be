@@ -445,12 +445,16 @@ export class OrderSchedulesService {
 
     // Send notification for rejection
     if (status === OrderScheduleStatusEnum.CANCELED) {
-      await this.cancelNotification(orderSchedule);
+      await this.cancelNotification(orderSchedule, reason ?? '');
     }
 
     return this.orderScheduleRepository.update(id, {
       status,
-      reason: status === OrderScheduleStatusEnum.REJECTED ? reason : null,
+      reason:
+        status === OrderScheduleStatusEnum.REJECTED ||
+        status === OrderScheduleStatusEnum.CANCELED
+          ? reason
+          : null,
       updatedAt: new Date(),
     });
   }
@@ -497,7 +501,7 @@ export class OrderSchedulesService {
     }
   }
 
-  async cancelNotification(os: OrderSchedule) {
+  async cancelNotification(os: OrderSchedule, reason: string) {
     const consignee = os?.consignee;
     if (consignee?.id) {
       await this.notificationsService.create({
@@ -506,7 +510,7 @@ export class OrderSchedulesService {
         type: 'order-canceled',
         title: 'orderScheduleCanceled',
         message: `orderScheduleHasBeenCanceled`,
-        data: JSON.stringify({ orderScheduleId: os.id }),
+        data: JSON.stringify({ orderScheduleId: os.id, reason }),
       });
     }
   }

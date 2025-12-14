@@ -15,15 +15,6 @@ export class FindBatchesByFilterDto {
   @ApiProperty({
     required: false,
     type: String,
-    description: 'Import Ticket ID to filter batches',
-  })
-  @IsOptional()
-  @IsString()
-  importTicketId?: string;
-
-  @ApiProperty({
-    required: false,
-    type: String,
     description: 'Product ID to filter batches',
   })
   @IsOptional()
