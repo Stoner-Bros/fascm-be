@@ -51,6 +51,18 @@ export class BatchResponse {
   product?: ProductResponse | null;
 
   @ApiProperty({
+    type: () => String,
+    nullable: true,
+  })
+  gardenName?: string | null;
+
+  @ApiProperty({
+    type: () => Date,
+    nullable: true,
+  })
+  harvestDate?: Date | null;
+
+  @ApiProperty({
     type: String,
   })
   id: string;

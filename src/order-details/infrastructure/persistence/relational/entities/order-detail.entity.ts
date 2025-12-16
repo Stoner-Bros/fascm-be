@@ -1,6 +1,7 @@
 import { ProductEntity } from '../../../../../products/infrastructure/persistence/relational/entities/product.entity';
 
 import { OrderEntity } from '../../../../../orders/infrastructure/persistence/relational/entities/order.entity';
+import { OrderDetailSelectionEntity } from '../../../../../order-detail-selections/infrastructure/persistence/relational/entities/order-detail-selection.entity';
 
 import {
   BeforeInsert,
@@ -8,6 +9,7 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -40,6 +42,12 @@ export class OrderDetailEntity extends EntityRelationalHelper {
 
   @ManyToOne(() => OrderEntity, { eager: true, nullable: true })
   order?: OrderEntity | null;
+
+  @OneToMany(
+    () => OrderDetailSelectionEntity,
+    (orderDetailSelection) => orderDetailSelection.orderDetail,
+  )
+  orderDetailSelections?: OrderDetailSelectionEntity[];
 
   @PrimaryColumn({
     type: String,

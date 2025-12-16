@@ -2,9 +2,9 @@ import { OrderSchedule } from '../../../../domain/order-schedule';
 
 import { ConsigneeMapper } from '../../../../../consignees/infrastructure/persistence/relational/mappers/consignee.mapper';
 
+import { OrderDetailMapper } from 'src/order-details/infrastructure/persistence/relational/mappers/order-detail.mapper';
 import { OrderScheduleResponse } from 'src/order-schedules/dto/order-schedule-response.dto';
 import { OrderMapper } from 'src/orders/infrastructure/persistence/relational/mappers/order.mapper';
-import { ProductMapper } from 'src/products/infrastructure/persistence/relational/mappers/product.mapper';
 import { OrderScheduleEntity } from '../entities/order-schedule.entity';
 
 export class OrderScheduleMapper {
@@ -81,21 +81,9 @@ export class OrderScheduleMapper {
       responseEntity.order = OrderMapper.toResponse(raw.order);
       // Map harvest details if exists
       if (raw.order.orderDetails && Array.isArray(raw.order.orderDetails)) {
-        responseEntity.orderDetails = raw.order.orderDetails.map((detail) => {
-          const detailResponse: any = {
-            id: detail.id,
-            amount: detail.amount,
-            // unitPrice: detail.unitPrice,
-            quantity: detail.quantity,
-            unit: detail.unit,
-            createdAt: detail.createdAt,
-            updatedAt: detail.updatedAt,
-          };
-          if (detail.product) {
-            detailResponse.product = ProductMapper.toResponse(detail.product);
-          }
-          return detailResponse;
-        });
+        responseEntity.orderDetails = raw.order.orderDetails.map((detail) =>
+          OrderDetailMapper.toResponseDto(detail),
+        );
       } else {
         responseEntity.orderDetails = [];
       }

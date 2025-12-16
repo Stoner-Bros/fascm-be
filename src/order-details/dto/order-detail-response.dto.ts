@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { OrderDetailSelectionResponse } from 'src/order-detail-selections/dto/order-detail-selection-response.dto';
 import { ProductResponse } from 'src/products/dto/product-response.dto';
 
 export class OrderDetailResponseDto {
@@ -25,6 +26,11 @@ export class OrderDetailResponseDto {
     nullable: true,
   })
   product?: ProductResponse | null;
+
+  @ApiProperty({
+    type: () => [OrderDetailSelectionResponse],
+  })
+  orderDetailSelections: OrderDetailSelectionResponse[];
 
   @ApiProperty({
     type: String,

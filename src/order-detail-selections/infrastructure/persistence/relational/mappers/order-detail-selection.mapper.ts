@@ -1,10 +1,11 @@
-import { OrderDetailSelection } from '../../../../domain/order-detail-selection';
 import { ExportTicketMapper } from '../../../../../export-tickets/infrastructure/persistence/relational/mappers/export-ticket.mapper';
+import { OrderDetailSelection } from '../../../../domain/order-detail-selection';
 
 import { BatchMapper } from '../../../../../batches/infrastructure/persistence/relational/mappers/batch.mapper';
 
 import { OrderDetailMapper } from '../../../../../order-details/infrastructure/persistence/relational/mappers/order-detail.mapper';
 
+import { OrderDetailSelectionResponse } from 'src/order-detail-selections/dto/order-detail-selection-response.dto';
 import { OrderDetailSelectionEntity } from '../entities/order-detail-selection.entity';
 
 export class OrderDetailSelectionMapper {
@@ -76,5 +77,27 @@ export class OrderDetailSelectionMapper {
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 
     return persistenceEntity;
+  }
+
+  static toResponse(
+    raw: OrderDetailSelectionEntity,
+  ): OrderDetailSelectionResponse {
+    const domainEntity = new OrderDetailSelectionResponse();
+
+    if (raw.batch) {
+      domainEntity.batch = BatchMapper.toResponse(raw.batch);
+    } else if (raw.batch === null) {
+      domainEntity.batch = null;
+    }
+
+    domainEntity.quantity = raw.quantity;
+    domainEntity.unitPrice = raw.unitPrice;
+    domainEntity.unit = raw.unit;
+
+    domainEntity.id = raw.id;
+    domainEntity.createdAt = raw.createdAt;
+    domainEntity.updatedAt = raw.updatedAt;
+
+    return domainEntity;
   }
 }
