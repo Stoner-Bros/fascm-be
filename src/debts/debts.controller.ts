@@ -71,6 +71,15 @@ export class DebtsController {
     );
   }
 
+  @Get('my-debts')
+  @ApiOkResponse({
+    type: Debt,
+  })
+  getMyDebts(@Request() request) {
+    console.log('request.user', request);
+    return this.debtsService.getMyDebts(request.user);
+  }
+
   @Get(':id')
   @ApiParam({
     name: 'id',
@@ -105,13 +114,5 @@ export class DebtsController {
   })
   remove(@Param('id') id: string) {
     return this.debtsService.remove(id);
-  }
-
-  @Get('my-debts')
-  @ApiOkResponse({
-    type: Debt,
-  })
-  getMyDebts(@Request() request) {
-    return this.debtsService.getMyDebts(request.user);
   }
 }
