@@ -48,8 +48,8 @@ export class PaymentsService {
       : PartnerTypeEnum.SUPPLIER;
 
     const partnerId = createPaymentDto.consigneeId
-    ? createPaymentDto.consigneeId
-    : createPaymentDto.supplierId;
+      ? createPaymentDto.consigneeId
+      : createPaymentDto.supplierId;
 
     const partnerDebt = await this.debtRepo.getDebtByPartnerId(
       partnerId as string,
@@ -261,7 +261,6 @@ export class PaymentsService {
           paymentMethod: payment.paymentMethod ?? '',
           timestamp: new Date().toISOString(),
         });
-
       }
 
       return {
