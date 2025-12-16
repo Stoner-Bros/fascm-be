@@ -242,19 +242,29 @@ export class DebtsService {
   }
 
   async getMyDebts(userJwtPayload: JwtPayloadType) {
+    let partner: Consignee | Supplier | null = null;
+    let partnerType: PartnerTypeEnum | null = null;
     const consignee = await this.consigneeService.findByUserId(
       Number(userJwtPayload.id),
     );
-    if (!consignee) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: { consignee: 'notExists' },
-      });
+    if (consignee) {
+      partner = consignee;
+      partnerType = PartnerTypeEnum.CONSIGNEE;
+    } else {
+      const supplier = await this.supplierService.findByUserId(
+        Number(userJwtPayload.id),
+      );
+      if (supplier) {
+        partner = supplier;
+        partnerType = PartnerTypeEnum.SUPPLIER;
+      } else {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: { partner: 'notExists' },
+        });
+      }
     }
 
-    return this.debtRepository.getDebtByPartnerId(
-      consignee.id,
-      PartnerTypeEnum.CONSIGNEE,
-    );
+    return this.debtRepository.getDebtByPartnerId(partner.id, partnerType);
   }
 }
