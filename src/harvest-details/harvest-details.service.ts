@@ -26,6 +26,7 @@ export class HarvestDetailsService {
   updateFinalPrice(harvestDetailId: string, finalPrice: number) {
     return this.harvestDetailRepository.update(harvestDetailId, {
       finalUnitPrice: finalPrice,
+      finalUnitPriceAccepted: null,
     });
   }
 
@@ -38,7 +39,7 @@ export class HarvestDetailsService {
       finalUnitPriceAccepted: finalUnitPriceAccepted,
       amount: finalUnitPriceAccepted
         ? (hd?.finalUnitPrice || 0) * (hd?.quantity || 0)
-        : 0,
+        : hd?.amount,
     });
   }
 }
