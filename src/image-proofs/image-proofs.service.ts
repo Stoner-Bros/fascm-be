@@ -57,15 +57,23 @@ export class ImageProofsService {
     }
     // Do not remove comment below.
     // <creating-property />
-    const orderPhaseObject = await this.orderPhaseService.findById(
-      createImageProofDto?.orderPhase?.id ?? '',
-    );
-    const orderPhase = orderPhaseObject;
+    let orderPhase: OrderPhase | undefined = undefined;
 
-    const harvestPhaseObject = await this.harvestPhaseService.findById(
-      createImageProofDto?.harvestPhase?.id ?? '',
-    );
-    const harvestPhase = harvestPhaseObject;
+    if (createImageProofDto?.orderPhase?.id) {
+      const orderPhaseObject = await this.orderPhaseService.findById(
+        createImageProofDto.orderPhase.id,
+      );
+      orderPhase = orderPhaseObject ?? undefined;
+    }
+
+    let harvestPhase: HarvestPhase | undefined = undefined;
+
+    if (createImageProofDto?.harvestPhase?.id) {
+      const harvestPhaseObject = await this.harvestPhaseService.findById(
+        createImageProofDto.harvestPhase.id,
+      );
+      harvestPhase = harvestPhaseObject ?? undefined;
+    }
 
     let photo: FileType | null | undefined = undefined;
 
