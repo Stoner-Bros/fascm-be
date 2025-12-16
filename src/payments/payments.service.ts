@@ -4,8 +4,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { DebtsService } from 'src/debts/debts.service';
 import { DebtStatusEnum, PartnerTypeEnum } from 'src/debts/enum/debt.enum';
+import { DebtRepository } from 'src/debts/infrastructure/persistence/debt.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { payOS } from './config/payOS';
 import { Payment } from './domain/payment';
@@ -17,14 +17,12 @@ import {
 } from './enums/payment-status.enum';
 import { PaymentRepository } from './infrastructure/persistence/payment.repository';
 import { PaymentsGateway } from './payments.gateway';
-import { DebtRepository } from 'src/debts/infrastructure/persistence/debt.repository';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     // Dependencies here
     private readonly paymentRepository: PaymentRepository,
-    private readonly debtService: DebtsService,
     private readonly debtRepo: DebtRepository,
     private readonly paymentsGateway: PaymentsGateway,
   ) {}
@@ -48,14 +46,6 @@ export class PaymentsService {
     const partnerType = createPaymentDto?.consigneeId
       ? PartnerTypeEnum.CONSIGNEE
       : PartnerTypeEnum.SUPPLIER;
-    const partnerId = createPaymentDto.consigneeId
-      ? createPaymentDto.consigneeId
-      : createPaymentDto.supplierId;
-
-    const partnerDebt = await this.debtService.getDebtByPartnerId(
-      partnerId as string,
-      partnerType,
-    );
 
     if (createPaymentDto.paymentMethod === PaymentMethod.BANK_TRANSFER) {
       try {
@@ -105,23 +95,6 @@ export class PaymentsService {
         amount: createPaymentDto.amount,
 
         paymentMethod: createPaymentDto.paymentMethod,
-      });
-    }
-
-    if (partnerDebt) {
-      partnerDebt.paidAmount =
-        (partnerDebt.paidAmount ?? 0) + createPaymentDto.amount;
-      partnerDebt.remainingAmount =
-        (partnerDebt.remainingAmount ?? 0) - createPaymentDto.amount;
-
-      if (partnerDebt.status === DebtStatusEnum.UNPAID) {
-        partnerDebt.status = DebtStatusEnum.PARTIALLY_PAID;
-      }
-
-      await this.debtRepo.update(partnerDebt.id, {
-        paidAmount: partnerDebt.paidAmount,
-        remainingAmount: partnerDebt.remainingAmount,
-        status: partnerDebt.status,
       });
     }
 
@@ -253,6 +226,27 @@ export class PaymentsService {
           status: newStatus,
         });
 
+        const partnerDebt = await this.debtRepo.findById(
+          String(payment.debt?.id),
+        );
+
+        if (partnerDebt) {
+          partnerDebt.paidAmount =
+            (partnerDebt.paidAmount ?? 0) + (payment.amount ?? 0);
+          partnerDebt.remainingAmount =
+            (partnerDebt.remainingAmount ?? 0) - (payment.amount ?? 0);
+
+          if (partnerDebt.status === DebtStatusEnum.UNPAID) {
+            partnerDebt.status = DebtStatusEnum.PARTIALLY_PAID;
+          }
+
+          await this.debtRepo.update(partnerDebt.id, {
+            paidAmount: partnerDebt.paidAmount,
+            remainingAmount: partnerDebt.remainingAmount,
+            status: partnerDebt.status,
+          });
+        }
+
         // Emit Socket.IO event for real-time UI update
         this.paymentsGateway.emitPaymentStatusUpdate({
           paymentId: payment.id,
@@ -299,6 +293,27 @@ export class PaymentsService {
       await this.paymentRepository.update(payment.id, {
         status: PaymentStatus.PAID,
       });
+
+      const partnerDebt = await this.debtRepo.findById(
+        String(payment.debt?.id),
+      );
+
+      if (partnerDebt) {
+        partnerDebt.paidAmount =
+          (partnerDebt.paidAmount ?? 0) + (payment.amount ?? 0);
+        partnerDebt.remainingAmount =
+          (partnerDebt.remainingAmount ?? 0) - (payment.amount ?? 0);
+
+        if (partnerDebt.status === DebtStatusEnum.UNPAID) {
+          partnerDebt.status = DebtStatusEnum.PARTIALLY_PAID;
+        }
+
+        await this.debtRepo.update(partnerDebt.id, {
+          paidAmount: partnerDebt.paidAmount,
+          remainingAmount: partnerDebt.remainingAmount,
+          status: partnerDebt.status,
+        });
+      }
 
       // Emit Socket.IO event for real-time UI update
       this.paymentsGateway.emitPaymentStatusUpdate({
