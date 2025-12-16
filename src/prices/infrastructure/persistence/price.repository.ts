@@ -1,3 +1,4 @@
+import { PriceResponse } from 'src/prices/dto/price-response.dto';
 import { DeepPartial } from '../../../utils/types/deep-partial.type';
 import { NullableType } from '../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../utils/types/pagination-options';
@@ -26,4 +27,8 @@ export abstract class PriceRepository {
   abstract remove(id: Price['id']): Promise<void>;
 
   abstract findByBatchId(batchId: string): Promise<Price[]>;
+
+  abstract findPricesOfBatch(
+    batchId: string,
+  ): Promise<NullableType<PriceResponse[]>>;
 }

@@ -23,6 +23,7 @@ import { TruckRepository } from './infrastructure/persistence/truck.repository';
 @Injectable()
 export class TrucksService {
   constructor(
+    @Inject(forwardRef(() => WarehousesService))
     private readonly warehouseService: WarehousesService,
 
     @Inject(forwardRef(() => IoTDevicesService))

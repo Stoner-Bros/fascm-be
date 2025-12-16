@@ -90,7 +90,8 @@ export class BatchRelationalRepository implements BatchRepository {
     const queryBuilder = this.batchRepository
       .createQueryBuilder('batch')
       .leftJoinAndSelect('batch.area', 'area')
-      .leftJoinAndSelect('batch.product', 'product');
+      .leftJoinAndSelect('batch.product', 'product')
+      .leftJoinAndSelect('batch.price', 'price');
 
     if (areaId) {
       queryBuilder.andWhere('area.id = :areaId', { areaId });
@@ -103,44 +104,6 @@ export class BatchRelationalRepository implements BatchRepository {
     queryBuilder
       .skip((paginationOptions.page - 1) * paginationOptions.limit)
       .take(paginationOptions.limit);
-
-    const entities = await queryBuilder.getMany();
-    return entities.map((entity) => BatchMapper.toResponse(entity));
-  }
-
-  async findByFiltersGroupedByImportTicket({
-    areaId,
-    importTicketId,
-    productId,
-  }: {
-    areaId?: string;
-    importTicketId?: string;
-    productId?: string;
-  }): Promise<BatchResponse[]> {
-    const queryBuilder = this.batchRepository
-      .createQueryBuilder('batch')
-      .leftJoinAndSelect('batch.area', 'area')
-      .leftJoinAndSelect('batch.product', 'product')
-      .leftJoinAndSelect('batch.importTicket', 'importTicket');
-
-    // if batch.exportTicketId is not null, then do not response the batch
-    queryBuilder.andWhere('batch.exportTicketId IS NULL');
-
-    if (areaId) {
-      queryBuilder.andWhere('area.id = :areaId', { areaId });
-    }
-
-    if (importTicketId) {
-      queryBuilder.andWhere('importTicket.id = :importTicketId', {
-        importTicketId,
-      });
-    }
-
-    if (productId) {
-      queryBuilder.andWhere('product.id = :productId', { productId });
-    }
-
-    queryBuilder.orderBy('importTicket.importDate', 'DESC');
 
     const entities = await queryBuilder.getMany();
     return entities.map((entity) => BatchMapper.toResponse(entity));

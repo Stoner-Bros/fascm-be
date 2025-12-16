@@ -34,4 +34,12 @@ export abstract class ExportTicketRepository {
     areaId: string;
     paginationOptions: IPaginationOptions;
   }): Promise<ExportTicket[]>;
+
+  abstract findByWarehouseWithPagination({
+    warehouseId,
+    paginationOptions,
+  }: {
+    warehouseId: string;
+    paginationOptions: IPaginationOptions;
+  }): Promise<ExportTicket[]>;
 }

@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PriceResponse } from 'src/prices/dto/price-response.dto';
 import { ProductResponse } from 'src/products/dto/product-response.dto';
-import { Area } from '../../areas/domain/area';
-import { ImportTicket } from '../../import-tickets/domain/import-ticket';
 
 export class BatchResponse {
   @ApiProperty({
@@ -41,22 +40,15 @@ export class BatchResponse {
   expiredAt?: Date | null;
 
   @ApiProperty({
-    type: () => Area,
-    nullable: true,
+    type: () => [PriceResponse],
   })
-  area?: Area | null;
+  price: PriceResponse[];
 
   @ApiProperty({
     type: () => ProductResponse,
     nullable: true,
   })
   product?: ProductResponse | null;
-
-  @ApiProperty({
-    type: () => ImportTicket,
-    nullable: true,
-  })
-  importTicket?: ImportTicket | null;
 
   @ApiProperty({
     type: String,

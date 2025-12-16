@@ -108,4 +108,17 @@ export class WarehousesController {
   remove(@Param('id') id: string) {
     return this.warehousesService.remove(id);
   }
+
+  @Get(':id/activity-logs')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: Object,
+  })
+  findActivityLog(@Param('id') id: string) {
+    return this.warehousesService.getActivityLogs(id);
+  }
 }

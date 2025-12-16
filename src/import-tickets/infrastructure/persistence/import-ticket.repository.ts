@@ -34,4 +34,12 @@ export abstract class ImportTicketRepository {
     areaId: string;
     paginationOptions: IPaginationOptions;
   }): Promise<ImportTicket[]>;
+
+  abstract findByWarehouseWithPagination({
+    warehouseId,
+    paginationOptions,
+  }: {
+    warehouseId: string;
+    paginationOptions: IPaginationOptions;
+  }): Promise<ImportTicket[]>;
 }

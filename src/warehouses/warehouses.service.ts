@@ -1,7 +1,11 @@
 import {
   // common
+  Inject,
   Injectable,
+  forwardRef,
 } from '@nestjs/common';
+import { ImportTicketsService } from 'src/import-tickets/import-tickets.service';
+import { ExportTicketsService } from 'src/export-tickets/export-tickets.service';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 import { WarehouseRepository } from './infrastructure/persistence/warehouse.repository';
@@ -11,6 +15,12 @@ import { Warehouse } from './domain/warehouse';
 @Injectable()
 export class WarehousesService {
   constructor(
+    @Inject(forwardRef(() => ImportTicketsService))
+    private readonly importTicketsService: ImportTicketsService,
+
+    @Inject(forwardRef(() => ExportTicketsService))
+    private readonly exportTicketsService: ExportTicketsService,
+
     // Dependencies here
     private readonly warehouseRepository: WarehouseRepository,
   ) {}
@@ -68,5 +78,27 @@ export class WarehousesService {
 
   remove(id: Warehouse['id']) {
     return this.warehouseRepository.remove(id);
+  }
+
+  async getActivityLogs(warehouseId: Warehouse['id']) {
+    const its = await this.importTicketsService.findByWarehouseWithPagination({
+      warehouseId,
+      paginationOptions: {
+        page: 1,
+        limit: 10,
+      },
+    });
+    const ets = await this.exportTicketsService.findByWarehouseWithPagination({
+      warehouseId,
+      paginationOptions: {
+        page: 1,
+        limit: 10,
+      },
+    });
+
+    return {
+      importTickets: its,
+      exportTickets: ets,
+    };
   }
 }

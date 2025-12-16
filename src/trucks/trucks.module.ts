@@ -11,7 +11,7 @@ import { RelationalTruckPersistenceModule } from './infrastructure/persistence/r
 
 @Module({
   imports: [
-    WarehousesModule,
+    forwardRef(() => WarehousesModule),
 
     forwardRef(() => IoTDevicesModule),
 

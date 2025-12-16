@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PriceResponse } from 'src/prices/dto/price-response.dto';
 import { In, Repository } from 'typeorm';
 import { NullableType } from '../../../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
@@ -84,5 +85,20 @@ export class PriceRelationalRepository implements PriceRepository {
     });
 
     return entities.map((entity) => PriceMapper.toDomain(entity));
+  }
+
+  async findPricesOfBatch(
+    batchId: string,
+  ): Promise<NullableType<PriceResponse[]>> {
+    const entities = await this.priceRepository.find({
+      where: { batch: { id: batchId } },
+      relations: ['batch'],
+    });
+
+    if (entities.length === 0) {
+      return null;
+    }
+
+    return entities.map((entity) => PriceMapper.toResponse(entity));
   }
 }

@@ -158,4 +158,20 @@ export class ImportTicketsService {
       },
     });
   }
+
+  findByWarehouseWithPagination({
+    warehouseId,
+    paginationOptions,
+  }: {
+    warehouseId: string;
+    paginationOptions: IPaginationOptions;
+  }) {
+    return this.importTicketRepository.findByWarehouseWithPagination({
+      warehouseId,
+      paginationOptions: {
+        page: paginationOptions.page,
+        limit: paginationOptions.limit,
+      },
+    });
+  }
 }

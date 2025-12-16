@@ -8,12 +8,16 @@ import {
 import { AreasService } from './areas.service';
 import { AreasController } from './areas.controller';
 import { RelationalAreaPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+import { ImportTicketsModule } from 'src/import-tickets/import-tickets.module';
+import { ExportTicketsModule } from 'src/export-tickets/export-tickets.module';
 
 @Module({
   imports: [
     forwardRef(() => IoTDevicesModule),
+    forwardRef(() => ImportTicketsModule),
+    forwardRef(() => ExportTicketsModule),
 
-    WarehousesModule,
+    forwardRef(() => WarehousesModule),
 
     // do not remove this comment
     RelationalAreaPersistenceModule,

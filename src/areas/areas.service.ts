@@ -1,22 +1,24 @@
-import { IoTDevicesService } from '../io-t-devices/io-t-devices.service';
 import { IoTDevice } from '../io-t-devices/domain/io-t-device';
+import { IoTDevicesService } from '../io-t-devices/io-t-devices.service';
 
-import { WarehousesService } from '../warehouses/warehouses.service';
 import { Warehouse } from '../warehouses/domain/warehouse';
+import { WarehousesService } from '../warehouses/warehouses.service';
 
 import {
+  HttpStatus,
+  Inject,
   // common
   Injectable,
-  HttpStatus,
   UnprocessableEntityException,
-  Inject,
   forwardRef,
 } from '@nestjs/common';
+import { ExportTicketsService } from 'src/export-tickets/export-tickets.service';
+import { ImportTicketsService } from 'src/import-tickets/import-tickets.service';
+import { IPaginationOptions } from '../utils/types/pagination-options';
+import { Area } from './domain/area';
 import { CreateAreaDto } from './dto/create-area.dto';
 import { UpdateAreaDto } from './dto/update-area.dto';
 import { AreaRepository } from './infrastructure/persistence/area.repository';
-import { IPaginationOptions } from '../utils/types/pagination-options';
-import { Area } from './domain/area';
 
 @Injectable()
 export class AreasService {
@@ -24,6 +26,13 @@ export class AreasService {
     @Inject(forwardRef(() => IoTDevicesService))
     private readonly ioTDeviceService: IoTDevicesService,
 
+    @Inject(forwardRef(() => ImportTicketsService))
+    private readonly importTicketsService: ImportTicketsService,
+
+    @Inject(forwardRef(() => ExportTicketsService))
+    private readonly exportTicketsService: ExportTicketsService,
+
+    @Inject(forwardRef(() => WarehousesService))
     private readonly warehouseService: WarehousesService,
 
     // Dependencies here
@@ -180,5 +189,27 @@ export class AreasService {
 
   remove(id: Area['id']) {
     return this.areaRepository.remove(id);
+  }
+
+  async getActivityLogs(areaId: Area['id']) {
+    const its = await this.importTicketsService.findByAreaWithPagination({
+      areaId,
+      paginationOptions: {
+        page: 1,
+        limit: 10,
+      },
+    });
+    const ets = await this.exportTicketsService.findByAreaWithPagination({
+      areaId,
+      paginationOptions: {
+        page: 1,
+        limit: 10,
+      },
+    });
+
+    return {
+      importTickets: its,
+      exportTickets: ets,
+    };
   }
 }

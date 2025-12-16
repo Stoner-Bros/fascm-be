@@ -17,7 +17,7 @@ import { OrderInvoicesModule } from 'src/order-invoices/order-invoices.module';
     OrderInvoicesModule,
 
     forwardRef(() => OrderDetailSelectionsModule),
-    AreasModule,
+    forwardRef(() => AreasModule),
 
     // do not remove this comment
     RelationalExportTicketPersistenceModule,

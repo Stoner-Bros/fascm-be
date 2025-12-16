@@ -1,4 +1,4 @@
-import { ProductsService } from '../products/products.service';
+import { BatchesService } from 'src/batches/batches.service';
 
 import {
   HttpStatus,
@@ -18,8 +18,8 @@ import { PriceRepository } from './infrastructure/persistence/price.repository';
 @Injectable()
 export class PricesService {
   constructor(
-    @Inject(forwardRef(() => ProductsService))
-    private readonly productService: ProductsService,
+    @Inject(forwardRef(() => BatchesService))
+    private readonly batchesService: BatchesService,
 
     // Dependencies here
     private readonly priceRepository: PriceRepository,
@@ -28,19 +28,18 @@ export class PricesService {
   async create(createPriceDto: CreatePriceDto) {
     // Do not remove comment below.
     // <creating-property />
-    const productObject = await this.productService.findById(
+    const batchObject = await this.batchesService.findById(
       createPriceDto.batch.id,
     );
-    if (!productObject) {
+    if (!batchObject) {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,
         errors: {
-          product: 'notExists',
+          batch: 'notExists',
         },
       });
     }
-    const batch = productObject;
-
+    const batch = batchObject;
     return this.priceRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
@@ -85,7 +84,7 @@ export class PricesService {
     let batch: Batch | undefined = undefined;
 
     if (updatePriceDto.batch) {
-      const batchObject = await this.productService.findById(
+      const batchObject = await this.batchesService.findById(
         updatePriceDto.batch.id,
       );
       if (!batchObject) {
@@ -118,5 +117,9 @@ export class PricesService {
 
   findByBatchId(batchId: string) {
     return this.priceRepository.findByBatchId(batchId);
+  }
+
+  async findPricesOfBatch(batchId: string) {
+    return this.priceRepository.findPricesOfBatch(batchId);
   }
 }

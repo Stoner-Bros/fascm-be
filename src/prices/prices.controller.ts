@@ -1,17 +1,15 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { PricesService } from './prices.service';
-import { CreatePriceDto } from './dto/create-price.dto';
-import { UpdatePriceDto } from './dto/update-price.dto';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -19,14 +17,17 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { Price } from './domain/price';
-import { AuthGuard } from '@nestjs/passport';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
+import { Price } from './domain/price';
+import { CreatePriceDto } from './dto/create-price.dto';
 import { FindAllPricesDto } from './dto/find-all-prices.dto';
+import { PriceResponse } from './dto/price-response.dto';
+import { UpdatePriceDto } from './dto/update-price.dto';
+import { PricesService } from './prices.service';
 
 @ApiTags('Prices')
 @ApiBearerAuth()
@@ -81,6 +82,19 @@ export class PricesController {
   })
   findById(@Param('id') id: string) {
     return this.pricesService.findById(id);
+  }
+
+  @Get(':id/batch')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: PriceResponse,
+  })
+  findPricesOfBatch(@Param('id') id: string) {
+    return this.pricesService.findPricesOfBatch(id);
   }
 
   @Patch(':id')

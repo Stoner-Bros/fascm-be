@@ -25,6 +25,7 @@ import { BatchRepository } from './infrastructure/persistence/batch.repository';
 @Injectable()
 export class BatchesService {
   constructor(
+    @Inject(forwardRef(() => AreasService))
     private readonly areaService: AreasService,
 
     private readonly productService: ProductsService,

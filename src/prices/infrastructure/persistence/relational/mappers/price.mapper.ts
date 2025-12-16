@@ -1,6 +1,7 @@
 import { Price } from '../../../../domain/price';
 
 import { BatchMapper } from 'src/batches/infrastructure/persistence/relational/mappers/batch.mapper';
+import { PriceResponse } from 'src/prices/dto/price-response.dto';
 import { PriceEntity } from '../entities/price.entity';
 
 export class PriceMapper {
@@ -42,5 +43,21 @@ export class PriceMapper {
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 
     return persistenceEntity;
+  }
+
+  static toResponse(raw: PriceEntity): PriceResponse {
+    const responseEntity = new PriceResponse();
+
+    responseEntity.price = raw.price;
+
+    responseEntity.quantity = raw.quantity;
+
+    responseEntity.unit = raw.unit;
+
+    responseEntity.id = raw.id;
+    responseEntity.createdAt = raw.createdAt;
+    responseEntity.updatedAt = raw.updatedAt;
+
+    return responseEntity;
   }
 }

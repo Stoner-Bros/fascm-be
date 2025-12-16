@@ -13,7 +13,7 @@ import { RelationalBatchPersistenceModule } from './infrastructure/persistence/r
 
 @Module({
   imports: [
-    AreasModule,
+    forwardRef(() => AreasModule),
 
     ProductsModule,
 

@@ -7,6 +7,7 @@ import { ProductMapper } from '../../../../../products/infrastructure/persistenc
 import { ImportTicketMapper } from '../../../../../import-tickets/infrastructure/persistence/relational/mappers/import-ticket.mapper';
 
 import { BatchResponse } from 'src/batches/dto/batch-response.dto';
+import { PriceMapper } from 'src/prices/infrastructure/persistence/relational/mappers/price.mapper';
 import { BatchEntity } from '../entities/batch.entity';
 
 export class BatchMapper {
@@ -60,24 +61,19 @@ export class BatchMapper {
     responseEntity.batchCode = raw.batchCode;
     responseEntity.expiredAt = raw.expiredAt;
 
-    if (raw.area) {
-      responseEntity.area = AreaMapper.toDomain(raw.area);
-    } else if (raw.area === null) {
-      responseEntity.area = null;
+    // map for price array
+    if (raw.price) {
+      responseEntity.price = raw.price.map((price) =>
+        PriceMapper.toResponse(price),
+      );
+    } else if (raw.price === null) {
+      responseEntity.price = [];
     }
 
     if (raw.product) {
       responseEntity.product = ProductMapper.toResponse(raw.product);
     } else if (raw.product === null) {
       responseEntity.product = null;
-    }
-
-    if (raw.importTicket) {
-      responseEntity.importTicket = ImportTicketMapper.toDomain(
-        raw.importTicket,
-      );
-    } else if (raw.importTicket === null) {
-      responseEntity.importTicket = null;
     }
 
     responseEntity.id = raw.id;

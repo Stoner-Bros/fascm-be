@@ -105,4 +105,17 @@ export class AreasController {
   remove(@Param('id') id: string) {
     return this.areasService.remove(id);
   }
+
+  @Get(':id/activity-logs')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: Object,
+  })
+  findActivityLog(@Param('id') id: string) {
+    return this.areasService.getActivityLogs(id);
+  }
 }

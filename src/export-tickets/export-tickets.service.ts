@@ -29,6 +29,8 @@ export class ExportTicketsService {
 
     @Inject(forwardRef(() => OrderDetailSelectionRepository))
     private readonly orderDetailSelectionsRepository: OrderDetailSelectionRepository,
+
+    @Inject(forwardRef(() => AreasService))
     private readonly areasService: AreasService,
     // Dependencies here
     private readonly exportTicketRepository: ExportTicketRepository,
@@ -211,6 +213,22 @@ export class ExportTicketsService {
   }) {
     return this.exportTicketRepository.findByAreaWithPagination({
       areaId,
+      paginationOptions: {
+        page: paginationOptions.page,
+        limit: paginationOptions.limit,
+      },
+    });
+  }
+
+  findByWarehouseWithPagination({
+    warehouseId,
+    paginationOptions,
+  }: {
+    warehouseId: string;
+    paginationOptions: IPaginationOptions;
+  }) {
+    return this.exportTicketRepository.findByWarehouseWithPagination({
+      warehouseId,
       paginationOptions: {
         page: paginationOptions.page,
         limit: paginationOptions.limit,

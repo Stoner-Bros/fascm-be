@@ -157,4 +157,50 @@ export class ExportTicketRelationalRepository
       areaName: entity.areaName,
     }));
   }
+
+  async findByWarehouseWithPagination({
+    warehouseId,
+    paginationOptions,
+  }: {
+    warehouseId: string;
+    paginationOptions: IPaginationOptions;
+  }): Promise<ExportTicket[]> {
+    const queryBuilder = this.exportTicketRepository
+      .createQueryBuilder('exportTicket')
+      .leftJoin(
+        'order_detail_selection',
+        'ods',
+        'ods.exportTicketId = exportTicket.id',
+      )
+      .leftJoin('batch', 'batch', 'batch.id = ods.batchId')
+      .leftJoin('product', 'product', 'product.id = batch.productId')
+      .leftJoin('area', 'area', 'area.id = batch.areaId')
+      .where('area.warehouseId = :warehouseId', { warehouseId })
+      .select('exportTicket.id', 'id')
+      .addSelect('exportTicket.unit', 'unit')
+      .addSelect('exportTicket.quantity', 'quantity')
+      .addSelect('exportTicket.exportDate', 'exportDate')
+      .addSelect('exportTicket.createdAt', 'createdAt')
+      .addSelect('exportTicket.updatedAt', 'updatedAt')
+      .addSelect('product.name', 'productName')
+      .addSelect('area.name', 'areaName')
+      .groupBy('exportTicket.id')
+      .addGroupBy('exportTicket.unit')
+      .addGroupBy('exportTicket.quantity')
+      .addGroupBy('exportTicket.exportDate')
+      .addGroupBy('exportTicket.createdAt')
+      .addGroupBy('exportTicket.updatedAt')
+      .addGroupBy('product.name')
+      .addGroupBy('area.name')
+      .skip((paginationOptions.page - 1) * paginationOptions.limit)
+      .take(paginationOptions.limit);
+
+    const entities = await queryBuilder.getRawMany();
+
+    return entities.map((entity) => ({
+      ...ExportTicketMapper.toDomain(entity),
+      productName: entity.productName,
+      areaName: entity.areaName,
+    }));
+  }
 }
