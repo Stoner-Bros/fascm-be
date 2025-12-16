@@ -3,6 +3,7 @@ import {
   // do not remove this comment
   Module,
 } from '@nestjs/common';
+import { ExportTicketsModule } from 'src/export-tickets/export-tickets.module';
 import { FilesCloudinaryModule } from 'src/files/infrastructure/uploader/cloudinary/files.module';
 import { ImageProofsModule } from 'src/image-proofs/image-proofs.module';
 import { OrderInvoiceDetailsModule } from 'src/order-invoice-details/order-invoice-details.module';
@@ -22,6 +23,7 @@ import { OrderPhasesService } from './order-phases.service';
     forwardRef(() => OrderSchedulesModule),
     OrderInvoicesModule,
     OrderInvoiceDetailsModule,
+    forwardRef(() => ExportTicketsModule),
 
     // do not remove this comment
     RelationalOrderPhasePersistenceModule,

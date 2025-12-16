@@ -6,6 +6,7 @@ import {
 } from 'class-transformer';
 
 import {
+  IsArray,
   IsNotEmptyObject,
   IsNumber,
   IsOptional,
@@ -44,5 +45,15 @@ export class CreateOrderInvoiceDetailDto {
   @Type(() => ProductDto)
   @IsNotEmptyObject()
   product: ProductDto;
+
+  @ApiProperty({
+    required: false,
+    type: [String],
+    description: 'Selection IDs for creating export ticket',
+  })
+  @IsOptional()
+  @IsArray()
+  @Type(() => String)
+  selectionIds?: string[] | null;
   // Don't forget to use the class-validator decorators in the DTO properties.
 }

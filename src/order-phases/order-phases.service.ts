@@ -11,6 +11,7 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { ExportTicketsService } from 'src/export-tickets/export-tickets.service';
 import { FilesCloudinaryService } from 'src/files/infrastructure/uploader/cloudinary/files.service';
 import { ImageProofsService } from 'src/image-proofs/image-proofs.service';
 import { OrderInvoiceDetailRepository } from 'src/order-invoice-details/infrastructure/persistence/order-invoice-detail.repository';
@@ -43,6 +44,9 @@ export class OrderPhasesService {
 
     private readonly orderInvoiceRepository: OrderInvoiceRepository,
     private readonly orderInvoiceDetailRepository: OrderInvoiceDetailRepository,
+
+    @Inject(forwardRef(() => ExportTicketsService))
+    private readonly exportTicketsService: ExportTicketsService,
 
     // Dependencies here
     private readonly orderPhaseRepository: OrderPhaseRepository,
@@ -97,6 +101,12 @@ export class OrderPhasesService {
     let totalAmount = 0;
     let quantity = 0;
 
+    // Store created order invoice details with their selectionIds for export ticket creation
+    const createdInvoiceDetailsWithSelections: {
+      orderInvoiceDetailId: string;
+      selectionIds: string[];
+    }[] = [];
+
     for (const oidDto of createOrderPhaseDto.orderInvoiceDetails) {
       const product = await this.productService.findById(oidDto.product.id);
       if (!product) {
@@ -118,6 +128,14 @@ export class OrderPhasesService {
       });
       totalAmount += oid.amount || 0;
       quantity += oid.quantity || 0;
+
+      // Collect invoice details with selectionIds for export ticket creation
+      if (oidDto.selectionIds && oidDto.selectionIds.length > 0) {
+        createdInvoiceDetailsWithSelections.push({
+          orderInvoiceDetailId: oid.id,
+          selectionIds: oidDto.selectionIds,
+        });
+      }
     }
 
     let vatAmount = totalAmount * ((oi.taxRate || 0) / 100);
@@ -131,6 +149,16 @@ export class OrderPhasesService {
     oi.quantity = quantity;
 
     await this.orderInvoiceRepository.update(oi.id, oi);
+
+    // Create export tickets if flag is set and there are invoice details with selectionIds
+    if (createdInvoiceDetailsWithSelections.length > 0) {
+      await this.exportTicketsService.create({
+        invoiceDetails: createdInvoiceDetailsWithSelections.map((detail) => ({
+          orderInvoiceDetailId: detail.orderInvoiceDetailId,
+          selectionId: detail.selectionIds,
+        })),
+      });
+    }
 
     if (os.status === OrderScheduleStatusEnum.APPROVED) {
       await this.orderScheduleService.updateStatus(
