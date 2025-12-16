@@ -91,7 +91,40 @@ export class BatchRelationalRepository implements BatchRepository {
       .createQueryBuilder('batch')
       .leftJoinAndSelect('batch.area', 'area')
       .leftJoinAndSelect('batch.product', 'product')
-      .leftJoinAndSelect('batch.price', 'price');
+      .leftJoinAndSelect('batch.price', 'price')
+      .leftJoinAndSelect('batch.importTicket', 'importTicket')
+      .leftJoin(
+        'inbound_batch',
+        'inboundBatch',
+        'inboundBatch.importTicketId = importTicket.id',
+      )
+      .leftJoin(
+        'harvest_invoice_detail',
+        'harvestInvoiceDetail',
+        'harvestInvoiceDetail.id = inboundBatch.harvestInvoiceDetailId',
+      )
+      .leftJoin(
+        'harvest_invoice',
+        'harvestInvoice',
+        'harvestInvoice.id = harvestInvoiceDetail.harvestInvoiceId',
+      )
+      .leftJoin(
+        'harvest_phase',
+        'harvestPhase',
+        'harvestPhase.id = harvestInvoice.harvestPhaseId',
+      )
+      .leftJoin(
+        'harvest_schedule',
+        'harvestSchedule',
+        'harvestSchedule.id = harvestPhase.harvestScheduleId',
+      )
+      .leftJoin(
+        'supplier',
+        'supplier',
+        'supplier.id = harvestSchedule.supplierId',
+      )
+      .addSelect('supplier.gardenName', 'gardenName')
+      .addSelect('harvestSchedule.harvestDate', 'harvestDate');
 
     if (areaId) {
       queryBuilder.andWhere('area.id = :areaId', { areaId });
@@ -105,7 +138,13 @@ export class BatchRelationalRepository implements BatchRepository {
       .skip((paginationOptions.page - 1) * paginationOptions.limit)
       .take(paginationOptions.limit);
 
-    const entities = await queryBuilder.getMany();
-    return entities.map((entity) => BatchMapper.toResponse(entity));
+    const result = await queryBuilder.getRawAndEntities();
+
+    return result.entities.map((entity, index) => {
+      const response = BatchMapper.toResponse(entity);
+      response.gardenName = result.raw[index]?.gardenName || null;
+      response.harvestDate = result.raw[index]?.harvestDate || null;
+      return response;
+    });
   }
 }

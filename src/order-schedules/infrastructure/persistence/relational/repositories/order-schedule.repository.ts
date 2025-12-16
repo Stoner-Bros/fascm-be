@@ -41,6 +41,11 @@ export class OrderScheduleRelationalRepository
     qb.leftJoinAndSelect('os.consignee', 'consignee');
     qb.leftJoinAndSelect('os.order', 'order');
     qb.leftJoinAndSelect('order.orderDetails', 'orderDetails');
+    qb.leftJoinAndSelect(
+      'orderDetails.orderDetailSelections',
+      'orderDetailSelections',
+    );
+    qb.leftJoinAndSelect('orderDetailSelections.batch', 'batch');
     qb.leftJoinAndSelect('orderDetails.product', 'product');
 
     if (filters?.status) {
@@ -72,6 +77,11 @@ export class OrderScheduleRelationalRepository
     qb.leftJoinAndSelect('os.consignee', 'consignee');
     qb.leftJoinAndSelect('os.order', 'order');
     qb.leftJoinAndSelect('order.orderDetails', 'orderDetails');
+    qb.leftJoinAndSelect(
+      'orderDetails.orderDetailSelections',
+      'orderDetailSelections',
+    );
+    qb.leftJoinAndSelect('orderDetailSelections.batch', 'batch');
     qb.leftJoinAndSelect('orderDetails.product', 'product');
 
     qb.andWhere('consignee.id = :consigneeId', { consigneeId });
@@ -95,6 +105,11 @@ export class OrderScheduleRelationalRepository
     qb.leftJoinAndSelect('os.consignee', 'consignee');
     qb.leftJoinAndSelect('os.order', 'order');
     qb.leftJoinAndSelect('order.orderDetails', 'orderDetails');
+    qb.leftJoinAndSelect(
+      'orderDetails.orderDetailSelections',
+      'orderDetailSelections',
+    );
+    qb.leftJoinAndSelect('orderDetailSelections.batch', 'batch');
     qb.leftJoinAndSelect('orderDetails.product', 'product');
     qb.leftJoinAndSelect('consignee.user', 'user');
     qb.where('os.id = :id', { id });

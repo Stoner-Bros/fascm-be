@@ -4,6 +4,7 @@ import { ProductMapper } from '../../../../../products/infrastructure/persistenc
 
 import { OrderMapper } from '../../../../../orders/infrastructure/persistence/relational/mappers/order.mapper';
 
+import { OrderDetailSelectionMapper } from '../../../../../order-detail-selections/infrastructure/persistence/relational/mappers/order-detail-selection.mapper';
 import { OrderDetailResponseDto } from 'src/order-details/dto/order-detail-response.dto';
 import { OrderDetailEntity } from '../entities/order-detail.entity';
 
@@ -47,6 +48,15 @@ export class OrderDetailMapper {
       domainEntity.product = ProductMapper.toResponse(raw.product);
     } else if (raw.product === null) {
       domainEntity.product = null;
+    }
+
+    // Map orderDetailSelections
+    if (raw.orderDetailSelections && Array.isArray(raw.orderDetailSelections)) {
+      domainEntity.orderDetailSelections = raw.orderDetailSelections.map(
+        (selection) => OrderDetailSelectionMapper.toResponse(selection),
+      );
+    } else {
+      domainEntity.orderDetailSelections = [];
     }
 
     domainEntity.id = raw.id;
