@@ -38,6 +38,7 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
     );
     qb.leftJoinAndSelect('orderInvoiceDetails.product', 'product');
     qb.leftJoinAndSelect('op.imageProof', 'imageProof');
+    qb.leftJoinAndSelect('imageProof.photo', 'photo');
 
     qb.orderBy('DESC');
     qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
@@ -63,6 +64,7 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
     );
     qb.leftJoinAndSelect('orderInvoiceDetails.product', 'product');
     qb.leftJoinAndSelect('op.imageProof', 'imageProof');
+    qb.leftJoinAndSelect('imageProof.photo', 'photo');
 
     qb.where('op.orderScheduleId = :scheduleId', { scheduleId });
 
@@ -85,6 +87,7 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
     );
     qb.leftJoinAndSelect('orderInvoiceDetails.product', 'product');
     qb.leftJoinAndSelect('op.imageProof', 'imageProof');
+    qb.leftJoinAndSelect('imageProof.photo', 'photo');
 
     qb.where('op.id = :id', { id });
 

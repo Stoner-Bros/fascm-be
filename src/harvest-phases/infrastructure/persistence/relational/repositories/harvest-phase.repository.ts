@@ -39,6 +39,7 @@ export class HarvestPhaseRelationalRepository
     );
     qb.leftJoinAndSelect('harvestInvoiceDetails.product', 'product');
     qb.leftJoinAndSelect('hp.imageProof', 'imageProof');
+    qb.leftJoinAndSelect('imageProof.photo', 'photo');
 
     qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
     qb.take(paginationOptions.limit);
@@ -62,6 +63,7 @@ export class HarvestPhaseRelationalRepository
     );
     qb.leftJoinAndSelect('harvestInvoiceDetails.product', 'product');
     qb.leftJoinAndSelect('hp.imageProof', 'imageProof');
+    qb.leftJoinAndSelect('imageProof.photo', 'photo');
 
     qb.where('hp.harvestScheduleId = :scheduleId', { scheduleId });
 
@@ -85,6 +87,7 @@ export class HarvestPhaseRelationalRepository
     );
     qb.leftJoinAndSelect('harvestInvoiceDetails.product', 'product');
     qb.leftJoinAndSelect('hp.imageProof', 'imageProof');
+    qb.leftJoinAndSelect('imageProof.photo', 'photo');
 
     qb.where('hp.id = :id', { id });
 

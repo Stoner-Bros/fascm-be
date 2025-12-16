@@ -1,11 +1,11 @@
 import { HarvestSchedule } from '../../../../domain/harvest-schedule';
 
-import { SupplierMapper } from '../../../../../suppliers/infrastructure/persistence/relational/mappers/supplier.mapper';
 import { HarvestTicketMapper } from '../../../../../harvest-tickets/infrastructure/persistence/relational/mappers/harvest-ticket.mapper';
+import { SupplierMapper } from '../../../../../suppliers/infrastructure/persistence/relational/mappers/supplier.mapper';
 
-import { HarvestScheduleEntity } from '../entities/harvest-schedule.entity';
+import { HarvestDetailMapper } from 'src/harvest-details/infrastructure/persistence/relational/mappers/harvest-detail.mapper';
 import { HarvestScheduleResponse } from 'src/harvest-schedules/dto/harvest-schedule-response';
-import { ProductMapper } from 'src/products/infrastructure/persistence/relational/mappers/product.mapper';
+import { HarvestScheduleEntity } from '../entities/harvest-schedule.entity';
 
 export class HarvestScheduleMapper {
   static toDomain(raw: HarvestScheduleEntity): HarvestSchedule {
@@ -90,21 +90,7 @@ export class HarvestScheduleMapper {
         Array.isArray(raw.harvestTicket.harvestDetails)
       ) {
         responseEntity.harvestDetails = raw.harvestTicket.harvestDetails.map(
-          (detail) => {
-            const detailResponse: any = {
-              id: detail.id,
-              amount: detail.amount,
-              // unitPrice: detail.unitPrice,
-              quantity: detail.quantity,
-              unit: detail.unit,
-              createdAt: detail.createdAt,
-              updatedAt: detail.updatedAt,
-            };
-            if (detail.product) {
-              detailResponse.product = ProductMapper.toResponse(detail.product);
-            }
-            return detailResponse;
-          },
+          (detail) => HarvestDetailMapper.toResponse(detail),
         );
       } else {
         responseEntity.harvestDetails = [];
