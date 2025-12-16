@@ -21,6 +21,7 @@ import {
   PartnerTypeEnum,
 } from './enum/debt.enum';
 import { DebtRepository } from './infrastructure/persistence/debt.repository';
+import { JwtPayloadType } from 'src/auth/strategies/types/jwt-payload.type';
 
 @Injectable()
 export class DebtsService {
@@ -238,5 +239,22 @@ export class DebtsService {
         debtType: DebtTypeEnum.PAYABLE,
       });
     }
+  }
+
+  async getMyDebts(userJwtPayload: JwtPayloadType) {
+    const consignee = await this.consigneeService.findByUserId(
+      Number(userJwtPayload.id),
+    );
+    if (!consignee) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: { consignee: 'notExists' },
+      });
+    }
+
+    return this.debtRepository.getDebtByPartnerId(
+      consignee.id,
+      PartnerTypeEnum.CONSIGNEE,
+    );
   }
 }
