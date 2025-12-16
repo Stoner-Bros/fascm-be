@@ -76,7 +76,6 @@ export class DebtsController {
     type: Debt,
   })
   getMyDebts(@Request() request) {
-    console.log('request.user', request);
     return this.debtsService.getMyDebts(request.user);
   }
 

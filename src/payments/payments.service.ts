@@ -47,6 +47,15 @@ export class PaymentsService {
       ? PartnerTypeEnum.CONSIGNEE
       : PartnerTypeEnum.SUPPLIER;
 
+    const partnerId = createPaymentDto.consigneeId
+    ? createPaymentDto.consigneeId
+    : createPaymentDto.supplierId;
+
+    const partnerDebt = await this.debtRepo.getDebtByPartnerId(
+      partnerId as string,
+      partnerType,
+    );
+
     if (createPaymentDto.paymentMethod === PaymentMethod.BANK_TRANSFER) {
       try {
         const paymentLinkRes = await payOS.paymentRequests.create({
@@ -73,6 +82,8 @@ export class PaymentsService {
           qrCode: paymentLinkRes.qrCode,
 
           paymentMethod: createPaymentDto.paymentMethod,
+
+          debt: partnerDebt,
         });
       } catch (error) {
         throw new BadRequestException(
@@ -95,6 +106,8 @@ export class PaymentsService {
         amount: createPaymentDto.amount,
 
         paymentMethod: createPaymentDto.paymentMethod,
+
+        debt: partnerDebt,
       });
     }
 
@@ -174,10 +187,6 @@ export class PaymentsService {
           timestamp: new Date().toISOString(),
         });
 
-        console.log(
-          `[PaymentsService] Payment ${payment.paymentCode} canceled`,
-        );
-
         return cancelResult;
       } catch (error) {
         throw new BadRequestException(
@@ -199,15 +208,11 @@ export class PaymentsService {
         timestamp: new Date().toISOString(),
       });
 
-      console.log(`[PaymentsService] Payment ${payment.paymentCode} canceled`);
-
       return payment;
     }
   }
 
   async confirmWebhook(webhookData: any) {
-    console.log('webhookData', webhookData);
-
     try {
       const verifiedData = await payOS.webhooks.verify(webhookData);
 
@@ -257,9 +262,6 @@ export class PaymentsService {
           timestamp: new Date().toISOString(),
         });
 
-        console.log(
-          `[PaymentsService] Payment ${payment.paymentCode} status updated to ${newStatus}`,
-        );
       }
 
       return {
@@ -324,10 +326,6 @@ export class PaymentsService {
         paymentMethod: payment.paymentMethod ?? '',
         timestamp: new Date().toISOString(),
       });
-
-      console.log(
-        `[PaymentsService] Cash payment ${payment.paymentCode} confirmed as PAID`,
-      );
 
       return payment;
     } catch (error) {
