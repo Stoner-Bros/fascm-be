@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Query,
+  Request,
 } from '@nestjs/common';
 import { DebtsService } from './debts.service';
 import { CreateDebtDto } from './dto/create-debt.dto';
@@ -104,5 +105,13 @@ export class DebtsController {
   })
   remove(@Param('id') id: string) {
     return this.debtsService.remove(id);
+  }
+
+  @Get('my-debts')
+  @ApiOkResponse({
+    type: Debt,
+  })
+  getMyDebts(@Request() request) {
+    return this.debtsService.getMyDebts(request.user);
   }
 }
