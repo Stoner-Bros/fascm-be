@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository, In, IsNull } from 'typeorm';
 import { InboundBatchEntity } from '../entities/inbound-batch.entity';
 import { NullableType } from '../../../../../utils/types/nullable.type';
 import { InboundBatch } from '../../../../domain/inbound-batch';
@@ -32,6 +32,7 @@ export class InboundBatchRelationalRepository
     paginationOptions: IPaginationOptions;
   }): Promise<InboundBatch[]> {
     const entities = await this.inboundBatchRepository.find({
+      where: { importTicket: IsNull() },
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
     });
