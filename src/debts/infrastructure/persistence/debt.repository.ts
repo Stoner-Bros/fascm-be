@@ -28,5 +28,5 @@ export abstract class DebtRepository {
   abstract getDebtByPartnerId(
     partnerId: string,
     partnerType: string,
-  ): Promise<Debt>;
+  ): Promise<NullableType<Debt>>;
 }
