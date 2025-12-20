@@ -81,8 +81,8 @@ export class DebtRelationalRepository implements DebtRepository {
   async getDebtByPartnerId(
     partnerId: string,
     partnerType: string,
-  ): Promise<Debt> {
-    const entities = await this.debtRepository.findOne({
+  ): Promise<NullableType<Debt>> {
+    const entity = await this.debtRepository.findOne({
       where: {
         partnerType: partnerType as any,
         ...(partnerType === PartnerTypeEnum.SUPPLIER
@@ -91,6 +91,6 @@ export class DebtRelationalRepository implements DebtRepository {
       },
     });
 
-    return DebtMapper.toDomain(entities!);
+    return entity ? DebtMapper.toDomain(entity) : null;
   }
 }
