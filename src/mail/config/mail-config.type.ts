@@ -1,4 +1,7 @@
+export type MailDriver = 'smtp' | 'sendgrid';
+
 export type MailConfig = {
+  driver: MailDriver;
   port: number;
   host?: string;
   user?: string;
@@ -8,4 +11,6 @@ export type MailConfig = {
   ignoreTLS: boolean;
   secure: boolean;
   requireTLS: boolean;
+  // SendGrid specific
+  sendgridApiKey?: string;
 };
