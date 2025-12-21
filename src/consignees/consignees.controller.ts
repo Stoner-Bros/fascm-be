@@ -31,10 +31,10 @@ import { infinityPagination } from '../utils/infinity-pagination';
 import { FindAllConsigneesDto } from './dto/find-all-consignees.dto';
 import { RoleEnum } from 'src/roles/roles.enum';
 import { Roles } from 'src/roles/roles.decorator';
+import { RolesGuard } from 'src/roles/roles.guard';
 
 @ApiTags('Consignees')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller({
   path: 'consignees',
   version: '1',
@@ -43,7 +43,6 @@ export class ConsigneesController {
   constructor(private readonly consigneesService: ConsigneesService) {}
 
   @Post()
-  @Roles(RoleEnum.admin, RoleEnum.manager)
   @SerializeOptions({
     groups: ['admin'],
   })
@@ -55,6 +54,7 @@ export class ConsigneesController {
   }
 
   @Get()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(RoleEnum.admin, RoleEnum.manager)
   @SerializeOptions({
     groups: ['admin'],
@@ -83,6 +83,7 @@ export class ConsigneesController {
   }
 
   @Get('mine')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(RoleEnum.consignee)
   @SerializeOptions({
     groups: ['me'],
@@ -97,6 +98,7 @@ export class ConsigneesController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(RoleEnum.admin, RoleEnum.manager)
   @SerializeOptions({
     groups: ['admin'],
@@ -114,7 +116,8 @@ export class ConsigneesController {
   }
 
   @Patch(':id')
-  @Roles(RoleEnum.admin, RoleEnum.manager)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(RoleEnum.admin, RoleEnum.manager, RoleEnum.consignee)
   @SerializeOptions({
     groups: ['admin'],
   })
@@ -134,6 +137,7 @@ export class ConsigneesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(RoleEnum.admin, RoleEnum.manager)
   @SerializeOptions({
     groups: ['admin'],

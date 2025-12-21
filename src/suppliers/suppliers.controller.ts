@@ -31,10 +31,10 @@ import { infinityPagination } from '../utils/infinity-pagination';
 import { FindAllSuppliersDto } from './dto/find-all-suppliers.dto';
 import { RoleEnum } from 'src/roles/roles.enum';
 import { Roles } from 'src/roles/roles.decorator';
+import { RolesGuard } from 'src/roles/roles.guard';
 
 @ApiTags('Suppliers')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller({
   path: 'suppliers',
   version: '1',
@@ -43,7 +43,6 @@ export class SuppliersController {
   constructor(private readonly suppliersService: SuppliersService) {}
 
   @Post()
-  @Roles(RoleEnum.admin, RoleEnum.manager)
   @SerializeOptions({
     groups: ['admin'],
   })
@@ -55,6 +54,7 @@ export class SuppliersController {
   }
 
   @Get()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(RoleEnum.admin, RoleEnum.manager)
   @SerializeOptions({
     groups: ['admin'],
@@ -83,6 +83,7 @@ export class SuppliersController {
   }
 
   @Get('mine')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(RoleEnum.supplier)
   @SerializeOptions({
     groups: ['me'],
@@ -99,6 +100,7 @@ export class SuppliersController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(RoleEnum.admin, RoleEnum.manager)
   @SerializeOptions({
     groups: ['admin'],
@@ -116,7 +118,8 @@ export class SuppliersController {
   }
 
   @Patch(':id')
-  @Roles(RoleEnum.admin, RoleEnum.manager)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(RoleEnum.admin, RoleEnum.manager, RoleEnum.supplier)
   @SerializeOptions({
     groups: ['admin'],
   })
@@ -136,6 +139,7 @@ export class SuppliersController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(RoleEnum.admin, RoleEnum.manager)
   @SerializeOptions({
     groups: ['admin'],
