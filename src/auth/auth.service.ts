@@ -214,9 +214,45 @@ export class AuthService {
       },
     });
 
+    if (roleId !== RoleEnum.supplier && roleId !== RoleEnum.consignee) {
+      const hash = await this.jwtService.signAsync(
+        {
+          confirmEmailUserId: user.id,
+        },
+        {
+          secret: this.configService.getOrThrow('auth.confirmEmailSecret', {
+            infer: true,
+          }),
+          expiresIn: this.configService.getOrThrow('auth.confirmEmailExpires', {
+            infer: true,
+          }),
+        },
+      );
+
+      await this.mailService.userSignUp({
+        to: dto.email,
+        data: {
+          hash,
+          role: user.role?.id || RoleEnum.user,
+        },
+      });
+    }
+
+    return user;
+  }
+
+  async approveRegistration(userId: number): Promise<void> {
+    const user = await this.usersService.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException({
+        status: HttpStatus.NOT_FOUND,
+        error: `notFound`,
+      });
+    }
     const hash = await this.jwtService.signAsync(
       {
-        confirmEmailUserId: user.id,
+        confirmEmailUserId: userId,
       },
       {
         secret: this.configService.getOrThrow('auth.confirmEmailSecret', {
@@ -229,14 +265,12 @@ export class AuthService {
     );
 
     await this.mailService.userSignUp({
-      to: dto.email,
+      to: user.email as string,
       data: {
         hash,
         role: user.role?.id || RoleEnum.user,
       },
     });
-
-    return user;
   }
 
   async confirmEmail(hash: string): Promise<LoginResponseDto> {

@@ -23,6 +23,7 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { NullableType } from '../utils/types/nullable.type';
 import { User } from '../users/domain/user';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
+import { ApproveRegisterDto } from './dto/approve-register.dto';
 
 @ApiTags('Auth')
 @Controller({
@@ -44,11 +45,13 @@ export class AuthController {
     return this.service.validateLogin(loginDto);
   }
 
-  // @Post('email/register')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async register(@Body() createUserDto: AuthRegisterLoginDto): Promise<User> {
-  //   return this.service.register(createUserDto);
-  // }
+  @Post('email/register/approve')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async approveRegistration(
+    @Body() approveDto: ApproveRegisterDto,
+  ): Promise<void> {
+    return this.service.approveRegistration(approveDto.userId);
+  }
 
   @SerializeOptions({
     groups: ['me'],
