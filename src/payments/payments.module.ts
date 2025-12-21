@@ -1,4 +1,5 @@
 import {
+  forwardRef,
   // do not remove this comment
   Module,
 } from '@nestjs/common';
@@ -11,7 +12,7 @@ import { PayosWebhookController } from './payos-webhook.controller';
 
 @Module({
   imports: [
-    DebtsModule,
+    forwardRef(() => DebtsModule),
     // do not remove this comment
     RelationalPaymentPersistenceModule,
   ],

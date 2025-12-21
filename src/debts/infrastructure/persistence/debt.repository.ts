@@ -10,8 +10,10 @@ export abstract class DebtRepository {
 
   abstract findAllWithPagination({
     paginationOptions,
+    partnerType,
   }: {
     paginationOptions: IPaginationOptions;
+    partnerType?: string;
   }): Promise<Debt[]>;
 
   abstract findById(id: Debt['id']): Promise<NullableType<Debt>>;
