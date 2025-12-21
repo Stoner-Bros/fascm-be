@@ -60,6 +60,20 @@ export class PaymentRelationalRepository implements PaymentRepository {
     return entity ? PaymentMapper.toDomain(entity) : null;
   }
 
+  async findByDebtId(
+    debtId: string,
+    paginationOptions: IPaginationOptions,
+  ): Promise<Payment[]> {
+    const entities = await this.paymentRepository.find({
+      where: { debt: { id: debtId } },
+      skip: (paginationOptions.page - 1) * paginationOptions.limit,
+      take: paginationOptions.limit,
+      order: { createdAt: 'DESC' },
+    });
+
+    return entities.map((entity) => PaymentMapper.toDomain(entity));
+  }
+
   async update(id: Payment['id'], payload: Partial<Payment>): Promise<Payment> {
     const entity = await this.paymentRepository.findOne({
       where: { id },

@@ -22,6 +22,11 @@ export abstract class PaymentRepository {
     paymentCode: string,
   ): Promise<NullableType<Payment>>;
 
+  abstract findByDebtId(
+    debtId: string,
+    paginationOptions: IPaginationOptions,
+  ): Promise<Payment[]>;
+
   abstract update(
     id: Payment['id'],
     payload: DeepPartial<Payment>,

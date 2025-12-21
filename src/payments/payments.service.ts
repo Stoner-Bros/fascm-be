@@ -333,4 +333,8 @@ export class PaymentsService {
       );
     }
   }
+
+  async findByDebtId(debtId: string, paginationOptions: IPaginationOptions) {
+    return this.paymentRepository.findByDebtId(debtId, paginationOptions);
+  }
 }

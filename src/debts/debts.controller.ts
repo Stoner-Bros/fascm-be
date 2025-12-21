@@ -22,6 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { Debt } from './domain/debt';
 import { AuthGuard } from '@nestjs/passport';
+import { Payment } from 'src/payments/domain/payment';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
@@ -66,6 +67,7 @@ export class DebtsController {
           page,
           limit,
         },
+        partnerType: query.partnerType,
       }),
       { page, limit },
     );
@@ -90,6 +92,34 @@ export class DebtsController {
   })
   findById(@Param('id') id: string) {
     return this.debtsService.findById(id);
+  }
+
+  @Get(':id/payments')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: InfinityPaginationResponse(Payment),
+  })
+  async getPaymentsByDebtId(
+    @Param('id') id: string,
+    @Query() query: FindAllDebtsDto,
+  ): Promise<InfinityPaginationResponseDto<Payment>> {
+    const page = query?.page ?? 1;
+    let limit = query?.limit ?? 10;
+    if (limit > 50) {
+      limit = 50;
+    }
+
+    return infinityPagination(
+      await this.debtsService.getPaymentsByDebtId(id, {
+        page,
+        limit,
+      }),
+      { page, limit },
+    );
   }
 
   @Patch(':id')

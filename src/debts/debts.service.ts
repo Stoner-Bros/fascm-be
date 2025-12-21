@@ -22,6 +22,7 @@ import {
 } from './enum/debt.enum';
 import { DebtRepository } from './infrastructure/persistence/debt.repository';
 import { JwtPayloadType } from 'src/auth/strategies/types/jwt-payload.type';
+import { PaymentsService } from 'src/payments/payments.service';
 
 @Injectable()
 export class DebtsService {
@@ -31,6 +32,9 @@ export class DebtsService {
 
     @Inject(forwardRef(() => SuppliersService))
     private readonly supplierService: SuppliersService,
+
+    @Inject(forwardRef(() => PaymentsService))
+    private readonly paymentsService: PaymentsService,
 
     // Dependencies here
     private readonly debtRepository: DebtRepository,
@@ -103,14 +107,17 @@ export class DebtsService {
 
   findAllWithPagination({
     paginationOptions,
+    partnerType,
   }: {
     paginationOptions: IPaginationOptions;
+    partnerType?: PartnerTypeEnum;
   }) {
     return this.debtRepository.findAllWithPagination({
       paginationOptions: {
         page: paginationOptions.page,
         limit: paginationOptions.limit,
       },
+      partnerType,
     });
   }
 
@@ -197,6 +204,10 @@ export class DebtsService {
 
   getDebtByPartnerId(partnerId: string, partnerType: string) {
     return this.debtRepository.getDebtByPartnerId(partnerId, partnerType);
+  }
+
+  getPaymentsByDebtId(debtId: string, paginationOptions: IPaginationOptions) {
+    return this.paymentsService.findByDebtId(debtId, paginationOptions);
   }
 
   async initializeConsigneeDebt(consignee: Consignee) {

@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { PartnerTypeEnum } from '../enum/debt.enum';
 
 export class FindAllDebtsDto {
   @ApiPropertyOptional()
@@ -14,4 +15,9 @@ export class FindAllDebtsDto {
   @IsNumber()
   @IsOptional()
   limit?: number;
+
+  @ApiPropertyOptional({ enum: PartnerTypeEnum })
+  @IsEnum(PartnerTypeEnum)
+  @IsOptional()
+  partnerType?: PartnerTypeEnum;
 }

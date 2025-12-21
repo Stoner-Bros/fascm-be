@@ -26,12 +26,24 @@ export class DebtRelationalRepository implements DebtRepository {
 
   async findAllWithPagination({
     paginationOptions,
+    partnerType,
+    consigneeId,
+    supplierId,
   }: {
     paginationOptions: IPaginationOptions;
+    partnerType?: PartnerTypeEnum;
+    consigneeId?: string;
+    supplierId?: string;
   }): Promise<Debt[]> {
+    const where: any = {};
+    if (partnerType) where.partnerType = partnerType;
+    if (consigneeId) where.consignee = { id: consigneeId };
+    if (supplierId) where.supplier = { id: supplierId };
+
     const entities = await this.debtRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
+      where: where,
     });
 
     return entities.map((entity) => DebtMapper.toDomain(entity));
