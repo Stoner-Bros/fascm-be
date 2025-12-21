@@ -33,7 +33,7 @@ export class HarvestScheduleRelationalRepository
     sort,
   }: {
     paginationOptions: IPaginationOptions;
-    filters?: { status?: HarvestScheduleStatusEnum };
+    filters?: { status?: HarvestScheduleStatusEnum; warehouseId?: string };
     sort?: 'ASC' | 'DESC';
   }): Promise<HarvestScheduleResponse[]> {
     const qb = this.harvestScheduleRepository.createQueryBuilder('hs');
@@ -44,6 +44,12 @@ export class HarvestScheduleRelationalRepository
 
     if (filters?.status) {
       qb.andWhere('hs.status = :status', { status: filters.status });
+    }
+
+    if (filters?.warehouseId) {
+      qb.andWhere('supplier.warehouseId = :warehouseId', {
+        warehouseId: filters.warehouseId,
+      });
     }
 
     qb.orderBy('hs.id', sort ?? 'DESC');

@@ -16,7 +16,7 @@ export abstract class HarvestScheduleRepository {
     sort,
   }: {
     paginationOptions: IPaginationOptions;
-    filters?: { status?: HarvestScheduleStatusEnum };
+    filters?: { status?: HarvestScheduleStatusEnum; warehouseId?: string };
     sort?: 'ASC' | 'DESC';
   }): Promise<HarvestScheduleResponse[]>;
 
