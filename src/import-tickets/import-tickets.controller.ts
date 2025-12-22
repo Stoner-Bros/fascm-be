@@ -64,6 +64,7 @@ export class ImportTicketsController {
           page,
           limit,
         },
+        warehouseId: query.warehouseId,
       }),
       { page, limit },
     );

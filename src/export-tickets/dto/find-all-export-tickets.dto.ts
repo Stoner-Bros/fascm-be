@@ -1,5 +1,5 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class FindAllExportTicketsDto {
@@ -14,4 +14,13 @@ export class FindAllExportTicketsDto {
   @IsNumber()
   @IsOptional()
   limit?: number;
+
+  @ApiProperty({
+    required: false,
+    type: String,
+    description: 'Warehouse ID to filter export tickets',
+  })
+  @IsOptional()
+  @IsString()
+  warehouseId?: string;
 }

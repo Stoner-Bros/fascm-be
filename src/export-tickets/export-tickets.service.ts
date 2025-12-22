@@ -143,14 +143,17 @@ export class ExportTicketsService {
 
   findAllWithPagination({
     paginationOptions,
+    warehouseId,
   }: {
     paginationOptions: IPaginationOptions;
+    warehouseId?: string;
   }) {
     return this.exportTicketRepository.findAllWithPagination({
       paginationOptions: {
         page: paginationOptions.page,
         limit: paginationOptions.limit,
       },
+      warehouseId,
     });
   }
 

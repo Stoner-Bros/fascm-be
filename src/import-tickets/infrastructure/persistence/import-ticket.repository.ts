@@ -10,8 +10,10 @@ export abstract class ImportTicketRepository {
 
   abstract findAllWithPagination({
     paginationOptions,
+    warehouseId,
   }: {
     paginationOptions: IPaginationOptions;
+    warehouseId?: string;
   }): Promise<ImportTicket[]>;
 
   abstract findById(

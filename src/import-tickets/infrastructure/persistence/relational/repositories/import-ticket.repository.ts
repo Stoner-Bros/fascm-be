@@ -27,8 +27,10 @@ export class ImportTicketRelationalRepository
 
   async findAllWithPagination({
     paginationOptions,
+    warehouseId,
   }: {
     paginationOptions: IPaginationOptions;
+    warehouseId?: string;
   }): Promise<ImportTicket[]> {
     const queryBuilder = this.importTicketRepository
       .createQueryBuilder('importTicket')
@@ -51,7 +53,8 @@ export class ImportTicketRelationalRepository
         '(' +
           'SELECT "batch"."importTicketId" as "importTicketId", ' +
           'COUNT("batch"."id") as "count", ' +
-          'MAX("area"."name") as "areaName" ' +
+          'MAX("area"."name") as "areaName", ' +
+          'MAX("area"."warehouseId") as "warehouseId" ' +
           'FROM "batch" ' +
           'LEFT JOIN "area" ON "area"."id" = "batch"."areaId" ' +
           'GROUP BY "batch"."importTicketId"' +
@@ -72,7 +75,15 @@ export class ImportTicketRelationalRepository
       .addSelect('"inboundBatch"."batchCode"', 'batchCode')
       .addSelect('"product"."name"', 'productName')
       .addSelect('COALESCE("batchData"."count", 0)', 'numberOfBatch')
-      .addSelect('"batchData"."areaName"', 'areaName')
+      .addSelect('"batchData"."areaName"', 'areaName');
+
+    if (warehouseId) {
+      queryBuilder.andWhere('"batchData"."warehouseId" = :warehouseId', {
+        warehouseId,
+      });
+    }
+
+    queryBuilder
       .skip((paginationOptions.page - 1) * paginationOptions.limit)
       .take(paginationOptions.limit);
 

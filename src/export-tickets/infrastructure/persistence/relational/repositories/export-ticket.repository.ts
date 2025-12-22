@@ -27,8 +27,10 @@ export class ExportTicketRelationalRepository
 
   async findAllWithPagination({
     paginationOptions,
+    warehouseId,
   }: {
     paginationOptions: IPaginationOptions;
+    warehouseId?: string;
   }): Promise<ExportTicket[]> {
     const queryBuilder = this.exportTicketRepository
       .createQueryBuilder('exportTicket')
@@ -47,7 +49,13 @@ export class ExportTicketRelationalRepository
       .addSelect('exportTicket.createdAt', 'createdAt')
       .addSelect('exportTicket.updatedAt', 'updatedAt')
       .addSelect('product.name', 'productName')
-      .addSelect('area.name', 'areaName')
+      .addSelect('area.name', 'areaName');
+
+    if (warehouseId) {
+      queryBuilder.andWhere('area.warehouseId = :warehouseId', { warehouseId });
+    }
+
+    queryBuilder
       .groupBy('exportTicket.id')
       .addGroupBy('exportTicket.unit')
       .addGroupBy('exportTicket.quantity')

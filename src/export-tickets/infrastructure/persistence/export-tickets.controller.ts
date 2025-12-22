@@ -64,6 +64,7 @@ export class ExportTicketsController {
           page,
           limit,
         },
+        warehouseId: query?.warehouseId,
       }),
       { page, limit },
     );
