@@ -72,6 +72,7 @@ export class BatchesController {
     return infinityPagination(
       await this.batchesService.findByFiltersWithPagination({
         areaId: query.areaId,
+        warehouseId: query.warehouseId,
         productId: query.productId,
         paginationOptions: {
           page,

@@ -15,6 +15,15 @@ export class FindBatchesByFilterDto {
   @ApiProperty({
     required: false,
     type: String,
+    description: 'Warehouse ID to filter batches',
+  })
+  @IsOptional()
+  @IsString()
+  warehouseId?: string;
+
+  @ApiProperty({
+    required: false,
+    type: String,
     description: 'Product ID to filter batches',
   })
   @IsOptional()

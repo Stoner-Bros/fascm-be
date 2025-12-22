@@ -28,10 +28,12 @@ export abstract class BatchRepository {
 
   abstract findByFiltersWithPagination({
     areaId,
+    warehouseId,
     productId,
     paginationOptions,
   }: {
     areaId?: string;
+    warehouseId?: string;
     productId?: string;
     paginationOptions: IPaginationOptions;
   }): Promise<BatchResponse[]>;

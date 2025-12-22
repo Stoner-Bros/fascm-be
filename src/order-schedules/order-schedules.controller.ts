@@ -75,6 +75,7 @@ export class OrderSchedulesController {
 
     return infinityPagination(
       await this.orderSchedulesService.findAllWithPagination({
+        warehouseId: query?.warehouseId,
         paginationOptions: {
           page,
           limit,
@@ -104,6 +105,7 @@ export class OrderSchedulesController {
 
     return infinityPagination(
       await this.orderSchedulesService.findAllByConsigneeWithPagination({
+        warehouseId: query?.warehouseId,
         consigneeId,
         paginationOptions: {
           page,

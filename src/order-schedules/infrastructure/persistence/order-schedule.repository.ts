@@ -10,10 +10,12 @@ export abstract class OrderScheduleRepository {
   ): Promise<OrderSchedule>;
 
   abstract findAllWithPagination({
+    warehouseId,
     paginationOptions,
     filters,
     sort,
   }: {
+    warehouseId?: string;
     paginationOptions: IPaginationOptions;
     filters?: {
       status?: OrderSchedule['status'];
@@ -22,11 +24,13 @@ export abstract class OrderScheduleRepository {
   }): Promise<OrderScheduleResponse[]>;
 
   abstract findAllByConsigneeWithPagination({
+    warehouseId,
     consigneeId,
     paginationOptions,
     filters,
     sort,
   }: {
+    warehouseId?: string;
     consigneeId: string;
     paginationOptions: IPaginationOptions;
     filters?: {

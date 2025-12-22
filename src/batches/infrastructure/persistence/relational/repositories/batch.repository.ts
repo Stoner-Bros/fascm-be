@@ -80,10 +80,12 @@ export class BatchRelationalRepository implements BatchRepository {
 
   async findByFiltersWithPagination({
     areaId,
+    warehouseId,
     productId,
     paginationOptions,
   }: {
     areaId?: string;
+    warehouseId?: string;
     productId?: string;
     paginationOptions: IPaginationOptions;
   }): Promise<BatchResponse[]> {
@@ -128,6 +130,10 @@ export class BatchRelationalRepository implements BatchRepository {
 
     if (areaId) {
       queryBuilder.andWhere('area.id = :areaId', { areaId });
+    }
+
+    if (warehouseId) {
+      queryBuilder.andWhere('area.warehouseId = :warehouseId', { warehouseId });
     }
 
     if (productId) {

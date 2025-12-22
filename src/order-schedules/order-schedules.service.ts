@@ -135,15 +135,18 @@ export class OrderSchedulesService {
   }
 
   findAllWithPagination({
+    warehouseId,
     paginationOptions,
     filters,
     sort,
   }: {
+    warehouseId?: string;
     paginationOptions: IPaginationOptions;
     filters?: { status?: OrderScheduleStatusEnum };
     sort?: 'ASC' | 'DESC';
   }) {
     return this.orderScheduleRepository.findAllWithPagination({
+      warehouseId,
       paginationOptions: {
         page: paginationOptions.page,
         limit: paginationOptions.limit,
@@ -154,17 +157,20 @@ export class OrderSchedulesService {
   }
 
   findAllByConsigneeWithPagination({
+    warehouseId,
     consigneeId,
     paginationOptions,
     filters,
     sort,
   }: {
+    warehouseId?: string;
     consigneeId: string;
     paginationOptions: IPaginationOptions;
     filters?: { status?: OrderScheduleStatusEnum };
     sort?: 'ASC' | 'DESC';
   }) {
     return this.orderScheduleRepository.findAllByConsigneeWithPagination({
+      warehouseId,
       consigneeId,
       paginationOptions: {
         page: paginationOptions.page,

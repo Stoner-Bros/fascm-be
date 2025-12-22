@@ -27,10 +27,12 @@ export class OrderScheduleRelationalRepository
   }
 
   async findAllWithPagination({
+    warehouseId,
     paginationOptions,
     filters,
     sort,
   }: {
+    warehouseId?: string;
     paginationOptions: IPaginationOptions;
     filters?: {
       status?: OrderSchedule['status'];
@@ -52,6 +54,13 @@ export class OrderScheduleRelationalRepository
       qb.andWhere('os.status = :status', { status: filters.status });
     }
 
+    // Check order schedule description contains warehouseId
+    if (warehouseId) {
+      qb.andWhere('os.description LIKE :warehouseId', {
+        warehouseId: `%${warehouseId}%`,
+      });
+    }
+
     qb.orderBy('os.id', sort ?? 'DESC');
     qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
     qb.take(paginationOptions.limit);
@@ -61,11 +70,13 @@ export class OrderScheduleRelationalRepository
   }
 
   async findAllByConsigneeWithPagination({
+    warehouseId,
     consigneeId,
     paginationOptions,
     filters,
     sort,
   }: {
+    warehouseId?: string;
     consigneeId: string;
     paginationOptions: IPaginationOptions;
     filters?: {
@@ -88,6 +99,13 @@ export class OrderScheduleRelationalRepository
 
     if (filters?.status) {
       qb.andWhere('os.status = :status', { status: filters.status });
+    }
+
+    // Check order schedule description contains warehouseId
+    if (warehouseId) {
+      qb.andWhere('os.description LIKE :warehouseId', {
+        warehouseId: `%${warehouseId}%`,
+      });
     }
 
     qb.orderBy('os.id', sort ?? 'DESC');
