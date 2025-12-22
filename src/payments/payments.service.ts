@@ -58,13 +58,20 @@ export class PaymentsService {
 
     if (createPaymentDto.paymentMethod === PaymentMethod.BANK_TRANSFER) {
       try {
-        const paymentLinkRes = await payOS.paymentRequests.create({
-          orderCode: Number(paymentCode),
-          amount: createPaymentDto.amount,
-          description: `FASCMPAY-${paymentCode}`,
-          cancelUrl: process.env.PAYOS_CANCEL_URL ?? '',
-          returnUrl: process.env.PAYOS_RETURN_URL ?? '',
-        });
+        let paymentLinkRes;
+        if (partnerType === PartnerTypeEnum.CONSIGNEE) {
+          paymentLinkRes = await payOS.paymentRequests.create({
+            orderCode: Number(paymentCode),
+            amount: createPaymentDto.amount,
+            description: `FASCMPAY-${paymentCode}`,
+            cancelUrl: process.env.PAYOS_CANCEL_URL ?? '',
+            returnUrl: process.env.PAYOS_RETURN_URL ?? '',
+          });
+        } else if (partnerType === PartnerTypeEnum.SUPPLIER) {
+          paymentLinkRes = {
+            qrCode: partnerDebt?.supplier?.qrCode,
+          };
+        }
 
         payment = await this.paymentRepository.create({
           paymentCode: paymentCode,
@@ -76,8 +83,6 @@ export class PaymentsService {
           status: PaymentStatus.PENDING,
 
           amount: createPaymentDto.amount,
-
-          checkoutUrl: paymentLinkRes.checkoutUrl,
 
           qrCode: paymentLinkRes.qrCode,
 
