@@ -102,14 +102,17 @@ export class AreasService {
 
   findAllWithPagination({
     paginationOptions,
+    warehouseId,
   }: {
     paginationOptions: IPaginationOptions;
+    warehouseId?: string;
   }) {
     return this.areaRepository.findAllWithPagination({
       paginationOptions: {
         page: paginationOptions.page,
         limit: paginationOptions.limit,
       },
+      warehouseId,
     });
   }
 

@@ -65,6 +65,7 @@ export class AreasController {
           page,
           limit,
         },
+        warehouseId: query.warehouseId,
       }),
       { page, limit },
     );

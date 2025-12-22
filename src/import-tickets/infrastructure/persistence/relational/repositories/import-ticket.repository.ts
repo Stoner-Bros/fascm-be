@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
-import { ImportTicketEntity } from '../entities/import-ticket.entity';
+import { In, Repository } from 'typeorm';
 import { NullableType } from '../../../../../utils/types/nullable.type';
+import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 import { ImportTicket } from '../../../../domain/import-ticket';
 import { ImportTicketRepository } from '../../import-ticket.repository';
+import { ImportTicketEntity } from '../entities/import-ticket.entity';
 import { ImportTicketMapper } from '../mappers/import-ticket.mapper';
-import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 
 @Injectable()
 export class ImportTicketRelationalRepository
@@ -53,15 +53,25 @@ export class ImportTicketRelationalRepository
         '(' +
           'SELECT "batch"."importTicketId" as "importTicketId", ' +
           'COUNT("batch"."id") as "count", ' +
-          'MAX("area"."name") as "areaName", ' +
-          'MAX("area"."warehouseId") as "warehouseId" ' +
+          'MAX("area"."name") as "areaName" ' +
           'FROM "batch" ' +
           'LEFT JOIN "area" ON "area"."id" = "batch"."areaId" ' +
           'GROUP BY "batch"."importTicketId"' +
           ')',
         'batchData',
         '"batchData"."importTicketId" = "importTicket"."id"',
-      )
+      );
+
+    if (warehouseId) {
+      queryBuilder.andWhere(
+        'importTicket.id IN (SELECT DISTINCT "batch"."importTicketId" FROM "batch" ' +
+          'LEFT JOIN "area" ON "area"."id" = "batch"."areaId" ' +
+          'WHERE "area"."warehouseId" = :warehouseId)',
+        { warehouseId },
+      );
+    }
+
+    queryBuilder
       .select([
         'importTicket.id',
         'importTicket.unit',
@@ -75,15 +85,7 @@ export class ImportTicketRelationalRepository
       .addSelect('"inboundBatch"."batchCode"', 'batchCode')
       .addSelect('"product"."name"', 'productName')
       .addSelect('COALESCE("batchData"."count", 0)', 'numberOfBatch')
-      .addSelect('"batchData"."areaName"', 'areaName');
-
-    if (warehouseId) {
-      queryBuilder.andWhere('"batchData"."warehouseId" = :warehouseId', {
-        warehouseId,
-      });
-    }
-
-    queryBuilder
+      .addSelect('"batchData"."areaName"', 'areaName')
       .skip((paginationOptions.page - 1) * paginationOptions.limit)
       .take(paginationOptions.limit);
 
