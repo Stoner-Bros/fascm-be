@@ -2,6 +2,7 @@ import { UsersModule } from '../users/users.module';
 import {
   // do not remove this comment
   Module,
+  forwardRef,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { NotificationsController } from './notifications.controller';
@@ -19,11 +20,11 @@ import { DeliveryStaffsModule } from '../delivery-staffs/delivery-staffs.module'
 
     // do not remove this comment
     RelationalNotificationPersistenceModule,
-    SuppliersModule,
-    ConsigneesModule,
-    ManagersModule,
-    StaffsModule,
-    DeliveryStaffsModule,
+    forwardRef(() => SuppliersModule),
+    forwardRef(() => ConsigneesModule),
+    forwardRef(() => ManagersModule),
+    forwardRef(() => StaffsModule),
+    forwardRef(() => DeliveryStaffsModule),
   ],
   controllers: [NotificationsController],
   providers: [NotificationsService, NotificationsGateway],

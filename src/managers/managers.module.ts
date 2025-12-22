@@ -3,6 +3,7 @@ import { UsersModule } from '../users/users.module';
 import {
   // do not remove this comment
   Module,
+  forwardRef,
 } from '@nestjs/common';
 import { ManagersService } from './managers.service';
 import { ManagersController } from './managers.controller';
@@ -11,7 +12,7 @@ import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
-    WarehousesModule,
+    forwardRef(() => WarehousesModule),
 
     UsersModule,
     AuthModule,

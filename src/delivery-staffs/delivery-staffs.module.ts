@@ -4,6 +4,7 @@ import { UsersModule } from '../users/users.module';
 import {
   // do not remove this comment
   Module,
+  forwardRef,
 } from '@nestjs/common';
 import { DeliveryStaffsService } from './delivery-staffs.service';
 import { DeliveryStaffsController } from './delivery-staffs.controller';
@@ -14,7 +15,7 @@ import { AuthModule } from 'src/auth/auth.module';
   imports: [
     TrucksModule,
     AuthModule,
-    WarehousesModule,
+    forwardRef(() => WarehousesModule),
 
     UsersModule,
 
