@@ -25,13 +25,24 @@ export class AreaRelationalRepository implements AreaRepository {
 
   async findAllWithPagination({
     paginationOptions,
+    warehouseId,
   }: {
     paginationOptions: IPaginationOptions;
+    warehouseId?: string;
   }): Promise<Area[]> {
-    const entities = await this.areaRepository.find({
-      skip: (paginationOptions.page - 1) * paginationOptions.limit,
-      take: paginationOptions.limit,
-    });
+    const queryBuilder = this.areaRepository.createQueryBuilder('area');
+    queryBuilder.leftJoinAndSelect('area.warehouse', 'warehouse');
+    queryBuilder.leftJoinAndSelect('area.iotDevice', 'iotDevice');
+
+    if (warehouseId) {
+      queryBuilder.andWhere('warehouse.id = :warehouseId', { warehouseId });
+    }
+
+    queryBuilder
+      .skip((paginationOptions.page - 1) * paginationOptions.limit)
+      .take(paginationOptions.limit);
+
+    const entities = await queryBuilder.getMany();
 
     return entities.map((entity) => AreaMapper.toDomain(entity));
   }

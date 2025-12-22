@@ -65,6 +65,7 @@ export class InboundBatchesController {
           page,
           limit,
         },
+        warehouseId: query.warehouseId,
       }),
       { page, limit },
     );

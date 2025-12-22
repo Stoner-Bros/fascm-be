@@ -11,8 +11,10 @@ export abstract class InboundBatchRepository {
 
   abstract findAllWithPagination({
     paginationOptions,
+    warehouseId,
   }: {
     paginationOptions: IPaginationOptions;
+    warehouseId?: string;
   }): Promise<InboundBatch[]>;
 
   abstract findById(

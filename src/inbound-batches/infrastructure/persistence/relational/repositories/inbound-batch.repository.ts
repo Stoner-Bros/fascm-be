@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In, IsNull } from 'typeorm';
-import { InboundBatchEntity } from '../entities/inbound-batch.entity';
+import { Product } from 'src/products/domain/product';
+import { In, Repository } from 'typeorm';
 import { NullableType } from '../../../../../utils/types/nullable.type';
+import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
 import { InboundBatch } from '../../../../domain/inbound-batch';
 import { InboundBatchRepository } from '../../inbound-batch.repository';
+import { InboundBatchEntity } from '../entities/inbound-batch.entity';
 import { InboundBatchMapper } from '../mappers/inbound-batch.mapper';
-import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
-import { Product } from 'src/products/domain/product';
 
 @Injectable()
 export class InboundBatchRelationalRepository
@@ -28,14 +28,51 @@ export class InboundBatchRelationalRepository
 
   async findAllWithPagination({
     paginationOptions,
+    warehouseId,
   }: {
     paginationOptions: IPaginationOptions;
+    warehouseId?: string;
   }): Promise<InboundBatch[]> {
-    const entities = await this.inboundBatchRepository.find({
-      where: { importTicket: IsNull() },
-      skip: (paginationOptions.page - 1) * paginationOptions.limit,
-      take: paginationOptions.limit,
-    });
+    const queryBuilder = this.inboundBatchRepository
+      .createQueryBuilder('inboundBatch')
+      .leftJoinAndSelect(
+        'inboundBatch.harvestInvoiceDetail',
+        'harvestInvoiceDetail',
+      )
+      .leftJoinAndSelect('inboundBatch.importTicket', 'importTicket')
+      .leftJoin(
+        'harvest_invoice',
+        'harvestInvoice',
+        '"harvestInvoice"."id" = "harvestInvoiceDetail"."harvestInvoiceId"',
+      )
+      .leftJoin(
+        'harvest_phase',
+        'harvestPhase',
+        '"harvestPhase"."id" = "harvestInvoice"."harvestPhaseId"',
+      )
+      .leftJoin(
+        'harvest_schedule',
+        'harvestSchedule',
+        '"harvestSchedule"."id" = "harvestPhase"."harvestScheduleId"',
+      )
+      .leftJoin(
+        'supplier',
+        'supplier',
+        '"supplier"."id" = "harvestSchedule"."supplierId"',
+      )
+      .where('inboundBatch.importTicket IS NULL');
+
+    if (warehouseId) {
+      queryBuilder.andWhere('"supplier"."warehouseId" = :warehouseId', {
+        warehouseId,
+      });
+    }
+
+    queryBuilder
+      .skip((paginationOptions.page - 1) * paginationOptions.limit)
+      .take(paginationOptions.limit);
+
+    const entities = await queryBuilder.getMany();
 
     return entities.map((entity) => InboundBatchMapper.toDomain(entity));
   }
