@@ -15,6 +15,7 @@ import { HarvestSchedulesController } from './harvest-schedules.controller';
 import { HarvestSchedulesService } from './harvest-schedules.service';
 import { RelationalHarvestSchedulePersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { HarvestScheduleValidationService } from './validators/harvest-schedule-validation.service';
+import { DebtsModule } from 'src/debts/debts.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { HarvestScheduleValidationService } from './validators/harvest-schedule-
     NotificationsModule,
     HarvestTicketsModule,
     HarvestDetailsModule,
+    DebtsModule,
     // do not remove this comment
     RelationalHarvestSchedulePersistenceModule,
     TypeOrmModule.forFeature([

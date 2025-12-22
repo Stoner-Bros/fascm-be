@@ -54,4 +54,8 @@ export abstract class HarvestScheduleRepository {
     status: HarvestScheduleStatusEnum,
     reason?: string,
   ): Promise<HarvestSchedule | null>;
+
+  abstract getTotalPaymentByScheduleId(
+    harvestScheduleId: HarvestSchedule['id'],
+  ): Promise<number>;
 }

@@ -12,6 +12,8 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { BatchesService } from 'src/batches/batches.service';
+import { DebtsService } from 'src/debts/debts.service';
+import { PartnerTypeEnum } from 'src/debts/enum/debt.enum';
 import { OrderDetailRepository } from 'src/order-details/infrastructure/persistence/order-detail.repository';
 import { OrderRepository } from 'src/orders/infrastructure/persistence/order.repository';
 import { Product } from 'src/products/domain/product';
@@ -34,6 +36,7 @@ export class OrderSchedulesService {
     private readonly orderDetailSelectionsService: OrderDetailSelectionsService,
     private readonly batchesService: BatchesService,
     private readonly orderDetailRepository: OrderDetailRepository,
+    private readonly debtsService: DebtsService,
   ) {}
 
   async create(createOrderScheduleDto: CreateOrderScheduleDto, userId: number) {
@@ -53,6 +56,51 @@ export class OrderSchedulesService {
         });
       }
       consignee = consigneeObject;
+    }
+
+    // Calculate total order amount
+    let totalOrderAmount = 0;
+    for (const detailDto of createOrderScheduleDto.orderDetails) {
+      if (detailDto.batchInfo && detailDto.batchInfo.length > 0) {
+        for (const batchInfo of detailDto.batchInfo) {
+          totalOrderAmount +=
+            (batchInfo.unitPrice ?? 0) * (batchInfo.quantity ?? 0);
+        }
+      }
+    }
+
+    // Check credit limit
+    const debt = await this.debtsService.getDebtByPartnerId(
+      consignee!.id,
+      PartnerTypeEnum.CONSIGNEE,
+    );
+
+    if (debt && debt.dueDate && debt.dueDate < new Date()) {
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        errors: {
+          creditLimit: 'debtOverdue',
+        },
+      });
+    }
+
+    if (debt) {
+      const currentDebt = debt.remainingAmount ?? 0;
+      const creditLimit = debt.creditLimit ?? 0;
+      const newTotalDebt = currentDebt + totalOrderAmount;
+
+      if (newTotalDebt > creditLimit) {
+        throw new BadRequestException({
+          status: HttpStatus.BAD_REQUEST,
+          errors: {
+            creditLimit: 'creditLimitExceeded',
+            currentDebt: currentDebt,
+            orderAmount: totalOrderAmount,
+            creditLimitValue: creditLimit,
+            exceededBy: newTotalDebt - creditLimit,
+          },
+        });
+      }
     }
 
     const os = await this.orderScheduleRepository.create({
@@ -437,6 +485,23 @@ export class OrderSchedulesService {
 
     if (status === OrderScheduleStatusEnum.APPROVED) {
       await this.approveNotification(orderSchedule);
+      const consignee = orderSchedule?.consignee;
+      if (consignee) {
+        const debt = await this.debtsService.getDebtByPartnerId(
+          consignee.id,
+          PartnerTypeEnum.CONSIGNEE,
+        );
+
+        const totalPayment =
+          (await this.orderScheduleRepository.getTotalPaymentByScheduleId(
+            orderSchedule.id,
+          )) * 1.05; // Including 5% VAT
+        if (debt) {
+          debt.originalAmount = (debt.originalAmount ?? 0) + totalPayment;
+          debt.remainingAmount = (debt.remainingAmount ?? 0) + totalPayment;
+          await this.debtsService.update(debt.id, debt as any);
+        }
+      }
     }
 
     // Send notification for rejection

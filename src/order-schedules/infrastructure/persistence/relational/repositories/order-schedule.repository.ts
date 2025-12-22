@@ -172,4 +172,33 @@ export class OrderScheduleRelationalRepository
   async remove(id: OrderSchedule['id']): Promise<void> {
     await this.orderScheduleRepository.delete(id);
   }
+
+  async getTotalPaymentByScheduleId(
+    orderScheduleId: OrderSchedule['id'],
+  ): Promise<number> {
+    const qb = this.orderScheduleRepository.createQueryBuilder('os');
+    qb.leftJoinAndSelect('os.order', 'order');
+    qb.leftJoinAndSelect('order.orderDetails', 'orderDetails');
+    qb.leftJoinAndSelect(
+      'orderDetails.orderDetailSelections',
+      'orderDetailSelections',
+    );
+    qb.where('os.id = :orderScheduleId', { orderScheduleId });
+
+    const entity = await qb.getOne();
+
+    if (!entity) {
+      return 0;
+    }
+
+    let totalPayment = 0;
+    for (const orderDetail of entity?.order?.orderDetails ?? []) {
+      for (const selection of orderDetail?.orderDetailSelections ?? []) {
+        totalPayment +=
+          (selection?.quantity ?? 0) * (selection?.unitPrice ?? 0);
+      }
+    }
+
+    return totalPayment;
+  }
 }

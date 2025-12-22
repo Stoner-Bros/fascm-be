@@ -168,4 +168,26 @@ export class HarvestScheduleRelationalRepository
     const updatedEntity = await this.harvestScheduleRepository.save(entity);
     return HarvestScheduleMapper.toDomain(updatedEntity);
   }
+
+  async getTotalPaymentByScheduleId(
+    harvestScheduleId: HarvestSchedule['id'],
+  ): Promise<number> {
+    const qb = this.harvestScheduleRepository.createQueryBuilder('hs');
+    qb.leftJoinAndSelect('hs.harvestTicket', 'harvestTicket');
+    qb.leftJoinAndSelect('harvestTicket.harvestDetails', 'harvestDetails');
+    qb.where('hs.id = :harvestScheduleId', { harvestScheduleId });
+
+    const harvestSchedule = await qb.getOne();
+
+    if (!harvestSchedule) {
+      return 0;
+    }
+
+    const totalPayment = harvestSchedule?.harvestTicket?.harvestDetails?.reduce(
+      (total, detail) => total + (detail.amount ?? 0),
+      0,
+    );
+
+    return totalPayment ?? 0;
+  }
 }

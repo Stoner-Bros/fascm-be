@@ -19,6 +19,8 @@ import { CreateHarvestScheduleDto } from './dto/create-harvest-schedule.dto';
 import { UpdateHarvestScheduleDto } from './dto/update-harvest-schedule.dto';
 import { HarvestScheduleStatusEnum } from './enum/harvest-schedule-status.enum';
 import { HarvestScheduleRepository } from './infrastructure/persistence/harvest-schedule.repository';
+import { DebtsService } from 'src/debts/debts.service';
+import { PartnerTypeEnum } from 'src/debts/enum/debt.enum';
 
 @Injectable()
 export class HarvestSchedulesService {
@@ -28,6 +30,7 @@ export class HarvestSchedulesService {
     private readonly supplierService: SuppliersService,
     private readonly productsService: ProductsService,
     private readonly notificationsService: NotificationsService,
+    private readonly debtsService: DebtsService,
     private readonly harvestTicketsRepository: HarvestTicketRepository,
     private readonly harvestDetailsRepository: HarvestDetailRepository,
   ) {}
@@ -339,6 +342,23 @@ export class HarvestSchedulesService {
 
     if (status === HarvestScheduleStatusEnum.APPROVED) {
       await this.approveNotification(harvestSchedule);
+      const supplier = harvestSchedule?.supplier;
+      if (supplier) {
+        const debt = await this.debtsService.getDebtByPartnerId(
+          supplier.id,
+          PartnerTypeEnum.SUPPLIER,
+        );
+
+        const totalPayment =
+          await this.harvestScheduleRepository.getTotalPaymentByScheduleId(
+            harvestSchedule.id,
+          );
+        if (debt) {
+          debt.originalAmount = (debt.originalAmount ?? 0) + totalPayment;
+          debt.remainingAmount = (debt.remainingAmount ?? 0) + totalPayment;
+          await this.debtsService.update(debt.id, debt as any);
+        }
+      }
     }
 
     // Send notification for rejection

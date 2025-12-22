@@ -11,7 +11,6 @@ import { DeliveriesController } from './deliveries.controller';
 import { DeliveriesService } from './deliveries.service';
 import { DeliveryGateway } from './delivery.gateway';
 import { RelationalDeliveryPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
-import { DebtsModule } from 'src/debts/debts.module';
 
 @Module({
   imports: [
@@ -22,7 +21,6 @@ import { DebtsModule } from 'src/debts/debts.module';
     forwardRef(() => HarvestPhasesModule),
 
     forwardRef(() => OrderPhasesModule),
-    forwardRef(() => DebtsModule),
 
     // do not remove this comment
     RelationalDeliveryPersistenceModule,

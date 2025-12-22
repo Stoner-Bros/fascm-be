@@ -10,8 +10,6 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { DebtsService } from 'src/debts/debts.service';
-import { PartnerTypeEnum } from 'src/debts/enum/debt.enum';
 import { DeliveryStaffsService } from 'src/delivery-staffs/delivery-staffs.service';
 import { DeliveryStaff } from 'src/delivery-staffs/domain/delivery-staff';
 import { HarvestPhase } from 'src/harvest-phases/domain/harvest-phase';
@@ -37,8 +35,6 @@ export class DeliveriesService {
     private readonly harvestPhaseService: HarvestPhasesService,
     @Inject(forwardRef(() => OrderPhasesService))
     private readonly orderPhaseService: OrderPhasesService,
-    @Inject(forwardRef(() => DebtsService))
-    private readonly debtsService: DebtsService,
 
     // Dependencies here
     private readonly deliveryRepository: DeliveryRepository,
@@ -515,25 +511,6 @@ export class DeliveriesService {
               delivery.harvestPhase.id,
               HarvestPhaseStatusEnum.DELIVERED,
             );
-
-            const supplier = delivery?.harvestPhase?.harvestSchedule?.supplier;
-            if (supplier) {
-              const debt = await this.debtsService.getDebtByPartnerId(
-                supplier.id,
-                PartnerTypeEnum.SUPPLIER,
-              );
-
-              const totalPayment =
-                await this.harvestPhaseService.getTotalPaymentByPhaseId(
-                  delivery.harvestPhase.id,
-                );
-              if (debt) {
-                debt.originalAmount = (debt.originalAmount ?? 0) + totalPayment;
-                debt.remainingAmount =
-                  (debt.remainingAmount ?? 0) + totalPayment;
-                await this.debtsService.update(debt.id, debt as any);
-              }
-            }
           }
         }
         if (delivery.orderPhase) {
@@ -542,25 +519,6 @@ export class DeliveriesService {
               delivery.orderPhase.id,
               OrderPhaseStatusEnum.DELIVERED,
             );
-
-            const consignee = delivery?.orderPhase?.orderSchedule?.consignee;
-            if (consignee) {
-              const debt = await this.debtsService.getDebtByPartnerId(
-                consignee.id,
-                PartnerTypeEnum.CONSIGNEE,
-              );
-
-              const totalPayment =
-                await this.orderPhaseService.getTotalPaymentByPhaseId(
-                  delivery.orderPhase.id,
-                );
-              if (debt) {
-                debt.originalAmount = (debt.originalAmount ?? 0) + totalPayment;
-                debt.remainingAmount =
-                  (debt.remainingAmount ?? 0) + totalPayment;
-                await this.debtsService.update(debt.id, debt as any);
-              }
-            }
           }
         }
         break;

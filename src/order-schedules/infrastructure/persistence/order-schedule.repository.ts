@@ -51,4 +51,8 @@ export abstract class OrderScheduleRepository {
   ): Promise<OrderSchedule | null>;
 
   abstract remove(id: OrderSchedule['id']): Promise<void>;
+
+  abstract getTotalPaymentByScheduleId(
+    orderScheduleId: OrderSchedule['id'],
+  ): Promise<number>;
 }

@@ -4,6 +4,7 @@ import {
 } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BatchesModule } from 'src/batches/batches.module';
+import { DebtsModule } from 'src/debts/debts.module';
 import { OrderDetailSelectionsModule } from 'src/order-detail-selections/order-detail-selections.module';
 import { OrderDetailEntity } from 'src/order-details/infrastructure/persistence/relational/entities/order-detail.entity';
 import { OrderDetailsModule } from 'src/order-details/order-details.module';
@@ -26,6 +27,7 @@ import { OrderScheduleValidationService } from './validators/order-schedule-vali
     OrdersModule,
     OrderDetailsModule,
     BatchesModule,
+    DebtsModule,
     OrderDetailSelectionsModule,
     // do not remove this comment
     RelationalOrderSchedulePersistenceModule,
