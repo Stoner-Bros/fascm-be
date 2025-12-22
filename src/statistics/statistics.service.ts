@@ -343,10 +343,7 @@ export class StatisticsService {
     const inventoryResult = await this.batchRepository
       .createQueryBuilder('b')
       .select('COALESCE(SUM(b.currentQuantity), 0)', 'totalQuantity')
-      .addSelect(
-        'COALESCE(SUM(CAST(b.currentQuantity AS NUMERIC) * CAST(b.costPrice AS NUMERIC)), 0)',
-        'totalValue',
-      )
+      .addSelect('COALESCE(SUM(CAST(b.costPrice AS NUMERIC)), 0)', 'totalValue')
       .getRawOne();
 
     // Batches by product
@@ -356,10 +353,7 @@ export class StatisticsService {
       .select('p.id', 'productId')
       .addSelect('p.name', 'productName')
       .addSelect('COALESCE(SUM(b.currentQuantity), 0)', 'totalQuantity')
-      .addSelect(
-        'COALESCE(SUM(CAST(b.currentQuantity AS NUMERIC) * CAST(b.costPrice AS NUMERIC)), 0)',
-        'totalValue',
-      )
+      .addSelect('COALESCE(SUM(CAST(b.costPrice AS NUMERIC)), 0)', 'totalValue')
       .groupBy('p.id')
       .addGroupBy('p.name')
       .getRawMany();
@@ -751,10 +745,7 @@ export class StatisticsService {
       .select('w.id', 'warehouseId')
       .addSelect('w.name', 'warehouseName')
       .addSelect('COALESCE(SUM(b.currentQuantity), 0)', 'totalQuantity')
-      .addSelect(
-        'COALESCE(SUM(CAST(b.currentQuantity AS NUMERIC) * CAST(b.costPrice AS NUMERIC)), 0)',
-        'totalValue',
-      )
+      .addSelect('COALESCE(SUM(CAST(b.costPrice AS NUMERIC)), 0)', 'totalValue')
       .groupBy('w.id')
       .addGroupBy('w.name')
       .getRawMany();
