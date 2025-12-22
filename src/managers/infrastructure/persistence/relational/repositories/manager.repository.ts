@@ -59,6 +59,13 @@ export class ManagerRelationalRepository implements ManagerRepository {
     return entities.map((entity) => ManagerMapper.toDomain(entity));
   }
 
+  async findByWarehouseId(warehouseId: string): Promise<Manager[]> {
+    const entities = await this.managerRepository.find({
+      where: { warehouse: { id: warehouseId } },
+    });
+    return entities.map((entity) => ManagerMapper.toDomain(entity));
+  }
+
   async update(id: Manager['id'], payload: Partial<Manager>): Promise<Manager> {
     const entity = await this.managerRepository.findOne({
       where: { id },

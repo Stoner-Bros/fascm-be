@@ -7,6 +7,7 @@ import {
 import { AreaAlertsService } from './area-alerts.service';
 import { AreaAlertsController } from './area-alerts.controller';
 import { RelationalAreaAlertPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { RelationalAreaAlertPersistenceModule } from './infrastructure/persisten
 
     // do not remove this comment
     RelationalAreaAlertPersistenceModule,
+    forwardRef(() => NotificationsModule),
   ],
   controllers: [AreaAlertsController],
   providers: [AreaAlertsService],

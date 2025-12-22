@@ -19,6 +19,7 @@ export abstract class StaffRepository {
   abstract findByUserId(userId: number): Promise<NullableType<Staff>>;
 
   abstract findByIds(ids: Staff['id'][]): Promise<Staff[]>;
+  abstract findByWarehouseId(warehouseId: string): Promise<Staff[]>;
 
   abstract update(
     id: Staff['id'],

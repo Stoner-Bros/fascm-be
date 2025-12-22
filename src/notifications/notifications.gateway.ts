@@ -71,6 +71,16 @@ export class NotificationsGateway {
     client.emit('notify:subscribed', { room });
   }
 
+  @SubscribeMessage('notify:subscribeWarehouse')
+  async handleSubscribeWarehouse(
+    @MessageBody() payload: { warehouseId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const room = `notify:warehouse:${payload.warehouseId}`;
+    await client.join(room);
+    client.emit('notify:subscribed', { room });
+  }
+
   notifyConsignee(consigneeId: string, payload: NotifyPayload) {
     const room = `notify:consignee:${consigneeId}`;
     this.server.to(room).emit('notify', payload);
@@ -93,6 +103,11 @@ export class NotificationsGateway {
 
   notifyDeliveryStaff(deliveryStaffId: string, payload: NotifyPayload) {
     const room = `notify:delivery:${deliveryStaffId}`;
+    this.server.to(room).emit('notify', payload);
+  }
+
+  notifyWarehouse(warehouseId: string, payload: NotifyPayload) {
+    const room = `notify:warehouse:${warehouseId}`;
     this.server.to(room).emit('notify', payload);
   }
 }

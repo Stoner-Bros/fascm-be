@@ -63,6 +63,13 @@ export class DeliveryStaffRelationalRepository
     return entities.map((entity) => DeliveryStaffMapper.toDomain(entity));
   }
 
+  async findByWarehouseId(warehouseId: string): Promise<DeliveryStaff[]> {
+    const entities = await this.deliveryStaffRepository.find({
+      where: { warehouse: { id: warehouseId } },
+    });
+    return entities.map((entity) => DeliveryStaffMapper.toDomain(entity));
+  }
+
   async update(
     id: DeliveryStaff['id'],
     payload: Partial<DeliveryStaff>,

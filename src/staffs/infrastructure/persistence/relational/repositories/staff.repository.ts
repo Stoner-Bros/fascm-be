@@ -59,6 +59,13 @@ export class StaffRelationalRepository implements StaffRepository {
     return entities.map((entity) => StaffMapper.toDomain(entity));
   }
 
+  async findByWarehouseId(warehouseId: string): Promise<Staff[]> {
+    const entities = await this.staffRepository.find({
+      where: { warehouse: { id: warehouseId } },
+    });
+    return entities.map((entity) => StaffMapper.toDomain(entity));
+  }
+
   async update(id: Staff['id'], payload: Partial<Staff>): Promise<Staff> {
     const entity = await this.staffRepository.findOne({
       where: { id },

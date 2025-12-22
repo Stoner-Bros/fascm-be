@@ -11,6 +11,7 @@ import { AreaAlertRepository } from './infrastructure/persistence/area-alert.rep
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { AreaAlert } from './domain/area-alert';
 import { Area } from '../areas/domain/area';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class AreaAlertsService {
@@ -19,6 +20,7 @@ export class AreaAlertsService {
 
     // Dependencies here
     private readonly areaAlertRepository: AreaAlertRepository,
+    private readonly notificationsGateway: NotificationsGateway,
   ) {}
 
   async create(createAreaAlertDto: CreateAreaAlertDto) {
@@ -44,7 +46,7 @@ export class AreaAlertsService {
       area = null;
     }
 
-    return this.areaAlertRepository.create({
+    const created = await this.areaAlertRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
       status: createAreaAlertDto.status,
@@ -55,6 +57,31 @@ export class AreaAlertsService {
 
       area,
     });
+    try {
+      const warehouseId = area?.warehouse?.id;
+      if (warehouseId) {
+        const payload = {
+          id: String(created.id),
+          type: 'area-alert',
+          title: 'areaAlert',
+          message:
+            (created.status ?? '') === 'resolved'
+              ? 'areaAlertResolved'
+              : 'areaAlertActive',
+          data: {
+            areaId: area?.id,
+            warehouseId,
+            status: created.status ?? null,
+            alertType: created.alertType ?? null,
+          },
+          timestamp:
+            (created.createdAt as any)?.toISOString?.() ??
+            new Date().toISOString(),
+        };
+        this.notificationsGateway.notifyWarehouse(String(warehouseId), payload);
+      }
+    } catch {}
+    return created;
   }
 
   findAllWithPagination({
