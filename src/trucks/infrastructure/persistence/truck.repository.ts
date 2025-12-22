@@ -2,6 +2,7 @@ import { DeepPartial } from '../../../utils/types/deep-partial.type';
 import { NullableType } from '../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../utils/types/pagination-options';
 import { Truck } from '../../domain/truck';
+import { TruckStatusEnum } from '../../enum/truck-status.enum';
 
 export abstract class TruckRepository {
   abstract create(
@@ -10,8 +11,12 @@ export abstract class TruckRepository {
 
   abstract findAllWithPagination({
     paginationOptions,
+    filters,
+    sort,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { status?: TruckStatusEnum; warehouseId?: string };
+    sort?: 'ASC' | 'DESC';
   }): Promise<Truck[]>;
 
   abstract findById(id: Truck['id']): Promise<NullableType<Truck>>;

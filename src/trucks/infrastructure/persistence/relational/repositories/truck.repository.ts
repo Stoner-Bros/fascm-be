@@ -7,6 +7,7 @@ import { Truck } from '../../../../domain/truck';
 import { TruckRepository } from '../../truck.repository';
 import { TruckMapper } from '../mappers/truck.mapper';
 import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
+import { TruckStatusEnum } from '../../../../enum/truck-status.enum';
 
 @Injectable()
 export class TruckRelationalRepository implements TruckRepository {
@@ -25,12 +26,21 @@ export class TruckRelationalRepository implements TruckRepository {
 
   async findAllWithPagination({
     paginationOptions,
+    filters,
+    sort,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { status?: TruckStatusEnum; warehouseId?: string };
+    sort?: 'ASC' | 'DESC';
   }): Promise<Truck[]> {
     const entities = await this.truckRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
+      where: {
+        ...(filters?.status && { status: filters.status }),
+        ...(filters?.warehouseId && { warehouse: { id: filters.warehouseId } }),
+      },
+      order: { id: sort ?? 'DESC' },
     });
 
     return entities.map((entity) => TruckMapper.toDomain(entity));

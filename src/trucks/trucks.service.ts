@@ -97,14 +97,20 @@ export class TrucksService {
 
   findAllWithPagination({
     paginationOptions,
+    filters,
+    sort,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { status?: TruckStatusEnum; warehouseId?: string };
+    sort?: 'ASC' | 'DESC';
   }) {
     return this.truckRepository.findAllWithPagination({
       paginationOptions: {
         page: paginationOptions.page,
         limit: paginationOptions.limit,
       },
+      filters,
+      sort,
     });
   }
 

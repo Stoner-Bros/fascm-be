@@ -1,17 +1,15 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { TrucksService } from './trucks.service';
-import { CreateTruckDto } from './dto/create-truck.dto';
-import { UpdateTruckDto } from './dto/update-truck.dto';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -19,15 +17,17 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { Truck } from './domain/truck';
-import { AuthGuard } from '@nestjs/passport';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
+import { Truck } from './domain/truck';
+import { CreateTruckDto } from './dto/create-truck.dto';
 import { FindAllTrucksDto } from './dto/find-all-trucks.dto';
 import { UpdateTruckStatusDto } from './dto/update-truck-status.dto';
+import { UpdateTruckDto } from './dto/update-truck.dto';
+import { TrucksService } from './trucks.service';
 
 @ApiTags('Trucks')
 @ApiBearerAuth()
@@ -60,12 +60,21 @@ export class TrucksController {
       limit = 50;
     }
 
+    const status = query?.status;
+    const warehouseId = query?.warehouseId;
+    const sort = query?.sort === 'asc' ? 'ASC' : 'DESC';
+
     return infinityPagination(
       await this.trucksService.findAllWithPagination({
         paginationOptions: {
           page,
           limit,
         },
+        filters: {
+          status,
+          warehouseId,
+        },
+        sort,
       }),
       { page, limit },
     );
