@@ -11,9 +11,12 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { ExportTicketsService } from 'src/export-tickets/export-tickets.service';
+import { AreasService } from 'src/areas/areas.service';
+import { ExportTicketRepository } from 'src/export-tickets/infrastructure/persistence/export-ticket.repository';
 import { FilesCloudinaryService } from 'src/files/infrastructure/uploader/cloudinary/files.service';
 import { ImageProofsService } from 'src/image-proofs/image-proofs.service';
+import { OrderDetailSelectionRepository } from 'src/order-detail-selections/infrastructure/persistence/order-detail-selection.repository';
+import { OrderDetailSelectionsService } from 'src/order-detail-selections/order-detail-selections.service';
 import { OrderInvoiceDetailRepository } from 'src/order-invoice-details/infrastructure/persistence/order-invoice-detail.repository';
 import { OrderInvoiceRepository } from 'src/order-invoices/infrastructure/persistence/order-invoice.repository';
 import { OrderScheduleStatusEnum } from 'src/order-schedules/enum/order-schedule-status.enum';
@@ -45,8 +48,17 @@ export class OrderPhasesService {
     private readonly orderInvoiceRepository: OrderInvoiceRepository,
     private readonly orderInvoiceDetailRepository: OrderInvoiceDetailRepository,
 
-    @Inject(forwardRef(() => ExportTicketsService))
-    private readonly exportTicketsService: ExportTicketsService,
+    // Export ticket related dependencies (merged from ExportTicketsService)
+    @Inject(forwardRef(() => OrderDetailSelectionsService))
+    private readonly orderDetailSelectionsService: OrderDetailSelectionsService,
+
+    @Inject(forwardRef(() => OrderDetailSelectionRepository))
+    private readonly orderDetailSelectionsRepository: OrderDetailSelectionRepository,
+
+    @Inject(forwardRef(() => AreasService))
+    private readonly areasService: AreasService,
+
+    private readonly exportTicketRepository: ExportTicketRepository,
 
     // Dependencies here
     private readonly orderPhaseRepository: OrderPhaseRepository,
@@ -56,9 +68,26 @@ export class OrderPhasesService {
     // Do not remove comment below.
     // <creating-property />
 
-    const os = await this.orderScheduleService.findById(
-      createOrderPhaseDto.orderSchedule.id,
-    );
+    // 1. Batch fetch all required data upfront to reduce N+1 queries
+    const productIds = [
+      ...new Set(
+        createOrderPhaseDto.orderInvoiceDetails.map((oid) => oid.product.id),
+      ),
+    ];
+
+    // Collect all selectionIds for batch fetching
+    const allSelectionIds = createOrderPhaseDto.orderInvoiceDetails
+      .flatMap((oid) => oid.selectionIds || [])
+      .filter((id) => id);
+
+    const [os, products, allSelections] = await Promise.all([
+      this.orderScheduleService.findById(createOrderPhaseDto.orderSchedule.id),
+      this.productService.findByIds(productIds),
+      allSelectionIds.length > 0
+        ? this.orderDetailSelectionsService.findByIds(allSelectionIds)
+        : Promise.resolve([]),
+    ]);
+
     if (!os) {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -66,6 +95,36 @@ export class OrderPhasesService {
           orderSchedule: 'notExists',
         },
       });
+    }
+
+    // Create a product map for O(1) lookup
+    const productMap = new Map(products.map((p) => [p.id, p]));
+
+    // Validate all products exist
+    const missingProducts = productIds.filter((id) => !productMap.has(id));
+    if (missingProducts.length > 0) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          product: `Products not found: ${missingProducts.join(', ')}`,
+        },
+      });
+    }
+
+    // Validate all selections exist
+    if (allSelectionIds.length > 0) {
+      const selectionMap = new Map(allSelections.map((s) => [s.id, s]));
+      const missingSelections = allSelectionIds.filter(
+        (id) => !selectionMap.has(id),
+      );
+      if (missingSelections.length > 0) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            selectionBatches: `Selections not found: ${missingSelections.join(', ')}`,
+          },
+        });
+      }
     }
 
     // Validate that adding this phase won't exceed schedule limits
@@ -80,6 +139,7 @@ export class OrderPhasesService {
       invoiceDetailsForValidation,
     );
 
+    // 2. Create order phase and order invoice
     const op = await this.orderPhaseRepository.create({
       description: createOrderPhaseDto.description || '',
       phaseNumber: createOrderPhaseDto.phaseNumber || 0,
@@ -98,68 +158,157 @@ export class OrderPhasesService {
       orderPhase: op,
     });
 
+    // 3. Create all order invoice details in parallel
+    const invoiceDetailPromises = createOrderPhaseDto.orderInvoiceDetails.map(
+      (oidDto) => {
+        const product = productMap.get(oidDto.product.id)!;
+        return this.orderInvoiceDetailRepository.create({
+          taxRate: 0,
+          quantity: oidDto.quantity,
+          unit: oidDto.unit,
+          orderInvoice: oi,
+          product: product,
+        });
+      },
+    );
+
+    const createdInvoiceDetails = await Promise.all(invoiceDetailPromises);
+
+    // 4. Calculate totals and prepare export ticket data
     let totalAmount = 0;
     let quantity = 0;
-
-    // Store created order invoice details with their selectionIds for export ticket creation
     const createdInvoiceDetailsWithSelections: {
-      orderInvoiceDetailId: string;
+      orderInvoiceDetail: (typeof createdInvoiceDetails)[0];
       selectionIds: string[];
+      productId: string;
     }[] = [];
 
-    for (const oidDto of createOrderPhaseDto.orderInvoiceDetails) {
-      const product = await this.productService.findById(oidDto.product.id);
-      if (!product) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            product: 'notExists',
-          },
-        });
-      }
-      const oid = await this.orderInvoiceDetailRepository.create({
-        taxRate: 0,
-        // amount: (oidDto.unitPrice || 0) * (oidDto.quantity || 0),
-        // unitPrice: oidDto.unitPrice,
-        quantity: oidDto.quantity,
-        unit: oidDto.unit,
-        orderInvoice: oi,
-        product: product,
-      });
+    createdInvoiceDetails.forEach((oid, index) => {
       totalAmount += oid.amount || 0;
       quantity += oid.quantity || 0;
 
-      // Collect invoice details with selectionIds for export ticket creation
+      const oidDto = createOrderPhaseDto.orderInvoiceDetails[index];
       if (oidDto.selectionIds && oidDto.selectionIds.length > 0) {
         createdInvoiceDetailsWithSelections.push({
-          orderInvoiceDetailId: oid.id,
+          orderInvoiceDetail: oid,
           selectionIds: oidDto.selectionIds,
+          productId: oidDto.product.id,
         });
       }
+    });
+
+    // 5. Calculate VAT
+    let vatAmount = totalAmount * ((oi.taxRate || 0) / 100);
+    vatAmount = Math.round(vatAmount * 100) / 100;
+
+    // 6. Create export tickets inline if there are selections (merged from ExportTicketsService)
+    if (createdInvoiceDetailsWithSelections.length > 0) {
+      // Create selection map for O(1) lookup
+      const selectionMap = new Map(allSelections.map((s) => [s.id, s]));
+
+      // Collect all unique area IDs for batch fetching
+      const areaIds = [
+        ...new Set(
+          allSelections
+            .map((s) => s.batch?.area?.id)
+            .filter((id): id is string => !!id),
+        ),
+      ];
+      const areas = await this.areasService.findByIds(areaIds);
+      const areaMap = new Map(areas.map((a) => [a.id, a]));
+
+      // Process each invoice detail with selections
+      for (const detail of createdInvoiceDetailsWithSelections) {
+        const selectionBatches = detail.selectionIds
+          .map((id) => selectionMap.get(id))
+          .filter((s) => s !== undefined);
+
+        // Validate product matches
+        for (const selectionBatch of selectionBatches) {
+          if (selectionBatch.batch?.product?.id !== detail.productId) {
+            throw new UnprocessableEntityException({
+              status: HttpStatus.UNPROCESSABLE_ENTITY,
+              errors: {
+                batch: `Batch with id ${selectionBatch.batch?.id} has different product than OrderInvoiceDetail`,
+              },
+            });
+          }
+        }
+
+        const areaId = selectionBatches[0]?.batch?.area?.id;
+        const area = areaId ? areaMap.get(areaId) : null;
+        if (!area) {
+          throw new UnprocessableEntityException({
+            status: HttpStatus.UNPROCESSABLE_ENTITY,
+            errors: {
+              area: `Area with id ${areaId} not found`,
+            },
+          });
+        }
+
+        // Create export ticket
+        const exportTicket = await this.exportTicketRepository.create({
+          exportDate: new Date(),
+          unit: detail.orderInvoiceDetail.unit,
+          quantity: detail.orderInvoiceDetail.quantity,
+        });
+
+        // Calculate amounts from selections and update them in parallel
+        let amountSelected = 0;
+        let amountMoney = 0;
+        const selectionUpdatePromises = selectionBatches.map(
+          (selectionBatch) => {
+            amountSelected += selectionBatch.quantity || 0;
+            amountMoney +=
+              (selectionBatch.quantity || 0) * (selectionBatch.unitPrice || 0);
+            return this.orderDetailSelectionsRepository.update(
+              selectionBatch.id,
+              {
+                exportTicket,
+              },
+            );
+          },
+        );
+
+        await Promise.all(selectionUpdatePromises);
+
+        // Update order invoice detail with export ticket and calculated amounts
+        detail.orderInvoiceDetail.exportTicket = exportTicket;
+        detail.orderInvoiceDetail.amount = amountMoney;
+        detail.orderInvoiceDetail.quantity = amountSelected;
+        await this.orderInvoiceDetailRepository.update(
+          detail.orderInvoiceDetail.id,
+          {
+            exportTicket,
+            amount: amountMoney,
+            quantity: amountSelected,
+          },
+        );
+
+        // Recalculate totals with actual selection amounts
+        totalAmount += amountMoney;
+
+        // Update area quantity
+        area.quantity = (area.quantity || 0) - amountSelected;
+        await this.areasService.update(area.id, { quantity: area.quantity });
+      }
+
+      // Recalculate VAT with updated totals
+      vatAmount = totalAmount * ((oi.taxRate || 0) / 100);
+      vatAmount = Math.round(vatAmount * 100) / 100;
     }
 
-    let vatAmount = totalAmount * ((oi.taxRate || 0) / 100);
-    // Round to 2 decimal places
-    vatAmount = Math.round(vatAmount * 100) / 100;
     const totalPayment = totalAmount + vatAmount;
 
-    oi.vatAmount = vatAmount;
-    oi.totalPayment = totalPayment;
-    oi.totalAmount = totalAmount;
-    oi.quantity = quantity;
+    // 7. Update invoice
+    await this.orderInvoiceRepository.update(oi.id, {
+      vatAmount,
+      totalPayment,
+      totalAmount,
+      quantity,
+    });
 
-    await this.orderInvoiceRepository.update(oi.id, oi);
-
-    // Create export tickets if flag is set and there are invoice details with selectionIds
-    if (createdInvoiceDetailsWithSelections.length > 0) {
-      await this.exportTicketsService.create({
-        invoiceDetails: createdInvoiceDetailsWithSelections.map((detail) => ({
-          orderInvoiceDetailId: detail.orderInvoiceDetailId,
-          selectionId: detail.selectionIds,
-        })),
-      });
-    }
-
+    // 8. Update order schedule status if needed
     if (os.status === OrderScheduleStatusEnum.APPROVED) {
       await this.orderScheduleService.updateStatus(
         os.id,

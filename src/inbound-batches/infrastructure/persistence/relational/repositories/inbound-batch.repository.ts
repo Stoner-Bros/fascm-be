@@ -39,6 +39,7 @@ export class InboundBatchRelationalRepository
         'inboundBatch.harvestInvoiceDetail',
         'harvestInvoiceDetail',
       )
+      .leftJoinAndSelect('harvestInvoiceDetail.product', 'product')
       .leftJoinAndSelect('inboundBatch.importTicket', 'importTicket')
       .leftJoin(
         'harvest_invoice',

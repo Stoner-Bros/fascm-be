@@ -3,9 +3,11 @@ import {
   // do not remove this comment
   Module,
 } from '@nestjs/common';
+import { AreasModule } from 'src/areas/areas.module';
 import { ExportTicketsModule } from 'src/export-tickets/export-tickets.module';
 import { FilesCloudinaryModule } from 'src/files/infrastructure/uploader/cloudinary/files.module';
 import { ImageProofsModule } from 'src/image-proofs/image-proofs.module';
+import { OrderDetailSelectionsModule } from 'src/order-detail-selections/order-detail-selections.module';
 import { OrderInvoiceDetailsModule } from 'src/order-invoice-details/order-invoice-details.module';
 import { OrderInvoicesModule } from 'src/order-invoices/order-invoices.module';
 import { ProductsModule } from 'src/products/products.module';
@@ -24,6 +26,8 @@ import { OrderPhasesService } from './order-phases.service';
     OrderInvoicesModule,
     OrderInvoiceDetailsModule,
     forwardRef(() => ExportTicketsModule),
+    forwardRef(() => OrderDetailSelectionsModule),
+    forwardRef(() => AreasModule),
 
     // do not remove this comment
     RelationalOrderPhasePersistenceModule,
