@@ -100,18 +100,26 @@ export class StatisticsService {
   ): Promise<OverviewStatisticsDto> {
     const { start, end } = this.getDateRange(startDate, endDate);
 
-    // Total revenue from order invoices
+    // Total revenue from order invoices (only completed phases)
     const revenueResult = await this.orderInvoiceRepository
       .createQueryBuilder('oi')
+      .leftJoin('oi.orderPhase', 'op')
       .select('COALESCE(SUM(oi.totalPayment), 0)', 'total')
       .where('oi.createdAt BETWEEN :start AND :end', { start, end })
+      .andWhere('op.status = :completedStatus', {
+        completedStatus: 'completed',
+      })
       .getRawOne();
 
-    // Total purchase cost from harvest invoices
+    // Total purchase cost from harvest invoices (only completed phases)
     const costResult = await this.harvestInvoiceRepository
       .createQueryBuilder('hi')
+      .leftJoin('hi.harvestPhase', 'hp')
       .select('COALESCE(SUM(hi.totalPayment), 0)', 'total')
       .where('hi.createdAt BETWEEN :start AND :end', { start, end })
+      .andWhere('hp.status = :completedStatus', {
+        completedStatus: 'completed',
+      })
       .getRawOne();
 
     // Total orders
@@ -181,11 +189,15 @@ export class StatisticsService {
       .groupBy('os.status')
       .getRawMany();
 
-    // Total revenue
+    // Total revenue (only completed phases)
     const revenueResult = await this.orderInvoiceRepository
       .createQueryBuilder('oi')
+      .leftJoin('oi.orderPhase', 'op')
       .select('COALESCE(SUM(oi.totalPayment), 0)', 'total')
       .where('oi.createdAt BETWEEN :start AND :end', { start, end })
+      .andWhere('op.status = :completedStatus', {
+        completedStatus: 'completed',
+      })
       .getRawOne();
 
     const totalRevenue = parseFloat(revenueResult?.total || '0');
@@ -222,11 +234,15 @@ export class StatisticsService {
       .groupBy('hs.status')
       .getRawMany();
 
-    // Total purchase amount
+    // Total purchase amount (only completed phases)
     const purchaseResult = await this.harvestInvoiceRepository
       .createQueryBuilder('hi')
+      .leftJoin('hi.harvestPhase', 'hp')
       .select('COALESCE(SUM(hi.totalPayment), 0)', 'total')
       .where('hi.createdAt BETWEEN :start AND :end', { start, end })
+      .andWhere('hp.status = :completedStatus', {
+        completedStatus: 'completed',
+      })
       .getRawOne();
 
     // Total quantity harvested
@@ -593,22 +609,30 @@ export class StatisticsService {
         break;
     }
 
-    // Revenue trend
+    // Revenue trend (only completed phases)
     const revenueData = await this.orderInvoiceRepository
       .createQueryBuilder('oi')
+      .leftJoin('oi.orderPhase', 'op')
       .select(`TO_CHAR(oi.createdAt, '${dateFormat}')`, 'period')
       .addSelect('COALESCE(SUM(oi.totalPayment), 0)', 'revenue')
       .where('oi.createdAt BETWEEN :start AND :end', { start, end })
+      .andWhere('op.status = :completedStatus', {
+        completedStatus: 'completed',
+      })
       .groupBy(`TO_CHAR(oi.createdAt, '${dateFormat}')`)
       .orderBy('period', 'ASC')
       .getRawMany();
 
-    // Cost trend
+    // Cost trend (only completed phases)
     const costData = await this.harvestInvoiceRepository
       .createQueryBuilder('hi')
+      .leftJoin('hi.harvestPhase', 'hp')
       .select(`TO_CHAR(hi.createdAt, '${dateFormat}')`, 'period')
       .addSelect('COALESCE(SUM(hi.totalPayment), 0)', 'cost')
       .where('hi.createdAt BETWEEN :start AND :end', { start, end })
+      .andWhere('hp.status = :completedStatus', {
+        completedStatus: 'completed',
+      })
       .groupBy(`TO_CHAR(hi.createdAt, '${dateFormat}')`)
       .orderBy('period', 'ASC')
       .getRawMany();
