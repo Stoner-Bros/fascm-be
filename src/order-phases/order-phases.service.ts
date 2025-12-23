@@ -351,9 +351,13 @@ export class OrderPhasesService {
   findAllByScheduleWithPagination({
     orderScheduleId,
     paginationOptions,
+    filters,
   }: {
     orderScheduleId: string;
     paginationOptions: IPaginationOptions;
+    filters?: {
+      deliveryStaffId?: string;
+    };
   }) {
     return this.orderPhaseRepository.findAllByScheduleWithPagination({
       scheduleId: orderScheduleId,
@@ -361,6 +365,7 @@ export class OrderPhasesService {
         page: paginationOptions.page,
         limit: paginationOptions.limit,
       },
+      filters,
     });
   }
 

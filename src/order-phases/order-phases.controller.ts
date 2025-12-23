@@ -116,6 +116,9 @@ export class OrderPhasesController {
           page,
           limit,
         },
+        filters: {
+          deliveryStaffId: query?.deliveryStaffId,
+        },
       }),
       { page, limit },
     );

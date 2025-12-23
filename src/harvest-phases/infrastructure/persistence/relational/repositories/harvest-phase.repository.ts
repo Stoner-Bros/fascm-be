@@ -63,9 +63,13 @@ export class HarvestPhaseRelationalRepository
   async findAllByScheduleWithPagination({
     scheduleId,
     paginationOptions,
+    filters,
   }: {
     scheduleId: string;
     paginationOptions: IPaginationOptions;
+    filters?: {
+      deliveryStaffId?: string;
+    };
   }): Promise<HarvestPhaseResponse[]> {
     const qb = this.harvestPhaseRepository.createQueryBuilder('hp');
     qb.leftJoinAndSelect('hp.harvestInvoice', 'harvestInvoice');
@@ -76,8 +80,15 @@ export class HarvestPhaseRelationalRepository
     qb.leftJoinAndSelect('harvestInvoiceDetails.product', 'product');
     qb.leftJoinAndSelect('hp.imageProof', 'imageProof');
     qb.leftJoinAndSelect('imageProof.photo', 'photo');
+    qb.leftJoin(DeliveryEntity, 'delivery', 'delivery.harvestPhaseId = hp.id');
 
     qb.where('hp.harvestScheduleId = :scheduleId', { scheduleId });
+
+    if (filters?.deliveryStaffId) {
+      qb.andWhere('delivery.deliveryStaffId = :deliveryStaffId', {
+        deliveryStaffId: filters.deliveryStaffId,
+      });
+    }
 
     // order by phase number ascending
     qb.orderBy('hp.phaseNumber', 'ASC');

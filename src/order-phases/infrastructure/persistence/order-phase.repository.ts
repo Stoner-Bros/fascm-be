@@ -22,9 +22,13 @@ export abstract class OrderPhaseRepository {
   abstract findAllByScheduleWithPagination({
     scheduleId,
     paginationOptions,
+    filters,
   }: {
     scheduleId: string;
     paginationOptions: IPaginationOptions;
+    filters?: {
+      deliveryStaffId?: string;
+    };
   }): Promise<OrderPhaseResponse[]>;
 
   abstract findFullById(

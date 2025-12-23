@@ -69,9 +69,13 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
   async findAllByScheduleWithPagination({
     scheduleId,
     paginationOptions,
+    filters,
   }: {
     scheduleId: string;
     paginationOptions: IPaginationOptions;
+    filters?: {
+      deliveryStaffId?: string;
+    };
   }): Promise<OrderPhaseResponse[]> {
     const qb = this.orderPhaseRepository.createQueryBuilder('op');
     qb.leftJoinAndSelect('op.orderInvoice', 'orderInvoice');
@@ -89,8 +93,15 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
     qb.leftJoinAndSelect('orderDetailSelections.batch', 'batch');
     qb.leftJoinAndSelect('op.imageProof', 'imageProof');
     qb.leftJoinAndSelect('imageProof.photo', 'photo');
+    qb.leftJoin(DeliveryEntity, 'delivery', 'delivery.orderPhaseId = op.id');
 
     qb.where('op.orderScheduleId = :scheduleId', { scheduleId });
+
+    if (filters?.deliveryStaffId) {
+      qb.andWhere('delivery.deliveryStaffId = :deliveryStaffId', {
+        deliveryStaffId: filters.deliveryStaffId,
+      });
+    }
 
     qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
     qb.take(paginationOptions.limit);

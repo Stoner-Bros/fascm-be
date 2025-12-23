@@ -178,9 +178,13 @@ export class HarvestPhasesService {
   findAllByScheduleWithPagination({
     harvestScheduleId,
     paginationOptions,
+    filters,
   }: {
     harvestScheduleId: string;
     paginationOptions: IPaginationOptions;
+    filters?: {
+      deliveryStaffId?: string;
+    };
   }) {
     return this.harvestPhaseRepository.findAllByScheduleWithPagination({
       scheduleId: harvestScheduleId,
@@ -188,6 +192,7 @@ export class HarvestPhasesService {
         page: paginationOptions.page,
         limit: paginationOptions.limit,
       },
+      filters,
     });
   }
 
