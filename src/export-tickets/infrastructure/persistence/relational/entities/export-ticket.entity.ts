@@ -3,9 +3,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { OrderDetailSelectionEntity } from '../../../../../order-detail-selections/infrastructure/persistence/relational/entities/order-detail-selection.entity';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
 @Entity({
@@ -29,6 +31,12 @@ export class ExportTicketEntity extends EntityRelationalHelper {
     type: Date,
   })
   exportDate?: Date | null;
+
+  @OneToMany(
+    () => OrderDetailSelectionEntity,
+    (orderDetailSelection) => orderDetailSelection.exportTicket,
+  )
+  orderDetailSelections?: OrderDetailSelectionEntity[];
 
   @PrimaryColumn({
     type: String,

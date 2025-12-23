@@ -5,6 +5,8 @@ import { ProductMapper } from '../../../../../products/infrastructure/persistenc
 
 import { OrderInvoiceMapper } from '../../../../../order-invoices/infrastructure/persistence/relational/mappers/order-invoice.mapper';
 
+import { OrderDetailSelectionMapper } from '../../../../../order-detail-selections/infrastructure/persistence/relational/mappers/order-detail-selection.mapper';
+import { OrderDetailSelectionEntity } from '../../../../../order-detail-selections/infrastructure/persistence/relational/entities/order-detail-selection.entity';
 import { OrderInvoiceDetailResponse } from 'src/order-invoice-details/dto/order-invoice-detail-response';
 import { OrderInvoiceDetailEntity } from '../entities/order-invoice-detail.entity';
 
@@ -89,7 +91,10 @@ export class OrderInvoiceDetailMapper {
     return persistenceEntity;
   }
 
-  static toResponse(raw: OrderInvoiceDetailEntity): OrderInvoiceDetailResponse {
+  static toResponse(
+    raw: OrderInvoiceDetailEntity,
+    orderDetailSelections?: OrderDetailSelectionEntity[],
+  ): OrderInvoiceDetailResponse {
     const responseEntity = new OrderInvoiceDetailResponse();
 
     responseEntity.amount = raw.amount;
@@ -103,6 +108,15 @@ export class OrderInvoiceDetailMapper {
       responseEntity.product = ProductMapper.toResponse(raw.product);
     } else if (raw.product === null) {
       responseEntity.product = null;
+    }
+
+    // Map orderDetailSelections if provided
+    if (orderDetailSelections && orderDetailSelections.length > 0) {
+      responseEntity.orderDetailSelections = orderDetailSelections.map(
+        (selection) => OrderDetailSelectionMapper.toResponse(selection),
+      );
+    } else {
+      responseEntity.orderDetailSelections = [];
     }
 
     responseEntity.id = raw.id;

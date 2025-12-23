@@ -37,6 +37,12 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
       'orderInvoiceDetails',
     );
     qb.leftJoinAndSelect('orderInvoiceDetails.product', 'product');
+    qb.leftJoinAndSelect('orderInvoiceDetails.exportTicket', 'exportTicket');
+    qb.leftJoinAndSelect(
+      'exportTicket.orderDetailSelections',
+      'orderDetailSelections',
+    );
+    qb.leftJoinAndSelect('orderDetailSelections.batch', 'batch');
     qb.leftJoinAndSelect('op.imageProof', 'imageProof');
     qb.leftJoinAndSelect('imageProof.photo', 'photo');
 
@@ -63,6 +69,12 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
       'orderInvoiceDetails',
     );
     qb.leftJoinAndSelect('orderInvoiceDetails.product', 'product');
+    qb.leftJoinAndSelect('orderInvoiceDetails.exportTicket', 'exportTicket');
+    qb.leftJoinAndSelect(
+      'exportTicket.orderDetailSelections',
+      'orderDetailSelections',
+    );
+    qb.leftJoinAndSelect('orderDetailSelections.batch', 'batch');
     qb.leftJoinAndSelect('op.imageProof', 'imageProof');
     qb.leftJoinAndSelect('imageProof.photo', 'photo');
 
@@ -86,6 +98,12 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
       'orderInvoiceDetails',
     );
     qb.leftJoinAndSelect('orderInvoiceDetails.product', 'product');
+    qb.leftJoinAndSelect('orderInvoiceDetails.exportTicket', 'exportTicket');
+    qb.leftJoinAndSelect(
+      'exportTicket.orderDetailSelections',
+      'orderDetailSelections',
+    );
+    qb.leftJoinAndSelect('orderDetailSelections.batch', 'batch');
     qb.leftJoinAndSelect('op.imageProof', 'imageProof');
     qb.leftJoinAndSelect('imageProof.photo', 'photo');
 

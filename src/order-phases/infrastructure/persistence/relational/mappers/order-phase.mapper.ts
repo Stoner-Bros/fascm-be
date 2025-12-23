@@ -93,14 +93,17 @@ export class OrderPhaseMapper {
       responseEntity.orderInvoice = OrderInvoiceMapper.toResponse(
         raw.orderInvoice,
       );
-      // Map harvest details if exists
+      // Map invoice details if exists
       if (
         raw.orderInvoice.orderInvoiceDetails &&
         Array.isArray(raw.orderInvoice.orderInvoiceDetails)
       ) {
         responseEntity.orderInvoiceDetails =
           raw.orderInvoice.orderInvoiceDetails.map((detail) =>
-            OrderInvoiceDetailMapper.toResponse(detail),
+            OrderInvoiceDetailMapper.toResponse(
+              detail,
+              detail.exportTicket?.orderDetailSelections,
+            ),
           );
       } else {
         responseEntity.orderInvoiceDetails = [];
