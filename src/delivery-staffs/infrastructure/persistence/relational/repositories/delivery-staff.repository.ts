@@ -27,12 +27,17 @@ export class DeliveryStaffRelationalRepository
 
   async findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { warehouseId?: string };
   }): Promise<DeliveryStaff[]> {
     const entities = await this.deliveryStaffRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
+      where: {
+        ...(filters?.warehouseId && { warehouse: { id: filters.warehouseId } }),
+      },
     });
 
     return entities.map((entity) => DeliveryStaffMapper.toDomain(entity));

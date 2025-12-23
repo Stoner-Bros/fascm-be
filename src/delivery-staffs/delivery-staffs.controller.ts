@@ -65,6 +65,7 @@ export class DeliveryStaffsController {
   async findAll(
     @Query() query: FindAllDeliveryStaffsDto,
   ): Promise<InfinityPaginationResponseDto<DeliveryStaff>> {
+    const warehouseId = query?.warehouseId;
     const page = query?.page ?? 1;
     let limit = query?.limit ?? 10;
     if (limit > 50) {
@@ -77,6 +78,7 @@ export class DeliveryStaffsController {
           page,
           limit,
         },
+        filters: { warehouseId },
       }),
       { page, limit },
     );

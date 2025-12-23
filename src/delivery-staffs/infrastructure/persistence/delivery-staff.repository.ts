@@ -10,8 +10,10 @@ export abstract class DeliveryStaffRepository {
 
   abstract findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { warehouseId?: string };
   }): Promise<DeliveryStaff[]>;
 
   abstract findById(

@@ -85,14 +85,17 @@ export class DeliveryStaffsService {
 
   findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: { warehouseId?: string };
   }) {
     return this.deliveryStaffRepository.findAllWithPagination({
       paginationOptions: {
         page: paginationOptions.page,
         limit: paginationOptions.limit,
       },
+      filters,
     });
   }
 
