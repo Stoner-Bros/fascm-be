@@ -63,6 +63,12 @@ export class BatchResponse {
   harvestDate?: Date | null;
 
   @ApiProperty({
+    type: () => Number,
+    nullable: true,
+  })
+  initQuantity?: number | null;
+
+  @ApiProperty({
     type: String,
   })
   id: string;

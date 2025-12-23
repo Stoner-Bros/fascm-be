@@ -126,6 +126,7 @@ export class BatchRelationalRepository implements BatchRepository {
         'supplier.id = harvestSchedule.supplierId',
       )
       .addSelect('supplier.gardenName', 'gardenName')
+      .addSelect('inboundBatch.quantity', 'initQuantity')
       .addSelect('harvestSchedule.harvestDate', 'harvestDate');
 
     if (areaId) {
@@ -150,6 +151,7 @@ export class BatchRelationalRepository implements BatchRepository {
       const response = BatchMapper.toResponse(entity);
       response.gardenName = result.raw[index]?.gardenName || null;
       response.harvestDate = result.raw[index]?.harvestDate || null;
+      response.initQuantity = result.raw[index]?.initQuantity || null;
       return response;
     });
   }
