@@ -26,6 +26,7 @@ type AreaAlertPayload = {
   alertType?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  data?: any;
 };
 
 type TruckAlertPayload = {
