@@ -342,6 +342,28 @@ export class HarvestSchedulesService {
 
     if (status === HarvestScheduleStatusEnum.APPROVED) {
       await this.approveNotification(harvestSchedule);
+
+      // Fill finalUnitPrice with expectedUnitPrice if not set
+      const harvestTicket =
+        await this.harvestTicketsRepository.findByHarvestScheduleId(id);
+      if (harvestTicket) {
+        const harvestDetails =
+          await this.harvestDetailsRepository.findByHarvestTicketId(
+            harvestTicket.id,
+          );
+        for (const detail of harvestDetails) {
+          if (
+            !detail?.finalUnitPriceAccepted &&
+            detail?.expectedUnitPrice != null
+          ) {
+            await this.harvestDetailsRepository.update(detail.id, {
+              finalUnitPrice: detail.expectedUnitPrice,
+              finalUnitPriceAccepted: true,
+            });
+          }
+        }
+      }
+
       const supplier = harvestSchedule?.supplier;
       if (supplier) {
         const debt = await this.debtsService.getDebtByPartnerId(

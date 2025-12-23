@@ -504,9 +504,41 @@ export class OrderSchedulesService {
       }
     }
 
-    // Send notification for rejection
+    // Send notification for rejection and restore batch quantities
     if (status === OrderScheduleStatusEnum.REJECTED) {
       await this.rejectNotification(orderSchedule, reason ?? '');
+
+      // Restore batch quantities from order detail selections
+      const order = await this.orderRepository.findByOSId(id);
+      if (order) {
+        const orderDetails = await this.orderDetailRepository.findByOrderId(
+          order.id,
+        );
+        if (orderDetails) {
+          for (const detail of orderDetails) {
+            const selections =
+              await this.orderDetailSelectionsService.findAllByOrderDetailId(
+                detail.id,
+              );
+            if (selections && selections.length > 0) {
+              for (const selection of selections) {
+                if (selection.batch && selection.quantity) {
+                  const batch = await this.batchesService.findById(
+                    selection.batch.id,
+                  );
+                  if (batch) {
+                    batch.currentQuantity =
+                      (batch.currentQuantity ?? 0) + selection.quantity;
+                    await this.batchesService.update(batch.id, {
+                      currentQuantity: batch.currentQuantity,
+                    });
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
 
     // Send notification for rejection
