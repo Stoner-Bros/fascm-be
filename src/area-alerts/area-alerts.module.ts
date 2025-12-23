@@ -8,6 +8,7 @@ import { AreaAlertsService } from './area-alerts.service';
 import { AreaAlertsController } from './area-alerts.controller';
 import { RelationalAreaAlertPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { IoTDevicesModule } from '../io-t-devices/io-t-devices.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
     // do not remove this comment
     RelationalAreaAlertPersistenceModule,
     forwardRef(() => NotificationsModule),
+    forwardRef(() => IoTDevicesModule),
   ],
   controllers: [AreaAlertsController],
   providers: [AreaAlertsService],
