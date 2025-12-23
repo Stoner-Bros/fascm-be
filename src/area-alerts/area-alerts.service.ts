@@ -12,6 +12,7 @@ import { IPaginationOptions } from '../utils/types/pagination-options';
 import { AreaAlert } from './domain/area-alert';
 import { Area } from '../areas/domain/area';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
+import { IoTGateway } from '../io-t-devices/iot.gateway';
 
 @Injectable()
 export class AreaAlertsService {
@@ -21,6 +22,7 @@ export class AreaAlertsService {
     // Dependencies here
     private readonly areaAlertRepository: AreaAlertRepository,
     private readonly notificationsGateway: NotificationsGateway,
+    private readonly ioTGateway: IoTGateway,
   ) {}
 
   async create(createAreaAlertDto: CreateAreaAlertDto) {
@@ -132,7 +134,7 @@ export class AreaAlertsService {
       area = null;
     }
 
-    return this.areaAlertRepository.update(id, {
+    const updated = await this.areaAlertRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
       status: updateAreaAlertDto.status,
@@ -143,6 +145,50 @@ export class AreaAlertsService {
 
       area,
     });
+
+    try {
+      if (
+        updateAreaAlertDto.status &&
+        updateAreaAlertDto.status.toLowerCase() === 'resolved'
+      ) {
+        const fullAlert = await this.findById(id);
+        const warehouseId = fullAlert?.area?.warehouse?.id;
+
+        if (warehouseId) {
+          const payload = {
+            id: String(fullAlert?.id),
+            type: 'area-alert',
+            title: 'areaAlert',
+            message: 'areaAlertResolved',
+            data: {
+              areaId: fullAlert?.area?.id,
+              warehouseId,
+              status: 'resolved',
+              alertType: fullAlert?.alertType ?? null,
+              currentTemperature: updateAreaAlertDto.currentTemperature,
+              currentHumidity: updateAreaAlertDto.currentHumidity,
+            },
+            timestamp: new Date().toISOString(),
+          };
+          this.notificationsGateway.notifyWarehouse(
+            String(warehouseId),
+            payload,
+          );
+
+          this.ioTGateway.broadcastAreaAlert({
+            id: String(fullAlert.id),
+            areaId: String(fullAlert.area?.id),
+            status: 'resolved',
+            message: 'areaAlertResolved',
+            alertType: fullAlert.alertType ?? null,
+            data: payload.data,
+            updatedAt: new Date().toISOString(),
+          });
+        }
+      }
+    } catch {}
+
+    return updated;
   }
 
   remove(id: AreaAlert['id']) {
