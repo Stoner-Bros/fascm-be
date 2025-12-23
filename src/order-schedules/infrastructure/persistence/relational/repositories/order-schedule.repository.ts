@@ -8,6 +8,7 @@ import { OrderSchedule } from '../../../../domain/order-schedule';
 import { OrderScheduleRepository } from '../../order-schedule.repository';
 import { OrderScheduleEntity } from '../entities/order-schedule.entity';
 import { OrderScheduleMapper } from '../mappers/order-schedule.mapper';
+import { DeliveryEntity } from 'src/deliveries/infrastructure/persistence/relational/entities/delivery.entity';
 
 @Injectable()
 export class OrderScheduleRelationalRepository
@@ -36,6 +37,7 @@ export class OrderScheduleRelationalRepository
     paginationOptions: IPaginationOptions;
     filters?: {
       status?: OrderSchedule['status'];
+      deliveryStaffId?: string;
     };
     sort?: 'ASC' | 'DESC';
   }): Promise<OrderScheduleResponse[]> {
@@ -49,9 +51,21 @@ export class OrderScheduleRelationalRepository
     );
     qb.leftJoinAndSelect('orderDetailSelections.batch', 'batch');
     qb.leftJoinAndSelect('orderDetails.product', 'product');
+    qb.leftJoinAndSelect('os.orderPhases', 'orderPhase');
+    qb.leftJoin(
+      DeliveryEntity,
+      'delivery',
+      'delivery.orderPhaseId = orderPhase.id',
+    );
 
     if (filters?.status) {
       qb.andWhere('os.status = :status', { status: filters.status });
+    }
+
+    if (filters?.deliveryStaffId) {
+      qb.andWhere('delivery.deliveryStaffId = :deliveryStaffId', {
+        deliveryStaffId: filters.deliveryStaffId,
+      });
     }
 
     // Check order schedule description contains warehouseId

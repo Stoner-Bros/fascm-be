@@ -11,8 +11,12 @@ export abstract class OrderPhaseRepository {
 
   abstract findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: {
+      deliveryStaffId?: string;
+    };
   }): Promise<OrderPhaseResponse[]>;
 
   abstract findAllByScheduleWithPagination({

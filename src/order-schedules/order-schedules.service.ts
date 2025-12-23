@@ -190,7 +190,10 @@ export class OrderSchedulesService {
   }: {
     warehouseId?: string;
     paginationOptions: IPaginationOptions;
-    filters?: { status?: OrderScheduleStatusEnum };
+    filters?: {
+      status?: OrderScheduleStatusEnum;
+      deliveryStaffId?: string;
+    };
     sort?: 'ASC' | 'DESC';
   }) {
     return this.orderScheduleRepository.findAllWithPagination({

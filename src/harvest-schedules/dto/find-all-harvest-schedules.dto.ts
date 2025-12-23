@@ -32,6 +32,11 @@ export class FindAllHarvestSchedulesDto {
   @IsOptional()
   warehouseId?: string;
 
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  deliveryStaffId?: string;
+
   @ApiPropertyOptional({ enum: ['asc', 'desc'] })
   @Transform(({ value }) =>
     typeof value === 'string' ? value.toLowerCase() : undefined,

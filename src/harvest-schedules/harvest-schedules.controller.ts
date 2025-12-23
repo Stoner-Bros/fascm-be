@@ -72,6 +72,7 @@ export class HarvestSchedulesController {
     }
     const status = query?.status;
     const warehouseId = query?.warehouseId;
+    const deliveryStaffId = query?.deliveryStaffId;
     const sort = query?.sort === 'asc' ? 'ASC' : 'DESC';
 
     return infinityPagination(
@@ -80,7 +81,7 @@ export class HarvestSchedulesController {
           page,
           limit,
         },
-        filters: { status, warehouseId },
+        filters: { status, warehouseId, deliveryStaffId },
         sort,
       }),
       { page, limit },

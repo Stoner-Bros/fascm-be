@@ -11,8 +11,12 @@ export abstract class HarvestPhaseRepository {
 
   abstract findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: {
+      deliveryStaffId?: string;
+    };
   }): Promise<HarvestPhaseResponse[]>;
 
   abstract findAllByScheduleWithPagination({

@@ -37,4 +37,9 @@ export class FindAllOrderSchedulesDto {
   @IsIn(['asc', 'desc'])
   @IsOptional()
   sort?: 'asc' | 'desc';
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  deliveryStaffId?: string;
 }

@@ -89,6 +89,9 @@ export class HarvestPhasesController {
           page,
           limit,
         },
+        filters: {
+          deliveryStaffId: query?.deliveryStaffId,
+        },
       }),
       { page, limit },
     );

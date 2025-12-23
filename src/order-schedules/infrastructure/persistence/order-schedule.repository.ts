@@ -19,6 +19,7 @@ export abstract class OrderScheduleRepository {
     paginationOptions: IPaginationOptions;
     filters?: {
       status?: OrderSchedule['status'];
+      deliveryStaffId?: string;
     };
     sort?: 'ASC' | 'DESC';
   }): Promise<OrderScheduleResponse[]>;

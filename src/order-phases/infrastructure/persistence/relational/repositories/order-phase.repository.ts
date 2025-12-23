@@ -8,6 +8,7 @@ import { OrderPhase } from '../../../../domain/order-phase';
 import { OrderPhaseRepository } from '../../order-phase.repository';
 import { OrderPhaseEntity } from '../entities/order-phase.entity';
 import { OrderPhaseMapper } from '../mappers/order-phase.mapper';
+import { DeliveryEntity } from 'src/deliveries/infrastructure/persistence/relational/entities/delivery.entity';
 
 @Injectable()
 export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
@@ -26,8 +27,12 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
 
   async findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: {
+      deliveryStaffId?: string;
+    };
   }): Promise<OrderPhaseResponse[]> {
     const qb = this.orderPhaseRepository.createQueryBuilder('op');
     qb.leftJoinAndSelect('op.orderInvoice', 'orderInvoice');
@@ -45,6 +50,13 @@ export class OrderPhaseRelationalRepository implements OrderPhaseRepository {
     qb.leftJoinAndSelect('orderDetailSelections.batch', 'batch');
     qb.leftJoinAndSelect('op.imageProof', 'imageProof');
     qb.leftJoinAndSelect('imageProof.photo', 'photo');
+    qb.leftJoin(DeliveryEntity, 'delivery', 'delivery.orderPhaseId = op.id');
+
+    if (filters?.deliveryStaffId) {
+      qb.andWhere('delivery.deliveryStaffId = :deliveryStaffId', {
+        deliveryStaffId: filters.deliveryStaffId,
+      });
+    }
 
     qb.orderBy('DESC');
     qb.skip((paginationOptions.page - 1) * paginationOptions.limit);

@@ -9,6 +9,7 @@ import { HarvestScheduleStatusEnum } from '../../../../enum/harvest-schedule-sta
 import { HarvestScheduleRepository } from '../../harvest-schedule.repository';
 import { HarvestScheduleEntity } from '../entities/harvest-schedule.entity';
 import { HarvestScheduleMapper } from '../mappers/harvest-schedule.mapper';
+import { DeliveryEntity } from 'src/deliveries/infrastructure/persistence/relational/entities/delivery.entity';
 
 @Injectable()
 export class HarvestScheduleRelationalRepository
@@ -33,7 +34,11 @@ export class HarvestScheduleRelationalRepository
     sort,
   }: {
     paginationOptions: IPaginationOptions;
-    filters?: { status?: HarvestScheduleStatusEnum; warehouseId?: string };
+    filters?: {
+      status?: HarvestScheduleStatusEnum;
+      warehouseId?: string;
+      deliveryStaffId?: string;
+    };
     sort?: 'ASC' | 'DESC';
   }): Promise<HarvestScheduleResponse[]> {
     const qb = this.harvestScheduleRepository.createQueryBuilder('hs');
@@ -41,6 +46,12 @@ export class HarvestScheduleRelationalRepository
     qb.leftJoinAndSelect('hs.harvestTicket', 'harvestTicket');
     qb.leftJoinAndSelect('harvestTicket.harvestDetails', 'harvestDetails');
     qb.leftJoinAndSelect('harvestDetails.product', 'product');
+    qb.leftJoinAndSelect('hs.harvestPhases', 'harvestPhase');
+    qb.leftJoin(
+      DeliveryEntity,
+      'delivery',
+      'delivery.harvestPhaseId = harvestPhase.id',
+    );
 
     if (filters?.status) {
       qb.andWhere('hs.status = :status', { status: filters.status });
@@ -49,6 +60,12 @@ export class HarvestScheduleRelationalRepository
     if (filters?.warehouseId) {
       qb.andWhere('supplier.warehouseId = :warehouseId', {
         warehouseId: filters.warehouseId,
+      });
+    }
+
+    if (filters?.deliveryStaffId) {
+      qb.andWhere('delivery.deliveryStaffId = :deliveryStaffId', {
+        deliveryStaffId: filters.deliveryStaffId,
       });
     }
 

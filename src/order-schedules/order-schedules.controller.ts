@@ -80,7 +80,7 @@ export class OrderSchedulesController {
           page,
           limit,
         },
-        filters: { status },
+        filters: { status, deliveryStaffId: query?.deliveryStaffId },
         sort,
       }),
       { page, limit },

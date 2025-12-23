@@ -8,6 +8,7 @@ import { HarvestPhase } from '../../../../domain/harvest-phase';
 import { HarvestPhaseRepository } from '../../harvest-phase.repository';
 import { HarvestPhaseEntity } from '../entities/harvest-phase.entity';
 import { HarvestPhaseMapper } from '../mappers/harvest-phase.mapper';
+import { DeliveryEntity } from 'src/deliveries/infrastructure/persistence/relational/entities/delivery.entity';
 
 @Injectable()
 export class HarvestPhaseRelationalRepository
@@ -28,8 +29,12 @@ export class HarvestPhaseRelationalRepository
 
   async findAllWithPagination({
     paginationOptions,
+    filters,
   }: {
     paginationOptions: IPaginationOptions;
+    filters?: {
+      deliveryStaffId?: string;
+    };
   }): Promise<HarvestPhaseResponse[]> {
     const qb = this.harvestPhaseRepository.createQueryBuilder('hp');
     qb.leftJoinAndSelect('hp.harvestInvoice', 'harvestInvoice');
@@ -40,6 +45,13 @@ export class HarvestPhaseRelationalRepository
     qb.leftJoinAndSelect('harvestInvoiceDetails.product', 'product');
     qb.leftJoinAndSelect('hp.imageProof', 'imageProof');
     qb.leftJoinAndSelect('imageProof.photo', 'photo');
+    qb.leftJoin(DeliveryEntity, 'delivery', 'delivery.harvestPhaseId = hp.id');
+
+    if (filters?.deliveryStaffId) {
+      qb.andWhere('delivery.deliveryStaffId = :deliveryStaffId', {
+        deliveryStaffId: filters.deliveryStaffId,
+      });
+    }
 
     qb.skip((paginationOptions.page - 1) * paginationOptions.limit);
     qb.take(paginationOptions.limit);

@@ -111,7 +111,11 @@ export class HarvestSchedulesService {
     sort,
   }: {
     paginationOptions: IPaginationOptions;
-    filters?: { status?: HarvestScheduleStatusEnum; warehouseId?: string };
+    filters?: {
+      status?: HarvestScheduleStatusEnum;
+      warehouseId?: string;
+      deliveryStaffId?: string;
+    };
     sort?: 'ASC' | 'DESC';
   }) {
     return this.harvestScheduleRepository.findAllWithPagination({
