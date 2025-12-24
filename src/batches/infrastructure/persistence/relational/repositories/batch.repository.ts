@@ -125,9 +125,9 @@ export class BatchRelationalRepository implements BatchRepository {
         'supplier',
         'supplier.id = harvestSchedule.supplierId',
       )
-      .addSelect('supplier.gardenName', 'gardenName')
-      .addSelect('inboundBatch.quantity', 'initQuantity')
-      .addSelect('harvestSchedule.harvestDate', 'harvestDate');
+      .addSelect('supplier.gardenName', 'supplier_gardenName')
+      .addSelect('inboundBatch.quantity', 'inboundBatch_quantity')
+      .addSelect('harvestSchedule.harvestDate', 'harvestSchedule_harvestDate');
 
     if (areaId) {
       queryBuilder.andWhere('area.id = :areaId', { areaId });
@@ -147,11 +147,12 @@ export class BatchRelationalRepository implements BatchRepository {
 
     const result = await queryBuilder.getRawAndEntities();
 
-    return result.entities.map((entity, index) => {
+    return result.entities.map((entity) => {
       const response = BatchMapper.toResponse(entity);
-      response.gardenName = result.raw[index]?.gardenName || null;
-      response.harvestDate = result.raw[index]?.harvestDate || null;
-      response.initQuantity = result.raw[index]?.initQuantity || null;
+      const rawRecord = result.raw.find((raw) => raw.batch_id === entity.id);
+      response.gardenName = rawRecord?.supplier_gardenName || null;
+      response.harvestDate = rawRecord?.harvestSchedule_harvestDate || null;
+      response.initQuantity = rawRecord?.inboundBatch_quantity || null;
       return response;
     });
   }
